@@ -1,0 +1,23 @@
+#!/bin/bash
+
+if [ "$1" = "" ]; then
+	echo "Error: must provide name of migration to generate."
+	echo "For example: ./new_migration us_131_add_field_to_form"
+	exit 1
+fi
+
+filename=migrations/`date -u +%Y%m%d%H%M%S`_$1.rb
+# Camelcase for the class name, this regex could be simpler
+classname=`echo $1 | sed -e 's/_/ /g' | perl -pe 's/\b\w/\u\L$&/g;' | sed -e 's/ //g'`
+
+cat << EOF > $filename
+class $classname < ActiveRecord::Migration
+  def self.up
+  end
+
+  def self.down
+    raise ActiveRecord::IrreversibleMigration
+  end
+end
+EOF
+echo Created migration $filename

@@ -1,0 +1,44 @@
+This is a standalone version of the Rails migrations. For the migration system to work you need Ruby, Gems, and ActiveRecord installed.
+
+INSTALLATION
+------------
+Most Linux systems have pre-existing packages for Ruby and Ruby gems.
+Once Ruby and Gem is installed, as root run:
+gem install -y activerecord mysql
+
+cd config
+cp database_sample.yml database.yml
+edit database.yml (and change settings for your database)
+
+DOCUMENTATION
+-------------
+A good source to learn how to use migrations is:
+http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations
+or if you're lazy you can just use the execute method to execute raw SQL
+
+def self.up
+  execute "insert into foo values (123,'something');"
+end
+
+def self.down
+  execute "delete from foo where field='something';"
+end
+
+
+USAGE
+-----
+To create a new database migration run:
+
+./new_migration us_131_some_project
+
+This will create migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+
+edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+
+and fill in the up and down migrations. To apply your newest migration
+
+./migrate 
+
+To migrate to a specific version (for example to rollback)
+
+./migrate VERSION=20081220234130  
