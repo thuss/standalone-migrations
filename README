@@ -1,14 +1,17 @@
-This is a standalone version of the Rails migrations. For the migration system to work you need Ruby, Gems, and ActiveRecord installed.
+This is a standalone version of the Rails migrations. For the migration system to work you need Ruby, Gems, ActiveRecord, and a suitable database driver installed.
+
+I just got the this working to the point where it met my needs but if you'd like to contribute patches to make it better please do! One thing that would be great would be a new_migration script that works just like "script/generate migration"
 
 INSTALLATION
 ------------
-Most Linux systems have pre-existing packages for Ruby and Ruby gems.
-Once Ruby and Gem is installed, as root run:
+Most Linux systems have pre-existing packages for Ruby and Ruby gems so in most cases that should be pretty straightforward. Once Ruby and Gem is installed, as root run:
 gem install -y activerecord mysql
 
-cd config
+cd standalone-migrations/config
 cp database_sample.yml database.yml
 edit database.yml (and change settings for your database)
+cd ../
+./migrate (this will just create the schema_migrations table)
 
 DOCUMENTATION
 -------------
