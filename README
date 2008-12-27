@@ -21,7 +21,7 @@ cp database_sample.yml database.yml
 edit database.yml (and change settings for your database)
 cd ../
 rake db:migrate (this will just create the schema_migrations table)
-(If you're familiar with rails there are also the taks db:schema:dump and db:schema:load)
+(If you're familiar with rails there are also the tasks db:schema:dump and db:schema:load)
 
 DOCUMENTATION
 -------------
