@@ -1,17 +1,27 @@
-This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because while not all of my clients use Rails, I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, and a suitable database driver installed.
+This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because while not all of my clients use Rails, I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
 
-I just got the this working to the point where it met my needs but if you'd like to contribute patches to make it better please do! One thing that would be great would be a new_migration script that works just like "script/generate migration"
+I just got this working to the point where it met my needs but if you'd like to contribute patches to make it better please do! One thing that would be great would be a new_migration script that works just like "script/generate migration"
+
+CREDIT
+------
+This work isn't my own as it's based on Lincoln Stoll's blog post: http://lstoll.net/2008/04/stand-alone-activerecord-migrations/
+and David Welton's post http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails
+
+TODO
+----
+Replace new_migration script with a rake task
 
 INSTALLATION
 ------------
 Most Linux systems have pre-existing packages for Ruby and Ruby gems so in most cases that should be pretty straightforward. Once Ruby and Gem is installed, as root run:
-gem install -y activerecord mysql
+gem install -y activerecord rake mysql
 
 cd standalone-migrations/config
 cp database_sample.yml database.yml
 edit database.yml (and change settings for your database)
 cd ../
-./migrate (this will just create the schema_migrations table)
+rake db:migrate (this will just create the schema_migrations table)
+(If you're familiar with rails there are also the taks db:schema:dump and db:schema:load)
 
 DOCUMENTATION
 -------------
@@ -40,8 +50,8 @@ edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
 
 and fill in the up and down migrations. To apply your newest migration
 
-./migrate 
+rake db:migrate
 
 To migrate to a specific version (for example to rollback)
 
-./migrate VERSION=20081220234130  
+rake db:migrate VERSION=20081220234130  
