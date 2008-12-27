@@ -1,4 +1,4 @@
-This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because while not all of my clients use Rails, I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
+This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because while not all of my projects are on Rails but I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
 
 I just got this working to the point where it met my needs but if you'd like to contribute patches to make it better please do! One thing that would be great would be a new_migration script that works just like "script/generate migration"
 
