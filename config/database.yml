@@ -1,5 +1,0 @@
-adapter: mysql
-database: csm_drupal
-username: root
-password: 
-host: localhost
