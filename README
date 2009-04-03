@@ -45,9 +45,14 @@ USAGE
 -----
 To create a new database migration run:
 
-./new_migration us_131_some_project
+rake db:new_migration name="us_131_some_project"
 
 This will create migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+
+or also like:
+
+rake db:new_migration name=FooBarMigration
+
 
 edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
 
