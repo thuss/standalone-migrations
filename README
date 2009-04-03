@@ -12,7 +12,7 @@ and David Welton's post http://journal.dedasys.com/2007/01/28/using-migrations-o
 
 TODO
 ----
-Replace new_migration script with a rake task
+
 
 INSTALLATION
 ------------
@@ -57,4 +57,4 @@ rake db:migrate
 
 To migrate to a specific version (for example to rollback)
 
-rake db:migrate VERSION=20081220234130  
+rake db:migrate VERSION=20081220234130
