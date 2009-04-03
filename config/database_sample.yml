@@ -1,5 +1,0 @@
-adapter: mysql
-database: some_database
-username: root
-password: 
-host: localhost
