@@ -9,16 +9,9 @@ USAGE
 -----
 To create a new database migration run:
 
-rake db:new_migration name="us_131_some_project"
-
-This will create migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
-
-or also like:
-
 rake db:new_migration name=FooBarMigration
 
-
-edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+edit migrations/20081220234130_foo_bar_migration.rb
 
 and fill in the up and down migrations. To apply your newest migration
 
@@ -53,7 +46,7 @@ DOCUMENTATION
 -------------
 A good source to learn how to use migrations is:
 http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations
-or if you're lazy you can just use the execute method to execute raw SQL
+or if you're lazy and want to just execute raw SQL
 
 def self.up
   execute "insert into foo values (123,'something');"
