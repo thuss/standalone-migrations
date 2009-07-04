@@ -1,9 +1,34 @@
+STANDALONE MIGRATIONS
+---------------------
 This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because not all of my projects are on Rails but I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
 
 I just got this working to the point where it met my needs but if you'd like to contribute patches to make it better please do! One thing that would be great would be a new_migration script that works just like "script/generate migration"
 
 Email me at todd dot huss dot work at gmail dot com if you have a patch that adds functionality or fixes a bug. Or post a comment here:
 http://gabrito.com/post/standalone-migrations-using-rails-migrations-in-non-rails-projects
+
+USAGE
+-----
+To create a new database migration run:
+
+rake db:new_migration name="us_131_some_project"
+
+This will create migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+
+or also like:
+
+rake db:new_migration name=FooBarMigration
+
+
+edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
+
+and fill in the up and down migrations. To apply your newest migration
+
+rake db:migrate
+
+To migrate to a specific version (for example to rollback)
+
+rake db:migrate VERSION=20081220234130
 
 CREDIT
 ------
@@ -16,7 +41,7 @@ TODO
 
 INSTALLATION
 ------------
-Most Linux systems have pre-existing packages for Ruby and Ruby gems so in most cases that should be pretty straightforward. Once Ruby and Gem is installed, as root run:
+Many systems have pre-existing packages for Ruby and Ruby gems so in most cases that should be pretty straightforward. Once Ruby and Gem is installed, as root run:
 gem install -y activerecord rake mysql
 
 cd standalone-migrations/config
@@ -41,25 +66,3 @@ def self.down
 end
 
 
-USAGE
------
-To create a new database migration run:
-
-rake db:new_migration name="us_131_some_project"
-
-This will create migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
-
-or also like:
-
-rake db:new_migration name=FooBarMigration
-
-
-edit migrations/XXXXXXXXXXXXXX_us_131_some_project.rb
-
-and fill in the up and down migrations. To apply your newest migration
-
-rake db:migrate
-
-To migrate to a specific version (for example to rollback)
-
-rake db:migrate VERSION=20081220234130
