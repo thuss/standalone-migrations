@@ -10,7 +10,6 @@ USAGE
 To create a new database migration run:
 
 rake db:new_migration name=FooBarMigration
-
 edit migrations/20081220234130_foo_bar_migration.rb
 
 and fill in the up and down migrations. To apply your newest migration
@@ -25,10 +24,6 @@ CREDIT
 ------
 This work is based on Lincoln Stoll's blog post: http://lstoll.net/2008/04/stand-alone-activerecord-migrations/
 and David Welton's post http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails
-
-TODO
-----
-
 
 INSTALLATION
 ------------
