@@ -6,7 +6,9 @@ Dir["#{APP_BASE}/**/lib"].each { |p| $: << p }
 namespace :db do
   task :ar_init do
     require 'active_record'
-    ActiveRecord::Base.establish_connection(YAML::load(File.open('config/database.yml')))
+    ENV['RAILS_ENV'] ||= 'development'
+    config = YAML.load_file(APP_BASE + '/config/database.yml')[ENV['RAILS_ENV']]
+    ActiveRecord::Base.establish_connection(config)
     logger = Logger.new $stderr
     logger.level = Logger::INFO
     ActiveRecord::Base.logger = logger
@@ -17,6 +19,7 @@ namespace :db do
     require 'migration_helpers/init'
     ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
     ActiveRecord::Migrator.migrate(APP_BASE + "/migrations/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+    Rake::Task[ "db:schema:dump" ].execute
   end
 
   namespace :schema do

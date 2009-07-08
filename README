@@ -20,6 +20,10 @@ To migrate to a specific version (for example to rollback)
 
 rake db:migrate VERSION=20081220234130
 
+To migrate a specific database (for example your "testing" database)
+
+rake db:migrate RAILS_ENV=test
+
 CREDIT
 ------
 This work is based on Lincoln Stoll's blog post: http://lstoll.net/2008/04/stand-alone-activerecord-migrations/
@@ -32,7 +36,7 @@ gem install -y activerecord rake mysql
 
 cd standalone-migrations/config
 cp database_sample.yml database.yml
-edit database.yml (and change settings for your database)
+edit database.yml (and change settings for your database, the development database is the default)
 cd ../
 rake db:migrate (this will just create the schema_migrations table)
 (If you're familiar with rails there are also the tasks db:schema:dump and db:schema:load)
