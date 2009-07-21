@@ -1,9 +1,13 @@
 STANDALONE MIGRATIONS
 ---------------------
-This is a tiny project that allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because not all of my projects are on Rails but I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
+This project allows you to use Rails migrations in non-Rails (and non Ruby) projects. I created it because not all of my projects are on Rails but I still think Rails migrations are the best way to manage a database schema. For this code to work you need Ruby, Gems, ActiveRecord, Rake and a suitable database driver installed.
 
 Email me at todd dot huss dot work at gmail dot com if you have a patch that adds functionality or fixes a bug. Or post a comment here:
 http://gabrito.com/post/standalone-migrations-using-rails-migrations-in-non-rails-projects
+
+TODO
+----
+Turn into a gem
 
 USAGE
 -----
