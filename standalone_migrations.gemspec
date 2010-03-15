@@ -17,7 +17,16 @@ Gem::Specification.new do |s|
   s.files = [
     ".gitignore",
      "README.markdown",
-     "Rakefile"
+     "Rakefile",
+     "VERSION",
+     "database.yml",
+     "lib/standalone_migrations.rb",
+     "standalone_migrations.gemspec",
+     "tasks/standalone_migrations.rake",
+     "vendor/migration_helpers/MIT-LICENSE",
+     "vendor/migration_helpers/README.markdown",
+     "vendor/migration_helpers/init.rb",
+     "vendor/migration_helpers/lib/migration_helper.rb"
   ]
   s.homepage = %q{http://github.com/thuss/standalone-migrations}
   s.rdoc_options = ["--charset=UTF-8"]
