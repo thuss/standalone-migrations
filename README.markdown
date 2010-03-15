@@ -7,9 +7,12 @@ Install Ruby, RubyGems then:
     sudo gem install standalone_migrations
 
 Add to `Rakefile` in your projects base directory:
-    require 'rubygems'
-    require 'standalone_migrations'
-    StandaloneMigrations.tasks
+    begin
+      require 'standalone_migrations'
+      StandaloneMigrations.tasks
+    rescue LoadError
+      puts 'gem install standalone_migrations to get db:migrate:* tasks!'
+    end
 
 Add database configuration to `config/database.yml` in your projects base directory e.g.:
     development:
