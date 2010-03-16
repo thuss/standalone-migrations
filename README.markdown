@@ -56,9 +56,14 @@ If you're lazy and want to just execute raw SQL:
 
     rake db:migrate RAILS_ENV=test
 
+### To execute a specific up/down of one single migration
+
+    rake db:migrate:up VERSION=20081220234130
+
 Contributors
 ============
 This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
 
  - [Todd Huss](http://gabrito.com/)
+ - [Steve Hodgkiss](http://stevehodgkiss.com/)`s [activerecord-migrator-standalone](http://github.com/stevehodgkiss/activerecord-migrator-standalone)
  - [Michael Grosser](http://pragmatig.wordpress.com)

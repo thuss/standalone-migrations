@@ -1,4 +1,5 @@
 APP_BASE = File.expand_path('.') unless defined? APP_BASE
+MIGRATIONS_DIR = APP_BASE + "/migrations/"
 
 # Add to load_path every "lib/" directory in vendor
 Dir["#{File.dirname(__FILE__)}/../vendor/**/lib"].each { |p| $LOAD_PATH << p }
@@ -18,8 +19,26 @@ namespace :db do
   task :migrate => :ar_init  do
     require "#{File.dirname(__FILE__)}/../vendor/migration_helpers/init"
     ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
-    ActiveRecord::Migrator.migrate(APP_BASE + "/migrations/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+    ActiveRecord::Migrator.migrate(MIGRATIONS_DIR, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
     Rake::Task[ "db:schema:dump" ].execute
+  end
+
+  namespace :migrate do
+    desc 'Runs the "up" for a given migration VERSION.'
+    task :up => :ar_init do
+      version = ENV["VERSION"] ? ENV["VERSION"].to_i : nil
+      raise "VERSION is required" unless version
+      ActiveRecord::Migrator.run(:up, MIGRATIONS_DIR, version)
+      Rake::Task["db:schema:dump"].execute
+    end
+
+    desc 'Runs the "down" for a given migration VERSION.'
+    task :down => :ar_init do
+      version = ENV["VERSION"] ? ENV["VERSION"].to_i : nil
+      raise "VERSION is required" unless version
+      ActiveRecord::Migrator.run(:down, MIGRATIONS_DIR, version)
+      Rake::Task["db:schema:dump"].execute
+    end
   end
 
   namespace :schema do
