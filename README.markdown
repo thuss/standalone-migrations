@@ -3,7 +3,7 @@ Rails migrations in non-Rails (and non Ruby) projects.
 USAGE
 =====
 Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
-    sudo gem install standalone_migrations
+    sudo gem install standalone-migrations
 
 Add to `Rakefile` in your projects base directory:
     begin
@@ -65,5 +65,5 @@ Contributors
 This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
 
  - [Todd Huss](http://gabrito.com/)
- - [Steve Hodgkiss](http://stevehodgkiss.com/)`s [activerecord-migrator-standalone](http://github.com/stevehodgkiss/activerecord-migrator-standalone)
  - [Michael Grosser](http://pragmatig.wordpress.com)
+ - [Steve Hodgkiss](http://stevehodgkiss.com/)`s [activerecord-migrator-standalone](http://github.com/stevehodgkiss/activerecord-migrator-standalone)
