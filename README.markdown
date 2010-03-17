@@ -3,7 +3,7 @@ Rails migrations in non-Rails (and non Ruby) projects.
 USAGE
 =====
 Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
-    sudo gem install standalone-migrations
+    sudo gem install standalone_migrations
 
 Add to `Rakefile` in your projects base directory:
     begin

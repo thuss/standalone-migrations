@@ -4,7 +4,7 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{standalone-migrations}
+  s.name = %q{standalone_migrations}
   s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
@@ -21,7 +21,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "database.yml",
      "lib/standalone_migrations.rb",
-     "standalone-migrations.gemspec",
+     "standalone_migrations.gemspec",
      "tasks/standalone_migrations.rake",
      "vendor/migration_helpers/MIT-LICENSE",
      "vendor/migration_helpers/README.markdown",
