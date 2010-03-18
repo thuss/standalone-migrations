@@ -7,13 +7,12 @@ Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) the
 
 Add to `Rakefile` in your projects base directory:
     begin
-      require 'standalone_migrations'
-      StandaloneMigrations.tasks
+      require 'tasks/standalone_migrations'
     rescue LoadError => e
       puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
     end
 
-Add database configuration to `config/database.yml` in your projects base directory e.g.:
+Add database configuration to `db/config.yml` in your projects base directory e.g.:
     development:
       adapter: mysql
       encoding: utf8
@@ -30,7 +29,7 @@ Add database configuration to `config/database.yml` in your projects base direct
 ### To create a new database migration:
 
     rake db:new_migration name=FooBarMigration
-    edit migrations/20081220234130_foo_bar_migration.rb
+    edit db/migrations/20081220234130_foo_bar_migration.rb
 
 ... and fill in the up and down migrations [Cheatsheet](http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations).
 
@@ -59,6 +58,12 @@ If you're lazy and want to just execute raw SQL:
 ### To execute a specific up/down of one single migration
 
     rake db:migrate:up VERSION=20081220234130
+
+### To overwrite the default options
+[Possible options](http://github.com/thuss/standalone-migrations/blob/master/tasks/standalone_migrations.rake)
+    MIGRATION_OPTIONS = {:config=>'database/config.yml', ... }
+    gem 'standalone_migrations'
+    require 'tasks/standalone_migrations'
 
 Contributors
 ============

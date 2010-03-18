@@ -9,6 +9,7 @@ begin
     gem.email = "thuss@gabrito.com"
     gem.homepage = "http://github.com/thuss/standalone-migrations"
     gem.authors = ["Todd Huss", "Michael Grosser"]
+    gem.files += ["lib/tasks/*"]
     %w[rake activerecord].each{|d| gem.add_dependency d}
   end
 

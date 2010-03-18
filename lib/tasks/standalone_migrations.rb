@@ -1,5 +1,4 @@
-# This file should stay copy-pasteable, so do not depend on StandaloneMigrations
-# Every important option can be overwritten with MIGRATION_OPTIONS
+# Every important should be overwriteable with MIGRATION_OPTIONS
 base = File.expand_path('.')
 here = File.expand_path(File.dirname(File.dirname(__FILE__)))
 
