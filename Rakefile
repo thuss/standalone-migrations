@@ -6,9 +6,9 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = 'standalone_migrations'
     gem.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
-    gem.email = "grosser.michael@gmail.com"
+    gem.email = "thuss@gabrito.com"
     gem.homepage = "http://github.com/thuss/standalone-migrations"
-    gem.authors = ["Michael Grosser"]
+    gem.authors = ["Todd Huss", "Michael Grosser"]
     %w[rake activerecord].each{|d| gem.add_dependency d}
   end
 

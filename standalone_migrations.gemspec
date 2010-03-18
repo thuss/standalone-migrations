@@ -5,12 +5,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{standalone_migrations}
-  s.version = "0.1.2"
+  s.version = "0.1.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Michael Grosser"]
+  s.authors = ["Todd Huss", "Michael Grosser"]
   s.date = %q{2010-03-17}
-  s.email = %q{grosser.michael@gmail.com}
+  s.email = %q{thuss@gabrito.com}
   s.extra_rdoc_files = [
     "README.markdown"
   ]
