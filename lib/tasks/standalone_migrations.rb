@@ -1,6 +1,6 @@
 # Every important should be overwriteable with MIGRATION_OPTIONS
 base = File.expand_path('.')
-here = File.expand_path(File.dirname(File.dirname(__FILE__)))
+here = File.expand_path(File.dirname(File.dirname(File.dirname((__FILE__)))))
 
 options = {
   :base => base,
