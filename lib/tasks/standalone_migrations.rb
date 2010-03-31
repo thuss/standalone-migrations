@@ -41,7 +41,7 @@ namespace :db do
       task direction => :ar_init do
         version = (ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         raise "VERSION is required" unless version
-        ActiveRecord::Migrator.run(direction, MIGRATIONS_DIR, version)
+        ActiveRecord::Migrator.run(direction, options[:migrations], version)
         Rake::Task["db:schema:dump"].execute
       end
     end
