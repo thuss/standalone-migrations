@@ -65,19 +65,11 @@ namespace :db do
 
   desc "Create a new migration"
   task :new_migration do |t|
-    unless ENV['name']
+    unless migration = ENV['name']
       puts "Error: must provide name of migration to generate."
       puts "For example: rake #{t.name} name=add_field_to_form"
       exit 1
     end
-
-    underscore = lambda{|camel_cased_word|
-      camel_cased_word.to_s.gsub(/::/, '/').
-      gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-      gsub(/([a-z\d])([A-Z])/,'\1_\2').
-      tr("-", "_").
-      downcase
-    }
 
     class_name = migration.split('_').map{|s| s.capitalize }.join
     file_contents = <<eof
@@ -91,7 +83,6 @@ class #{class_name} < ActiveRecord::Migration
 end
 eof
 
-    migration  = underscore.call( ENV['name'] )
     FileUtils.mkdir_p(options[:migrations]) unless File.exist?(options[:migrations])
     file_name  = "#{options[:migrations]}/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{migration}.rb"
 
