@@ -20,8 +20,10 @@ namespace :db do
   task :ar_init do
     require 'active_record'
     ENV[options[:env]] ||= options[:default_env]
-    config = YAML.load_file(options[:config])[ENV[options[:env]]]
-    ActiveRecord::Base.establish_connection(config)
+
+    require 'erb'
+    ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(options[:config])).result)
+    ActiveRecord::Base.establish_connection(ENV[options[:env]])
     logger = Logger.new $stderr
     logger.level = Logger::INFO
     ActiveRecord::Base.logger = logger
@@ -46,6 +48,19 @@ namespace :db do
       end
     end
   end
+  
+  desc "Raises an error if there are pending migrations"
+  task :abort_if_pending_migrations => :ar_init do
+    pending_migrations = ActiveRecord::Migrator.new(:up, options[:migrations]).pending_migrations
+
+    if pending_migrations.any?
+      puts "You have #{pending_migrations.size} pending migrations:"
+      pending_migrations.each do |pending_migration|
+        puts '  %4d %s' % [pending_migration.version, pending_migration.name]
+      end
+      abort %{Run "rake db:migrate" to update your database then try again.}
+    end
+  end
 
   namespace :schema do
     desc "Create schema.rb file that can be portably used against any DB supported by AR"
@@ -61,6 +76,49 @@ namespace :db do
       file = ENV['SCHEMA'] || options[:schema]
       load(file)
     end
+  end
+
+  namespace :test do
+    desc "Recreate the test database from the current schema.rb"
+    task :load => ['db:ar_init', 'db:test:purge'] do
+      ActiveRecord::Base.establish_connection(ActiveRecord::Base.configurations['test'])
+      ActiveRecord::Schema.verbose = false
+      Rake::Task["db:schema:load"].invoke
+    end
+
+    desc "Empty the test database"
+    task :purge => 'db:ar_init' do
+      abcs = ActiveRecord::Base.configurations
+      case abcs["test"]["adapter"]
+      when "mysql"
+        ActiveRecord::Base.establish_connection(:test)
+        ActiveRecord::Base.connection.recreate_database(abcs["test"]["database"], abcs["test"])
+      when "postgresql"
+        ActiveRecord::Base.clear_active_connections!
+        drop_database(abcs['test'])
+        create_database(abcs['test'])
+      when "sqlite","sqlite3"
+        dbfile = abcs["test"]["database"] || abcs["test"]["dbfile"]
+        File.delete(dbfile) if File.exist?(dbfile)
+      when "sqlserver"
+        dropfkscript = "#{abcs["test"]["host"]}.#{abcs["test"]["database"]}.DP1".gsub(/\\/,'-')
+        `osql -E -S #{abcs["test"]["host"]} -d #{abcs["test"]["database"]} -i db\\#{dropfkscript}`
+        `osql -E -S #{abcs["test"]["host"]} -d #{abcs["test"]["database"]} -i db\\#{RAILS_ENV}_structure.sql`
+      when "oci", "oracle"
+        ActiveRecord::Base.establish_connection(:test)
+        ActiveRecord::Base.connection.structure_drop.split(";\n\n").each do |ddl|
+          ActiveRecord::Base.connection.execute(ddl)
+        end
+      when "firebird"
+        ActiveRecord::Base.establish_connection(:test)
+        ActiveRecord::Base.connection.recreate_database!
+      else
+        raise "Task not supported by '#{abcs["test"]["adapter"]}'"
+      end
+    end
+    
+    desc 'Check for pending migrations and load the test schema'
+    task :prepare => ['db:abort_if_pending_migrations', 'db:test:load']
   end
 
   desc "Create a new migration"
