@@ -24,6 +24,15 @@ describe 'Standalone migrations' do
     `cd spec/tmp && #{cmd} 2>&1`
   end
 
+  def make_migration(name)
+    migration = run("rake db:new_migration name=#{name}").match(%r{db/migrations/\d+.*.rb})[0]
+    content = read(migration)
+    content.sub!(/def self.down.*?\send/m, "def self.down;puts 'DOWN-#{name}';end")
+    content.sub!(/def self.up.*?\send/m, "def self.up;puts 'UP-#{name}';end")
+    write(migration, content)
+    migration.match(/\d{14}/)[0]
+  end
+
   before do
     `rm -rf spec/tmp` if File.exist?('spec/tmp')
     `mkdir spec/tmp`
@@ -68,20 +77,40 @@ describe 'Standalone migrations' do
 
   describe 'db:migrate:down' do
     it "migrates down" do
-      run "rake db:new_migration name=xxx"
+      make_migration('xxx')
       sleep 1
-      version = run("rake db:new_migration name=yyy").match(/\d+/)[0]
-      run "rake db:migrate"
-
-      [/xxx/,/yyy/].each_with_index do |mig, i|
-        migration = migration(mig)
-        write(migration, read(migration).sub(/def self.down.*?\send/m, "def self.down;puts 'STEP #{i}';end"))
-      end
+      version = make_migration('yyy')
+      run 'rake db:migrate'
 
       result = run("rake db:migrate:down VERSION=#{version}")
       result.should_not =~ /rake aborted/
-      result.should_not =~ /STEP 0/
-      result.should =~ /STEP 1/
+      result.should_not =~ /DOWN-xxx/
+      result.should =~ /DOWN-yyy/
+    end
+
+    it "fails without version" do
+      make_migration('yyy')
+      result = run("rake db:migrate:down")
+      result.should =~ /rake aborted/
+    end
+  end
+
+  describe 'db:migrate:up' do
+    it "migrates up" do
+      make_migration('xxx')
+      run 'rake db:migrate'
+      sleep 1
+      version = make_migration('yyy')
+      result = run("rake db:migrate:up VERSION=#{version}")
+      result.should_not =~ /rake aborted/
+      result.should_not =~ /UP-xxx/
+      result.should =~ /UP-yyy/
+    end
+
+    it "fails without version" do
+      make_migration('yyy')
+      result = run("rake db:migrate:up")
+      result.should =~ /rake aborted/
     end
   end
 end
