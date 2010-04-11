@@ -113,4 +113,23 @@ describe 'Standalone migrations' do
       result.should =~ /rake aborted/
     end
   end
+
+  describe 'schema:dump' do
+    it "dumps the schema" do
+      result = run('rake db:schema:dump')
+      result.should_not =~ /rake aborted/
+      read('db/schema.rb').should =~ /ActiveRecord/
+    end
+  end
+
+  describe 'db:schema:load' do
+    it "loads the schema" do
+      run('rake db:schema:dump')
+      schema = "db/schema.rb"
+      write(schema, read(schema)+"\nputs 'LOADEDDD'")
+      result = run('rake db:schema:load')
+      result.should_not =~ /rake aborted/
+      result.should =~ /LOADEDDD/
+    end
+  end
 end
