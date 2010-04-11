@@ -40,8 +40,8 @@ namespace :db do
     [:up, :down].each do |direction|
       desc "Runs the '#{direction}' for a given migration VERSION."
       task direction => :ar_init do
-        version = (ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
-        raise "VERSION is required" unless version
+        version = ENV["VERSION"].to_i
+        raise "VERSION is required (must be a number)" if version == 0
         ActiveRecord::Migrator.run(direction, options[:migrations], version)
         Rake::Task["db:schema:dump"].execute
       end
