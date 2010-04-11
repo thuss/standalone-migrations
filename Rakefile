@@ -1,3 +1,7 @@
+task :default => :spec
+require 'spec/rake/spectask'
+Spec::Rake::SpecTask.new {|t| t.spec_opts = ['--color']}
+
 # rake install -> install gem locally (for tests)
 # rake release -> push to github and release to gemcutter
 # rake version:bump:patch -> increase version and add a git-tag

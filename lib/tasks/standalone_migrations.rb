@@ -18,6 +18,7 @@ Dir["#{options[:vendor]}/**/lib"].each{|p| $LOAD_PATH << p }
 
 namespace :db do
   task :ar_init do
+    require 'logger'
     require 'active_record'
     ENV[options[:env]] ||= options[:default_env]
     config = YAML.load_file(options[:config])[ENV[options[:env]]]
@@ -68,7 +69,7 @@ namespace :db do
     unless migration = ENV['name']
       puts "Error: must provide name of migration to generate."
       puts "For example: rake #{t.name} name=add_field_to_form"
-      exit 1
+      abort
     end
 
     class_name = migration.split('_').map{|s| s.capitalize }.join
