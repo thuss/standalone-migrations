@@ -21,7 +21,7 @@ describe 'Standalone migrations' do
   end
 
   def run(cmd)
-    `cd spec/tmp && #{cmd} 2>&1`
+    `cd spec/tmp && #{cmd} 2>&1 && echo SUCCESS`
   end
 
   def make_migration(name)
@@ -48,12 +48,15 @@ describe 'Standalone migrations' do
       development:
         adapter: sqlite3
         database: db/development.sql
+      test:
+        adapter: sqlite3
+        database: db/test.sql
     TXT
   end
 
   describe 'db:new_migration' do
     it "fails if i do not add a name" do
-      run("rake db:new_migration").should =~ /Error/
+      run("rake db:new_migration").should_not =~ /SUCCESS/
     end
 
     it "generates a new migration with this name and timestamp" do
@@ -64,13 +67,13 @@ describe 'Standalone migrations' do
 
   describe 'db:migrate' do
     it "does nothing when no migrations are present" do
-      run("rake db:migrate").should_not =~ /rake aborted/
+      run("rake db:migrate").should =~ /SUCCESS/
     end
 
     it "migrates if i add a migration" do
       run("rake db:new_migration name=xxx")
       result = run("rake db:migrate")
-      result.should_not =~ /rake aborted/
+      result.should =~ /SUCCESS/
       result.should =~ /Migrating to Xxx \(#{Time.now.year}/
     end
   end
@@ -83,7 +86,7 @@ describe 'Standalone migrations' do
       run 'rake db:migrate'
 
       result = run("rake db:migrate:down VERSION=#{version}")
-      result.should_not =~ /rake aborted/
+      result.should =~ /SUCCESS/
       result.should_not =~ /DOWN-xxx/
       result.should =~ /DOWN-yyy/
     end
@@ -91,7 +94,7 @@ describe 'Standalone migrations' do
     it "fails without version" do
       make_migration('yyy')
       result = run("rake db:migrate:down")
-      result.should =~ /rake aborted/
+      result.should_not =~ /SUCCESS/
     end
   end
 
@@ -102,7 +105,7 @@ describe 'Standalone migrations' do
       sleep 1
       version = make_migration('yyy')
       result = run("rake db:migrate:up VERSION=#{version}")
-      result.should_not =~ /rake aborted/
+      result.should =~ /SUCCESS/
       result.should_not =~ /UP-xxx/
       result.should =~ /UP-yyy/
     end
@@ -110,14 +113,14 @@ describe 'Standalone migrations' do
     it "fails without version" do
       make_migration('yyy')
       result = run("rake db:migrate:up")
-      result.should =~ /rake aborted/
+      result.should_not =~ /SUCCESS/
     end
   end
 
   describe 'schema:dump' do
     it "dumps the schema" do
       result = run('rake db:schema:dump')
-      result.should_not =~ /rake aborted/
+      result.should =~ /SUCCESS/
       read('db/schema.rb').should =~ /ActiveRecord/
     end
   end
@@ -128,8 +131,38 @@ describe 'Standalone migrations' do
       schema = "db/schema.rb"
       write(schema, read(schema)+"\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
-      result.should_not =~ /rake aborted/
+      result.should =~ /SUCCESS/
       result.should =~ /LOADEDDD/
+    end
+  end
+
+  describe 'db:abort_if_pending_migrations' do
+    it "passes when no migrations are pending" do
+      run("rake db:abort_if_pending_migrations").should_not =~ /try again/
+    end
+
+    it "fails when migrations are pending" do
+      make_migration('yyy')
+      result = run("rake db:abort_if_pending_migrations")
+      result.should =~ /try again/
+      result.should =~ /1 pending migration/
+    end
+  end
+
+  describe 'db:test:load' do
+    it 'loads' do
+      write("db/schema.rb", "puts 'LOADEDDD'")
+      run("rake db:test:load").should =~ /LOADEDDD.*SUCCESS/m
+    end
+
+    it "fails without schema" do
+      run("rake db:test:load").should =~ /no such file to load/
+    end
+  end
+
+  describe 'db:test:purge' do
+    it "runs" do
+      run('rake db:test:purge').should =~ /SUCCESS/
     end
   end
 end
