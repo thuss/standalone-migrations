@@ -71,4 +71,5 @@ This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stan
 
  - [Todd Huss](http://gabrito.com/)
  - [Michael Grosser](http://pragmatig.wordpress.com)
+ - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)`s [activerecord-migrator-standalone](http://github.com/stevehodgkiss/activerecord-migrator-standalone)
