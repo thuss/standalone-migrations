@@ -1,4 +1,4 @@
-# Every important should be overwriteable with MIGRATION_OPTIONS
+# Every important options should be overwriteable with MIGRATION_OPTIONS
 base = File.expand_path('.')
 here = File.expand_path(File.dirname(File.dirname(File.dirname((__FILE__)))))
 
@@ -82,29 +82,29 @@ namespace :db do
   namespace :test do
     desc "Recreate the test database from the current schema.rb"
     task :load => ['db:ar_init', 'db:test:purge'] do
-      ActiveRecord::Base.establish_connection(ActiveRecord::Base.configurations['test'])
+      ActiveRecord::Base.establish_connection(:test)
       ActiveRecord::Schema.verbose = false
       Rake::Task["db:schema:load"].invoke
     end
 
     desc "Empty the test database"
     task :purge => 'db:ar_init' do
-      abcs = ActiveRecord::Base.configurations
-      case abcs["test"]["adapter"]
+      config = ActiveRecord::Base.configurations['test']
+      case config["adapter"]
       when "mysql"
         ActiveRecord::Base.establish_connection(:test)
-        ActiveRecord::Base.connection.recreate_database(abcs["test"]["database"], abcs["test"])
-      when "postgresql"
+        ActiveRecord::Base.connection.recreate_database(config["database"], config)
+      when "postgresql" #TODO i doubt this will work <-> methods are not defined
         ActiveRecord::Base.clear_active_connections!
-        drop_database(abcs['test'])
-        create_database(abcs['test'])
-      when "sqlite","sqlite3"
-        dbfile = abcs["test"]["database"] || abcs["test"]["dbfile"]
-        File.delete(dbfile) if File.exist?(dbfile)
+        drop_database(config)
+        create_database(config)
+      when "sqlite", "sqlite3"
+        db_file = config["database"] || config["dbfile"]
+        File.delete(db_file) if File.exist?(db_file)
       when "sqlserver"
-        dropfkscript = "#{abcs["test"]["host"]}.#{abcs["test"]["database"]}.DP1".gsub(/\\/,'-')
-        `osql -E -S #{abcs["test"]["host"]} -d #{abcs["test"]["database"]} -i db\\#{dropfkscript}`
-        `osql -E -S #{abcs["test"]["host"]} -d #{abcs["test"]["database"]} -i db\\#{RAILS_ENV}_structure.sql`
+        drop_script = "#{config["host"]}.#{config["database"]}.DP1".gsub(/\\/,'-')
+        `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\#{drop_script}`
+        `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\test_structure.sql`
       when "oci", "oracle"
         ActiveRecord::Base.establish_connection(:test)
         ActiveRecord::Base.connection.structure_drop.split(";\n\n").each do |ddl|
@@ -114,7 +114,7 @@ namespace :db do
         ActiveRecord::Base.establish_connection(:test)
         ActiveRecord::Base.connection.recreate_database!
       else
-        raise "Task not supported by '#{abcs["test"]["adapter"]}'"
+        raise "Task not supported by #{config["adapter"].inspect}"
       end
     end
     
