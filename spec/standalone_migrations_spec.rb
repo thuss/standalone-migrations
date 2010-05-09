@@ -39,6 +39,7 @@ describe 'Standalone migrations' do
       begin
         require 'tasks/standalone_migrations'
         MigratorTasks.new do |t|
+          t.log_level = Logger::INFO
           #{config}
         end
       rescue LoadError => e

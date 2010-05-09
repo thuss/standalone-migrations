@@ -1,8 +1,9 @@
 require 'rake'
 require 'rake/tasklib'
+require 'logger'
 
 class MigratorTasks < ::Rake::TaskLib
-  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env
+  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env, :verbose, :log_level
   attr_reader :migrations
   
   def initialize(name = :migrator)
@@ -16,6 +17,8 @@ class MigratorTasks < ::Rake::TaskLib
     @schema = "#{base}/db/schema.rb"
     @env = 'DB'
     @default_env = 'development'
+    @verbose = true
+    @log_level = Logger::ERROR
     yield self if block_given?
     # Add to load_path every "lib/" directory in vendor
     Dir["#{vendor}/**/lib"].each{|p| $LOAD_PATH << p }
@@ -33,7 +36,6 @@ class MigratorTasks < ::Rake::TaskLib
   def define
     namespace :db do
       task :ar_init do
-        require 'logger'
         require 'active_record'
         ENV[@env] ||= @default_env
 
@@ -41,14 +43,14 @@ class MigratorTasks < ::Rake::TaskLib
         ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
         ActiveRecord::Base.establish_connection(ENV[@env])
         logger = Logger.new $stderr
-        logger.level = Logger::INFO
+        logger.level = @log_level
         ActiveRecord::Base.logger = logger
       end
 
       desc "Migrate the database using the scripts in the migrations directory. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
       task :migrate => :ar_init  do
         require "#{@vendor}/migration_helpers/init"
-        ActiveRecord::Migration.verbose = (ENV["VERBOSE"] == "true")
+        ActiveRecord::Migration.verbose = @verbose
         @migrations.each do |path|
           ActiveRecord::Migrator.migrate(path, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         end
@@ -59,6 +61,7 @@ class MigratorTasks < ::Rake::TaskLib
         [:up, :down].each do |direction|
           desc "Runs the '#{direction}' for a given migration VERSION."
           task direction => :ar_init do
+            ActiveRecord::Migration.verbose = @verbose
             version = ENV["VERSION"].to_i
             raise "VERSION is required (must be a number)" if version == 0
             migration_path = nil

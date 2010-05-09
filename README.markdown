@@ -14,6 +14,8 @@ Add to `Rakefile` in your projects base directory:
         # t.schema = "db/schema.rb"
         # t.env = "DB"
         # t.default_env = "development"
+        # t.verbose = true
+        # t.log_level = Logger::ERROR
       end
     rescue LoadError => e
       puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
