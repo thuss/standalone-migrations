@@ -22,6 +22,14 @@ class MigratorTasks < ::Rake::TaskLib
     define
   end
   
+  def migration_paths
+    if @migrations.is_a? Array
+      @migrations
+    else
+      [@migrations]
+    end
+  end
+  
   def define
     namespace :db do
       task :ar_init do
@@ -41,7 +49,9 @@ class MigratorTasks < ::Rake::TaskLib
       task :migrate => :ar_init  do
         require "#{@vendor}/migration_helpers/init"
         ActiveRecord::Migration.verbose = (ENV["VERBOSE"] == "true")
-        ActiveRecord::Migrator.migrate(@migrations, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+        migration_paths.each do |path|
+          ActiveRecord::Migrator.migrate(path, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+        end
         Rake::Task["db:schema:dump"].execute
       end
 
@@ -51,7 +61,21 @@ class MigratorTasks < ::Rake::TaskLib
           task direction => :ar_init do
             version = ENV["VERSION"].to_i
             raise "VERSION is required (must be a number)" if version == 0
-            ActiveRecord::Migrator.run(direction, @migrations, version)
+            migration_path = nil
+            if migration_paths.length == 1
+              migration_path = migration_paths.first
+            else
+              migration_paths.each do |path|
+                Dir[File.join(path, '*.rb')].each do |file|
+                  if File.basename(file).match(/^\d+/)[0] == version.to_s
+                    migration_path = path
+                    break
+                  end
+                end
+              end
+              raise "Migration #{version} wasn't found on paths #{migration_paths.join(', ')}" if migration_path.nil?
+            end
+            ActiveRecord::Migrator.run(direction, migration_path, version)
             Rake::Task["db:schema:dump"].execute
           end
         end
@@ -148,9 +172,9 @@ class #{class_name} < ActiveRecord::Migration
   end
 end
 eof
-
-        FileUtils.mkdir_p(@migrations) unless File.exist?(@migrations)
-        file_name  = "#{@migrations}/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{migration}.rb"
+        migration_path = migration_paths.first
+        FileUtils.mkdir_p(migration_path) unless File.exist?(migration_path)
+        file_name  = "#{migration_path}/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{migration}.rb"
 
         File.open(file_name, 'w'){|f| f.write file_contents }
 

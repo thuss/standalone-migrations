@@ -32,19 +32,51 @@ describe 'Standalone migrations' do
     write(migration, content)
     migration.match(/\d{14}/)[0]
   end
-
-  before do
-    `rm -rf spec/tmp` if File.exist?('spec/tmp')
-    `mkdir spec/tmp`
+  
+  def write_rakefile(config=nil)
     write 'Rakefile', <<-TXT
       $LOAD_PATH.unshift '#{File.expand_path('lib')}'
       begin
         require 'tasks/standalone_migrations'
-        MigratorTasks.new
+        MigratorTasks.new do |t|
+          #{config}
+        end
       rescue LoadError => e
         puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
       end
     TXT
+  end
+  
+  def write_multiple_migrations
+    write_rakefile %{t.migrations = ["db/migrations", "db/migrations2"]}
+    write "db/migrations/20100509095815_create_tests.rb", <<-TXT
+class CreateTests < ActiveRecord::Migration
+def self.up
+  puts "UP-CreateTests"
+end
+
+def self.down
+  puts "DOWN-CreateTests"
+end
+end
+TXT
+    write "db/migrations2/20100509095816_create_tests2.rb", <<-TXT
+class CreateTests2 < ActiveRecord::Migration
+def self.up
+  puts "UP-CreateTests2"
+end
+
+def self.down
+  puts "DOWN-CreateTests2"
+end
+end
+TXT
+  end
+
+  before do
+    `rm -rf spec/tmp` if File.exist?('spec/tmp')
+    `mkdir spec/tmp`
+    write_rakefile
     write 'db/config.yml', <<-TXT
       development:
         adapter: sqlite3
@@ -56,67 +88,131 @@ describe 'Standalone migrations' do
   end
 
   describe 'db:new_migration' do
-    it "fails if i do not add a name" do
-      run("rake db:new_migration").should_not =~ /SUCCESS/
-    end
+    context "single migration path" do
+      it "fails if i do not add a name" do
+        run("rake db:new_migration").should_not =~ /SUCCESS/
+      end
 
-    it "generates a new migration with this name and timestamp" do
-      run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*spec/tmp/db/migrations/\d+_test_abc\.rb}
-      run("ls db/migrations").should =~ /^\d+_test_abc.rb$/
+      it "generates a new migration with this name and timestamp" do
+        run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*spec/tmp/db/migrations/\d+_test_abc\.rb}
+        run("ls db/migrations").should =~ /^\d+_test_abc.rb$/
+      end
+    end
+    
+    context "multiple migration paths" do
+      before do
+        write_rakefile %{t.migrations = ["db/migrations", "db/migrations2"]}
+      end
+      it "chooses the first path" do
+        run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*db/migrations/\d+_test_abc\.rb}
+      end
     end
   end
 
   describe 'db:migrate' do
-    it "does nothing when no migrations are present" do
-      run("rake db:migrate").should =~ /SUCCESS/
-    end
+    context "single migration path" do
+      it "does nothing when no migrations are present" do
+        run("rake db:migrate").should =~ /SUCCESS/
+      end
 
-    it "migrates if i add a migration" do
-      run("rake db:new_migration name=xxx")
-      result = run("rake db:migrate")
-      result.should =~ /SUCCESS/
-      result.should =~ /Migrating to Xxx \(#{Time.now.year}/
+      it "migrates if i add a migration" do
+        run("rake db:new_migration name=xxx")
+        result = run("rake db:migrate")
+        result.should =~ /SUCCESS/
+        result.should =~ /Migrating to Xxx \(#{Time.now.year}/
+      end
     end
     
-    context ""
+    context "multiple migration paths" do
+      before do
+        write_multiple_migrations
+      end
+      it "runs the migrator on each migration path" do
+        result = run("rake db:migrate")
+        result.should =~ /Migrating to CreateTests \(#{Time.now.year}/
+        result.should =~ /Migrating to CreateTests2 \(#{Time.now.year}/
+      end
+    end
   end
 
   describe 'db:migrate:down' do
-    it "migrates down" do
-      make_migration('xxx')
-      sleep 1
-      version = make_migration('yyy')
-      run 'rake db:migrate'
+    context "single migration path" do
+      it "migrates down" do
+        make_migration('xxx')
+        sleep 1
+        version = make_migration('yyy')
+        run 'rake db:migrate'
 
-      result = run("rake db:migrate:down VERSION=#{version}")
-      result.should =~ /SUCCESS/
-      result.should_not =~ /DOWN-xxx/
-      result.should =~ /DOWN-yyy/
+        result = run("rake db:migrate:down VERSION=#{version}")
+        result.should =~ /SUCCESS/
+        result.should_not =~ /DOWN-xxx/
+        result.should =~ /DOWN-yyy/
+      end
+
+      it "fails without version" do
+        make_migration('yyy')
+        result = run("rake db:migrate:down")
+        result.should_not =~ /SUCCESS/
+      end
     end
-
-    it "fails without version" do
-      make_migration('yyy')
-      result = run("rake db:migrate:down")
-      result.should_not =~ /SUCCESS/
+    
+    context "multiple migration paths" do
+      before do
+        write_multiple_migrations
+      end
+      
+      it "runs down on the correct path" do
+        run 'rake db:migrate'
+        result = run 'rake db:migrate:down VERSION=20100509095815'
+        result.should =~ /DOWN-CreateTests/
+        result.should_not =~ /DOWN-CreateTests2/
+      end
+      
+      it "fails if migration number isn't found" do
+        run 'rake db:migrate'
+        result = run 'rake db:migrate:down VERSION=20100509095820'
+        result.should_not =~ /SUCCESS/
+        result.should =~ /wasn't found on path/
+      end
     end
   end
 
   describe 'db:migrate:up' do
-    it "migrates up" do
-      make_migration('xxx')
-      run 'rake db:migrate'
-      sleep 1
-      version = make_migration('yyy')
-      result = run("rake db:migrate:up VERSION=#{version}")
-      result.should =~ /SUCCESS/
-      result.should_not =~ /UP-xxx/
-      result.should =~ /UP-yyy/
-    end
+    context "single migration path" do
+      it "migrates up" do
+        make_migration('xxx')
+        run 'rake db:migrate'
+        sleep 1
+        version = make_migration('yyy')
+        result = run("rake db:migrate:up VERSION=#{version}")
+        result.should =~ /SUCCESS/
+        result.should_not =~ /UP-xxx/
+        result.should =~ /UP-yyy/
+      end
 
-    it "fails without version" do
-      make_migration('yyy')
-      result = run("rake db:migrate:up")
-      result.should_not =~ /SUCCESS/
+      it "fails without version" do
+        make_migration('yyy')
+        result = run("rake db:migrate:up")
+        result.should_not =~ /SUCCESS/
+      end
+    end
+  
+    context "multiple migration paths" do
+      before do
+        write_multiple_migrations
+      end
+      
+      it "runs down on the correct path" do
+        result = run 'rake db:migrate:up VERSION=20100509095815'
+        result.should =~ /UP-CreateTests/
+        result.should_not =~ /UP-CreateTests2/
+      end
+      
+      it "fails if migration number isn't found" do
+        result = run 'rake db:migrate:up VERSION=20100509095820'
+        result.should_not =~ /SUCCESS/
+        result.should =~ /wasn't found on path/
+      end
     end
   end
 
