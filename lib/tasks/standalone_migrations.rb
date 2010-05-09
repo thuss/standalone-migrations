@@ -25,12 +25,8 @@ class MigratorTasks < ::Rake::TaskLib
     define
   end
   
-  def migrations=(value)
-    if value.is_a? String
-      @migrations = [value]
-    else
-      @migrations = value
-    end
+  def migrations=(*value)
+    @migrations = value.flatten
   end
   
   def define
@@ -50,7 +46,7 @@ class MigratorTasks < ::Rake::TaskLib
       desc "Migrate the database using the scripts in the migrations directory. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
       task :migrate => :ar_init  do
         require "#{@vendor}/migration_helpers/init"
-        ActiveRecord::Migration.verbose = @verbose
+        ActiveRecord::Migration.verbose = ENV['VERBOSE'] || @verbose
         @migrations.each do |path|
           ActiveRecord::Migrator.migrate(path, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         end

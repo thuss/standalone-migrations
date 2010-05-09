@@ -49,7 +49,7 @@ describe 'Standalone migrations' do
   end
   
   def write_multiple_migrations
-    write_rakefile %{t.migrations = ["db/migrations", "db/migrations2"]}
+    write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrations/20100509095815_create_tests.rb", <<-TXT
 class CreateTests < ActiveRecord::Migration
 def self.up
