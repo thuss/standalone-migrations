@@ -40,6 +40,7 @@ describe 'Standalone migrations' do
       $LOAD_PATH.unshift '#{File.expand_path('lib')}'
       begin
         require 'tasks/standalone_migrations'
+        MigratorTasks.new
       rescue LoadError => e
         puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
       end
@@ -76,6 +77,8 @@ describe 'Standalone migrations' do
       result.should =~ /SUCCESS/
       result.should =~ /Migrating to Xxx \(#{Time.now.year}/
     end
+    
+    context ""
   end
 
   describe 'db:migrate:down' do
