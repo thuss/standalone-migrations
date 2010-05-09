@@ -9,7 +9,7 @@ Add to `Rakefile` in your projects base directory:
     begin
       require 'tasks/standalone_migrations'
       MigratorTasks.new do |t|
-        # t.migrations = "db/migrations"
+        # t.migrations = ["db/migrations"]
         # t.config = "db/config.yml"
         # t.schema = "db/schema.rb"
         # t.env = "DB"

@@ -2,8 +2,8 @@ require 'rake'
 require 'rake/tasklib'
 
 class MigratorTasks < ::Rake::TaskLib
-  # Every important options should be overwriteable
-  attr_accessor :name, :base, :vendor, :migrations, :config, :schema, :env, :default_env
+  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env
+  attr_reader :migrations
   
   def initialize(name = :migrator)
     @name = name
@@ -11,7 +11,7 @@ class MigratorTasks < ::Rake::TaskLib
     here = File.expand_path(File.dirname(File.dirname(File.dirname((__FILE__)))))
     @base = base
     @vendor = "#{here}/vendor"
-    @migrations = "#{base}/db/migrations"
+    @migrations = ["#{base}/db/migrations"]
     @config = "#{base}/db/config.yml"
     @schema = "#{base}/db/schema.rb"
     @env = 'DB'
@@ -22,11 +22,11 @@ class MigratorTasks < ::Rake::TaskLib
     define
   end
   
-  def migration_paths
-    if @migrations.is_a? Array
-      @migrations
+  def migrations=(value)
+    if value.is_a? String
+      @migrations = [value]
     else
-      [@migrations]
+      @migrations = value
     end
   end
   
@@ -49,7 +49,7 @@ class MigratorTasks < ::Rake::TaskLib
       task :migrate => :ar_init  do
         require "#{@vendor}/migration_helpers/init"
         ActiveRecord::Migration.verbose = (ENV["VERBOSE"] == "true")
-        migration_paths.each do |path|
+        @migrations.each do |path|
           ActiveRecord::Migrator.migrate(path, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
         end
         Rake::Task["db:schema:dump"].execute
@@ -62,10 +62,10 @@ class MigratorTasks < ::Rake::TaskLib
             version = ENV["VERSION"].to_i
             raise "VERSION is required (must be a number)" if version == 0
             migration_path = nil
-            if migration_paths.length == 1
-              migration_path = migration_paths.first
+            if @migrations.length == 1
+              migration_path = @migrations.first
             else
-              migration_paths.each do |path|
+              @migrations.each do |path|
                 Dir[File.join(path, '*.rb')].each do |file|
                   if File.basename(file).match(/^\d+/)[0] == version.to_s
                     migration_path = path
@@ -73,7 +73,7 @@ class MigratorTasks < ::Rake::TaskLib
                   end
                 end
               end
-              raise "Migration #{version} wasn't found on paths #{migration_paths.join(', ')}" if migration_path.nil?
+              raise "Migration #{version} wasn't found on paths #{@migrations.join(', ')}" if migration_path.nil?
             end
             ActiveRecord::Migrator.run(direction, migration_path, version)
             Rake::Task["db:schema:dump"].execute
@@ -83,14 +83,16 @@ class MigratorTasks < ::Rake::TaskLib
   
       desc "Raises an error if there are pending migrations"
       task :abort_if_pending_migrations => :ar_init do
-        pending_migrations = ActiveRecord::Migrator.new(:up, @migrations).pending_migrations
-
-        if pending_migrations.any?
-          puts "You have #{pending_migrations.size} pending migrations:"
-          pending_migrations.each do |pending_migration|
-            puts '  %4d %s' % [pending_migration.version, pending_migration.name]
+        @migrations.each do |path|
+          pending_migrations = ActiveRecord::Migrator.new(:up, path).pending_migrations
+          
+          if pending_migrations.any?
+            puts "You have #{pending_migrations.size} pending migrations:"
+            pending_migrations.each do |pending_migration|
+              puts '  %4d %s' % [pending_migration.version, pending_migration.name]
+            end
+            abort %{Run "rake db:migrate" to update your database then try again.}
           end
-          abort %{Run "rake db:migrate" to update your database then try again.}
         end
       end
 
@@ -172,7 +174,7 @@ class #{class_name} < ActiveRecord::Migration
   end
 end
 eof
-        migration_path = migration_paths.first
+        migration_path = @migrations.first
         FileUtils.mkdir_p(migration_path) unless File.exist?(migration_path)
         file_name  = "#{migration_path}/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{migration}.rb"
 
