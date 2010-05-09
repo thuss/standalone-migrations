@@ -102,7 +102,7 @@ TXT
     
     context "multiple migration paths" do
       before do
-        write_rakefile %{t.migrations = ["db/migrations", "db/migrations2"]}
+        write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
       end
       it "chooses the first path" do
         run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*db/migrations/\d+_test_abc\.rb}
