@@ -23,6 +23,12 @@ Add to `Rakefile` in your projects base directory:
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
     development:
+      adapter: sqlite3
+      database: db/development.sqlite3
+      pool: 5
+      timeout: 5000
+
+    production:
       adapter: mysql
       encoding: utf8
       reconnect: false
@@ -32,8 +38,11 @@ Add database configuration to `db/config.yml` in your projects base directory e.
       password:
       socket: /var/run/mysqld/mysqld.sock
 
-    test:
-      ...something similar...
+    test: &test
+      adapter: sqlite3
+      database: db/test.sqlite3
+      pool: 5
+      timeout: 5000
 
 ### To create a new database migration:
 
@@ -62,17 +71,11 @@ If you're lazy and want to just execute raw SQL:
 
 ### To migrate a specific database (for example your "testing" database)
 
-    rake db:migrate RAILS_ENV=test
+    rake db:migrate DB=test
 
 ### To execute a specific up/down of one single migration
 
     rake db:migrate:up VERSION=20081220234130
-
-### To overwrite the default options
-[Possible options](http://github.com/thuss/standalone-migrations/blob/master/tasks/standalone_migrations.rake)
-    MIGRATION_OPTIONS = {:config=>'database/config.yml', ... }
-    gem 'standalone_migrations'
-    require 'tasks/standalone_migrations'
 
 Contributors
 ============
@@ -81,4 +84,4 @@ This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stan
  - [Todd Huss](http://gabrito.com/)
  - [Michael Grosser](http://pragmatig.wordpress.com)
  - [Eric Lindvall](http://bitmonkey.net)
- - [Steve Hodgkiss](http://stevehodgkiss.com/)`s [activerecord-migrator-standalone](http://github.com/stevehodgkiss/activerecord-migrator-standalone)
+ - [Steve Hodgkiss](http://stevehodgkiss.com/)
