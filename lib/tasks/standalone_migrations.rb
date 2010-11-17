@@ -3,7 +3,7 @@ require 'rake/tasklib'
 require 'logger'
 
 class MigratorTasks < ::Rake::TaskLib
-  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env, :verbose, :log_level
+  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env, :verbose, :log_level, :logger
   attr_reader :migrations
   
   def initialize(name = :migrator)
@@ -36,10 +36,19 @@ class MigratorTasks < ::Rake::TaskLib
         ENV[@env] ||= @default_env
 
         require 'erb'
-        ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
+        
+        if @config.is_a?(Hash)
+          ActiveRecord::Base.configurations = @config
+        else
+          ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
+        end
         ActiveRecord::Base.establish_connection(ENV[@env])
-        logger = Logger.new $stderr
-        logger.level = @log_level
+        if @logger
+          logger = @logger
+        else
+          logger = Logger.new($stderr)
+          logger.level = @log_level
+        end
         ActiveRecord::Base.logger = logger
       end
 
