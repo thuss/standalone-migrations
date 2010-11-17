@@ -98,9 +98,11 @@ class MigratorTasks < ::Rake::TaskLib
       namespace :schema do
         desc "Create schema.rb file that can be portably used against any DB supported by AR"
         task :dump => :ar_init do
-          require 'active_record/schema_dumper'
-          File.open(ENV['SCHEMA'] || @schema, "w") do |file|
-            ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+          if schema_file = ENV['SCHEMA'] || @schema
+            require 'active_record/schema_dumper'
+            File.open(schema_file, "w") do |file|
+              ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
+            end
           end
         end
 
