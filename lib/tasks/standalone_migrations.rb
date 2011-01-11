@@ -35,11 +35,11 @@ class MigratorTasks < ::Rake::TaskLib
         require 'active_record'
         ENV[@env] ||= @default_env
 
-        require 'erb'
-        
         if @config.is_a?(Hash)
           ActiveRecord::Base.configurations = @config
         else
+          require 'erb'
+          
           ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
         end
         ActiveRecord::Base.establish_connection(ENV[@env])
