@@ -130,8 +130,8 @@ TXT
       end
       it "runs the migrator on each migration path" do
         result = run("rake db:migrate")
-        result.should =~ /Migrating to CreateTests \(#{Time.now.year}/
-        result.should =~ /Migrating to CreateTests2 \(#{Time.now.year}/
+        result.should =~ /Migrating to CreateTests \(2010/
+        result.should =~ /Migrating to CreateTests2 \(2010/
       end
     end
   end
