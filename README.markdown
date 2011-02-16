@@ -85,3 +85,5 @@ This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stan
  - [Michael Grosser](http://pragmatig.wordpress.com)
  - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
+ - [Rich Meyers](https://github.com/richmeyers)
+ - [Wes Bailey](http://exposinggotchas.blogspot.com/)
