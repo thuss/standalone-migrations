@@ -62,6 +62,52 @@ class MigratorTasks < ::Rake::TaskLib
         Rake::Task["db:schema:dump"].execute
       end
 
+      desc "Retrieves the current schema version number"
+      task :version => :ar_init do
+        puts "Current version: #{ActiveRecord::Migrator.current_version}"
+      end
+
+      def create_database config
+        options = {:charset => 'utf8', :collation => 'utf8_unicode_ci'}
+
+        create_db = lambda do |config|
+          ActiveRecord::Base.establish_connection config.merge('database' => nil)
+          ActiveRecord::Base.connection.create_database config['database'], options
+          ActiveRecord::Base.establish_connection config
+        end
+
+        begin
+          create_db.call config
+        rescue Mysql::Error => sqlerr
+          if sqlerr.errno == 1405
+            print "#{sqlerr.error}. \nPlease provide the root password for your mysql installation\n>"
+            root_password = $stdin.gets.strip
+
+            grant_statement = <<-SQL
+              GRANT ALL PRIVILEGES ON #{config['database']}.* 
+                TO '#{config['username']}'@'localhost'
+                IDENTIFIED BY '#{config['password']}' WITH GRANT OPTION;
+            SQL
+
+            create_db.call config.merge('database' => nil, 'username' => 'root', 'password' => root_password)
+          else
+            $stderr.puts sqlerr.error
+            $stderr.puts "Couldn't create database for #{config.inspect}, charset: utf8, collation: utf8_unicode_ci"
+            $stderr.puts "(if you set the charset manually, make sure you have a matching collation)" if config['charset']
+          end
+        end
+      end
+
+      desc 'Create the database from config/database.yml for the current DATABASE_ENV'
+      task :create => :ar_init do
+        create_database ActiveRecord::Base.configurations[self.default_env]
+      end
+
+      desc 'Drops the database for the current DATABASE_ENV'
+      task :drop => :ar_init do
+        ActiveRecord::Base.connection.drop_database ActiveRecord::Base.configurations[self.default_env]['database']
+      end
+
       namespace :migrate do
         [:up, :down].each do |direction|
           desc "Runs the '#{direction}' for a given migration VERSION."
@@ -165,6 +211,44 @@ class MigratorTasks < ::Rake::TaskLib
         task :prepare => ['db:abort_if_pending_migrations', 'db:test:load']
       end
 
+      desc 'generate a model=name field="field1:type field2:type"'
+      task :generate do
+        ts = Time.now.strftime '%Y%m%d%H%%M%S'
+        
+        if ENV['model']
+          table_name = ENV['model']
+        else
+          print 'model name> '
+          table_name = $stdin.gets.strip
+        end
+
+        raise ArgumentError, 'must provide a name for the model to generate' if table_name.empty?
+
+        create_table_str = "create_table :#{table_name} do |t|"
+
+        fields = ENV['fields'] if ENV['fields']
+
+        columns = ENV.has_key?('fields') ? ENV['fields'].split.map {|v| "t.#{v.sub(/:/, ' :')}"}.join("\n#{' '*6}") : nil
+
+        create_table_str << "\n      #{columns}" if columns
+
+        contents = <<-MIGRATION
+class Create#{class_name table_name} < ActiveRecord::Migration
+  def self.up
+    #{create_table_str}   
+      t.timestamps
+    end
+  end
+           
+  def self.down
+    drop_table :#{table_name}
+  end
+end
+MIGRATION
+
+      create_file @migrations.first, file_name("create_#{table_name}"), contents
+      end
+
       desc "Create a new migration"
       task :new_migration do |t|
         unless migration = ENV['name']
@@ -173,9 +257,8 @@ class MigratorTasks < ::Rake::TaskLib
           abort
         end
 
-        class_name = migration.split('_').map{|s| s.capitalize }.join
         file_contents = <<eof
-class #{class_name} < ActiveRecord::Migration
+class #{class_name migration} < ActiveRecord::Migration
   def self.up
   end
 
@@ -184,14 +267,24 @@ class #{class_name} < ActiveRecord::Migration
   end
 end
 eof
-        migration_path = @migrations.first
-        FileUtils.mkdir_p(migration_path) unless File.exist?(migration_path)
-        file_name  = "#{migration_path}/#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{migration}.rb"
 
-        File.open(file_name, 'w'){|f| f.write file_contents }
+        create_file @migrations.first, file_name(migration), file_contents
 
-        puts "Created migration #{file_name}"
+        puts "Created migration #{file_name migration}"
       end
     end
+  end
+
+  def class_name str
+    str.split('_').map {|s| s.capitalize}.join
+  end
+
+  def create_file path, file, contents
+    FileUtils.mkdir_p path unless File.exists? path
+    File.open(file, 'w') {|f| f.write contents}
+  end
+
+  def file_name migration
+    File.join @migrations.first, "#{Time.now.utc.strftime '%Y%m%d%H%M%S'}_#{migration}.rb"
   end
 end
