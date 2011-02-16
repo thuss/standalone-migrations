@@ -110,6 +110,12 @@ TXT
     end
   end
 
+  describe 'db:version' do
+    it "should start with a new database version" do
+      run("rake db:version").should =~ /Current version: 0/
+    end
+  end
+
   describe 'db:migrate' do
     context "single migration path" do
       it "does nothing when no migrations are present" do
