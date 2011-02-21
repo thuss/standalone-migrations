@@ -41,7 +41,7 @@ class MigratorTasks < ::Rake::TaskLib
           require 'erb'
           ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
         end
-        ActiveRecord::Base.establish_connection(ENV[@env])
+        ActiveRecord::Base.establish_connection(ENV[@env]) if connect
         if @logger
           logger = @logger
         else

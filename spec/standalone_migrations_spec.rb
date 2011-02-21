@@ -24,6 +24,10 @@ describe 'Standalone migrations' do
     `cd spec/tmp && #{cmd} 2>&1 && echo SUCCESS`
   end
 
+  def run_with_output(cmd)
+    `cd spec/tmp && #{cmd} 2>&1`
+  end
+
   def make_migration(name)
     migration = run("rake db:new_migration name=#{name}").match(%r{db/migrations/\d+.*.rb})[0]
     content = read(migration)
@@ -90,8 +94,8 @@ end
 
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
-      run("rake db:create").should =~ /SUCCESS/
-      run("rake db:drop").should =~ /SUCCESS/
+      run_with_output("rake db:create").should =~ /SUCCESS/
+      run_with_output("rake db:drop").should =~ /SUCCESS/
     end
   end
 
