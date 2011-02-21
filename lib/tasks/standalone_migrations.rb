@@ -31,7 +31,7 @@ class MigratorTasks < ::Rake::TaskLib
 
   def define
     namespace :db do
-      task :ar_init do
+      def ar_init(connect = true)
         require 'active_record'
         ENV[@env] ||= @default_env
 
@@ -49,6 +49,10 @@ class MigratorTasks < ::Rake::TaskLib
           logger.level = @log_level
         end
         ActiveRecord::Base.logger = logger
+      end
+
+      task :ar_init do
+        ar_init
       end
 
       desc "Migrate the database using the scripts in the migrations directory. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
@@ -133,7 +137,8 @@ class MigratorTasks < ::Rake::TaskLib
       end
 
       desc 'Create the database from config/database.yml for the current DATABASE_ENV'
-      task :create => :ar_init do
+      task :create do
+        ar_init(false)
         config = ActiveRecord::Base.configurations[self.default_env]
         create_database config
       end
