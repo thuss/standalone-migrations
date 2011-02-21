@@ -88,6 +88,14 @@ TXT
     TXT
   end
 
+  describe 'db:create and db:drop' do
+    context "creating a database" do
+      it "should create the development database" do
+        run("rake db:create").should =~ /SUCCESS/
+      end
+    end
+  end
+
   describe 'db:new_migration' do
     context "single migration path" do
       it "fails if i do not add a name" do
