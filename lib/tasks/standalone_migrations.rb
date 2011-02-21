@@ -5,7 +5,7 @@ require 'logger'
 class MigratorTasks < ::Rake::TaskLib
   attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env, :verbose, :log_level, :logger
   attr_reader :migrations
-  
+
   def initialize(name = :migrator)
     @name = name
     base = File.expand_path('.')
@@ -21,14 +21,14 @@ class MigratorTasks < ::Rake::TaskLib
     @log_level = Logger::ERROR
     yield self if block_given?
     # Add to load_path every "lib/" directory in vendor
-    Dir["#{vendor}/**/lib"].each{|p| $LOAD_PATH << p }
+    Dir["#{vendor}/**/lib"].each { |p| $LOAD_PATH << p }
     define
   end
-  
+
   def migrations=(*value)
     @migrations = value.flatten
   end
-  
+
   def define
     namespace :db do
       task :ar_init do
@@ -39,7 +39,6 @@ class MigratorTasks < ::Rake::TaskLib
           ActiveRecord::Base.configurations = @config
         else
           require 'erb'
-          
           ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
         end
         ActiveRecord::Base.establish_connection(ENV[@env])
@@ -53,7 +52,7 @@ class MigratorTasks < ::Rake::TaskLib
       end
 
       desc "Migrate the database using the scripts in the migrations directory. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
-      task :migrate => :ar_init  do
+      task :migrate => :ar_init do
         require "#{@vendor}/migration_helpers/init"
         ActiveRecord::Migration.verbose = ENV['VERBOSE'] || @verbose
         @migrations.each do |path|
@@ -67,45 +66,98 @@ class MigratorTasks < ::Rake::TaskLib
         puts "Current version: #{ActiveRecord::Migrator.current_version}"
       end
 
-      def create_database config
-        options = {:charset => 'utf8', :collation => 'utf8_unicode_ci'}
-
-        create_db = lambda do |config|
-          ActiveRecord::Base.establish_connection config.merge('database' => nil)
-          ActiveRecord::Base.connection.create_database config['database'], options
-          ActiveRecord::Base.establish_connection config
-        end
-
+      def create_database(config)
         begin
-          create_db.call config
-        rescue Mysql::Error => sqlerr
-          if sqlerr.errno == 1405
-            print "#{sqlerr.error}. \nPlease provide the root password for your mysql installation\n>"
-            root_password = $stdin.gets.strip
-
-            grant_statement = <<-SQL
-              GRANT ALL PRIVILEGES ON #{config['database']}.* 
-                TO '#{config['username']}'@'localhost'
-                IDENTIFIED BY '#{config['password']}' WITH GRANT OPTION;
-            SQL
-
-            create_db.call config.merge('database' => nil, 'username' => 'root', 'password' => root_password)
+          if config['adapter'] =~ /sqlite/
+            if File.exist?(config['database'])
+              $stderr.puts "#{config['database']} already exists"
+            else
+              begin
+                # Create the SQLite database
+                ActiveRecord::Base.establish_connection(config)
+                ActiveRecord::Base.connection
+              rescue Exception => e
+                $stderr.puts e, *(e.backtrace)
+                $stderr.puts "Couldn't create database for #{config.inspect}"
+              end
+            end
+            return # Skip the else clause of begin/rescue
           else
-            $stderr.puts sqlerr.error
-            $stderr.puts "Couldn't create database for #{config.inspect}, charset: utf8, collation: utf8_unicode_ci"
-            $stderr.puts "(if you set the charset manually, make sure you have a matching collation)" if config['charset']
+            ActiveRecord::Base.establish_connection(config)
+            ActiveRecord::Base.connection
           end
+        rescue
+          case config['adapter']
+            when /mysql/
+              @charset = ENV['CHARSET'] || 'utf8'
+              @collation = ENV['COLLATION'] || 'utf8_unicode_ci'
+              creation_options = {:charset => (config['charset'] || @charset), :collation => (config['collation'] || @collation)}
+              error_class = config['adapter'] =~ /mysql2/ ? Mysql2::Error : Mysql::Error
+              access_denied_error = 1045
+              begin
+                ActiveRecord::Base.establish_connection(config.merge('database' => nil))
+                ActiveRecord::Base.connection.create_database(config['database'], creation_options)
+                ActiveRecord::Base.establish_connection(config)
+              rescue error_class => sqlerr
+                if sqlerr.errno == access_denied_error
+                  print "#{sqlerr.error}. \nPlease provide the root password for your mysql installation\n>"
+                  root_password = $stdin.gets.strip
+                  grant_statement = "GRANT ALL PRIVILEGES ON #{config['database']}.* " \
+              "TO '#{config['username']}'@'localhost' " \
+              "IDENTIFIED BY '#{config['password']}' WITH GRANT OPTION;"
+                  ActiveRecord::Base.establish_connection(config.merge(
+                                                              'database' => nil, 'username' => 'root', 'password' => root_password))
+                  ActiveRecord::Base.connection.create_database(config['database'], creation_options)
+                  ActiveRecord::Base.connection.execute grant_statement
+                  ActiveRecord::Base.establish_connection(config)
+                else
+                  $stderr.puts sqlerr.error
+                  $stderr.puts "Couldn't create database for #{config.inspect}, charset: #{config['charset'] || @charset}, collation: #{config['collation'] || @collation}"
+                  $stderr.puts "(if you set the charset manually, make sure you have a matching collation)" if config['charset']
+                end
+              end
+            when 'postgresql'
+              @encoding = config['encoding'] || ENV['CHARSET'] || 'utf8'
+              begin
+                ActiveRecord::Base.establish_connection(config.merge('database' => 'postgres', 'schema_search_path' => 'public'))
+                ActiveRecord::Base.connection.create_database(config['database'], config.merge('encoding' => @encoding))
+                ActiveRecord::Base.establish_connection(config)
+              rescue Exception => e
+                $stderr.puts e, *(e.backtrace)
+                $stderr.puts "Couldn't create database for #{config.inspect}"
+              end
+          end
+        else
+          $stderr.puts "#{config['database']} already exists"
         end
       end
 
       desc 'Create the database from config/database.yml for the current DATABASE_ENV'
       task :create => :ar_init do
-        create_database ActiveRecord::Base.configurations[self.default_env]
+        config = ActiveRecord::Base.configurations[self.default_env]
+        create_database config
+      end
+
+      def drop_database(config)
+        case config['adapter']
+          when /mysql/
+            ActiveRecord::Base.establish_connection(config)
+            ActiveRecord::Base.connection.drop_database config['database']
+          when /^sqlite/
+            require 'pathname'
+            path = Pathname.new(config['database'])
+            file = path.absolute? ? path.to_s : File.join(@base, path)
+            FileUtils.rm(file)
+          when 'postgresql'
+            ActiveRecord::Base.establish_connection(config.merge('database' => 'postgres', 'schema_search_path' => 'public'))
+            ActiveRecord::Base.connection.drop_database config['database']
+        end
       end
 
       desc 'Drops the database for the current DATABASE_ENV'
       task :drop => :ar_init do
-        ActiveRecord::Base.connection.drop_database ActiveRecord::Base.configurations[self.default_env]['database']
+        config = ActiveRecord::Base.configurations[self.default_env]
+        drop_database(config)
       end
 
       namespace :migrate do
@@ -134,12 +186,12 @@ class MigratorTasks < ::Rake::TaskLib
           end
         end
       end
-  
+
       desc "Raises an error if there are pending migrations"
       task :abort_if_pending_migrations => :ar_init do
         @migrations.each do |path|
           pending_migrations = ActiveRecord::Migrator.new(:up, path).pending_migrations
-          
+
           if pending_migrations.any?
             puts "You have #{pending_migrations.size} pending migrations:"
             pending_migrations.each do |pending_migration|
@@ -180,33 +232,33 @@ class MigratorTasks < ::Rake::TaskLib
         task :purge => 'db:ar_init' do
           config = ActiveRecord::Base.configurations['test']
           case config["adapter"]
-          when "mysql"
-            ActiveRecord::Base.establish_connection(:test)
-            ActiveRecord::Base.connection.recreate_database(config["database"], config)
-          when "postgresql" #TODO i doubt this will work <-> methods are not defined
-            ActiveRecord::Base.clear_active_connections!
-            drop_database(config)
-            create_database(config)
-          when "sqlite", "sqlite3"
-            db_file = config["database"] || config["dbfile"]
-            File.delete(db_file) if File.exist?(db_file)
-          when "sqlserver"
-            drop_script = "#{config["host"]}.#{config["database"]}.DP1".gsub(/\\/,'-')
-            `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\#{drop_script}`
-            `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\test_structure.sql`
-          when "oci", "oracle"
-            ActiveRecord::Base.establish_connection(:test)
-            ActiveRecord::Base.connection.structure_drop.split(";\n\n").each do |ddl|
-              ActiveRecord::Base.connection.execute(ddl)
-            end
-          when "firebird"
-            ActiveRecord::Base.establish_connection(:test)
-            ActiveRecord::Base.connection.recreate_database!
-          else
-            raise "Task not supported by #{config["adapter"].inspect}"
+            when "mysql"
+              ActiveRecord::Base.establish_connection(:test)
+              ActiveRecord::Base.connection.recreate_database(config["database"], config)
+            when "postgresql" #TODO i doubt this will work <-> methods are not defined
+              ActiveRecord::Base.clear_active_connections!
+              drop_database(config)
+              create_database(config)
+            when "sqlite", "sqlite3"
+              db_file = config["database"] || config["dbfile"]
+              File.delete(db_file) if File.exist?(db_file)
+            when "sqlserver"
+              drop_script = "#{config["host"]}.#{config["database"]}.DP1".gsub(/\\/, '-')
+              `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\#{drop_script}`
+              `osql -E -S #{config["host"]} -d #{config["database"]} -i db\\test_structure.sql`
+            when "oci", "oracle"
+              ActiveRecord::Base.establish_connection(:test)
+              ActiveRecord::Base.connection.structure_drop.split(";\n\n").each do |ddl|
+                ActiveRecord::Base.connection.execute(ddl)
+              end
+            when "firebird"
+              ActiveRecord::Base.establish_connection(:test)
+              ActiveRecord::Base.connection.recreate_database!
+            else
+              raise "Task not supported by #{config["adapter"].inspect}"
           end
         end
-    
+
         desc 'Check for pending migrations and load the test schema'
         task :prepare => ['db:abort_if_pending_migrations', 'db:test:load']
       end
@@ -214,7 +266,7 @@ class MigratorTasks < ::Rake::TaskLib
       desc 'generate a model=name field="field1:type field2:type"'
       task :generate do
         ts = Time.now.strftime '%Y%m%d%H%%M%S'
-        
+
         if ENV['model']
           table_name = ENV['model']
         else
@@ -228,7 +280,7 @@ class MigratorTasks < ::Rake::TaskLib
 
         fields = ENV['fields'] if ENV['fields']
 
-        columns = ENV.has_key?('fields') ? ENV['fields'].split.map {|v| "t.#{v.sub(/:/, ' :')}"}.join("\n#{' '*6}") : nil
+        columns = ENV.has_key?('fields') ? ENV['fields'].split.map { |v| "t.#{v.sub(/:/, ' :')}" }.join("\n#{' '*6}") : nil
 
         create_table_str << "\n      #{columns}" if columns
 
@@ -244,9 +296,9 @@ class Create#{class_name table_name} < ActiveRecord::Migration
     drop_table :#{table_name}
   end
 end
-MIGRATION
+        MIGRATION
 
-      create_file @migrations.first, file_name("create_#{table_name}"), contents
+        create_file @migrations.first, file_name("create_#{table_name}"), contents
       end
 
       desc "Create a new migration"
@@ -276,12 +328,12 @@ eof
   end
 
   def class_name str
-    str.split('_').map {|s| s.capitalize}.join
+    str.split('_').map { |s| s.capitalize }.join
   end
 
   def create_file path, file, contents
     FileUtils.mkdir_p path unless File.exists? path
-    File.open(file, 'w') {|f| f.write contents}
+    File.open(file, 'w') { |f| f.write contents }
   end
 
   def file_name migration

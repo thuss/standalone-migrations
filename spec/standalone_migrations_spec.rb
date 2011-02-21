@@ -4,7 +4,7 @@ describe 'Standalone migrations' do
     file = tmp_file(file)
     folder = File.dirname(file)
     `mkdir -p #{folder}` unless File.exist?(folder)
-    File.open(file,'w'){|f| f.write content}
+    File.open(file, 'w') { |f| f.write content }
   end
 
   def read(file)
@@ -12,7 +12,7 @@ describe 'Standalone migrations' do
   end
 
   def migration(name)
-    m = `cd spec/tmp/db/migrations && ls`.split("\n").detect{|m| m =~ name}
+    m = `cd spec/tmp/db/migrations && ls`.split("\n").detect { |m| m =~ name }
     m ? "db/migrations/#{m}" : m
   end
 
@@ -32,7 +32,7 @@ describe 'Standalone migrations' do
     write(migration, content)
     migration.match(/\d{14}/)[0]
   end
-  
+
   def write_rakefile(config=nil)
     write 'Rakefile', <<-TXT
       $LOAD_PATH.unshift '#{File.expand_path('lib')}'
@@ -47,7 +47,7 @@ describe 'Standalone migrations' do
       end
     TXT
   end
-  
+
   def write_multiple_migrations
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrations/20100509095815_create_tests.rb", <<-TXT
@@ -60,7 +60,7 @@ def self.down
   puts "DOWN-CreateTests"
 end
 end
-TXT
+    TXT
     write "db/migrations2/20100509095816_create_tests2.rb", <<-TXT
 class CreateTests2 < ActiveRecord::Migration
 def self.up
@@ -71,7 +71,7 @@ def self.down
   puts "DOWN-CreateTests2"
 end
 end
-TXT
+    TXT
   end
 
   before do
@@ -88,11 +88,10 @@ TXT
     TXT
   end
 
-  describe 'db:create and db:drop' do
-    context "creating a database" do
-      it "should create the development database" do
-        run("rake db:create").should =~ /SUCCESS/
-      end
+  describe 'db:create and drop' do
+    it "should create the database and drop the database that was created" do
+      run("rake db:create").should =~ /SUCCESS/
+      run("rake db:drop").should =~ /SUCCESS/
     end
   end
 
@@ -107,7 +106,7 @@ TXT
         run("ls db/migrations").should =~ /^\d+_test_abc.rb$/
       end
     end
-    
+
     context "multiple migration paths" do
       before do
         write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
@@ -137,7 +136,7 @@ TXT
         result.should =~ /Migrating to Xxx \(#{Time.now.year}/
       end
     end
-    
+
     context "multiple migration paths" do
       before do
         write_multiple_migrations
@@ -170,19 +169,19 @@ TXT
         result.should_not =~ /SUCCESS/
       end
     end
-    
+
     context "multiple migration paths" do
       before do
         write_multiple_migrations
       end
-      
+
       it "runs down on the correct path" do
         run 'rake db:migrate'
         result = run 'rake db:migrate:down VERSION=20100509095815'
         result.should =~ /DOWN-CreateTests/
         result.should_not =~ /DOWN-CreateTests2/
       end
-      
+
       it "fails if migration number isn't found" do
         run 'rake db:migrate'
         result = run 'rake db:migrate:down VERSION=20100509095820'
@@ -211,18 +210,18 @@ TXT
         result.should_not =~ /SUCCESS/
       end
     end
-  
+
     context "multiple migration paths" do
       before do
         write_multiple_migrations
       end
-      
+
       it "runs down on the correct path" do
         result = run 'rake db:migrate:up VERSION=20100509095815'
         result.should =~ /UP-CreateTests/
         result.should_not =~ /UP-CreateTests2/
       end
-      
+
       it "fails if migration number isn't found" do
         result = run 'rake db:migrate:up VERSION=20100509095820'
         result.should_not =~ /SUCCESS/
