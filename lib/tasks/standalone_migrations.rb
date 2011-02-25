@@ -17,6 +17,9 @@ class MigratorTasks < ::Rake::TaskLib
     @schema = "#{base}/db/schema.rb"
     @env = 'DB'
     @default_env = 'development'
+    @admin_user = ENV['DB_ADMIN_USER'] || 'root'
+    @admin_pass = ENV['DB_ADMIN_PASS'] || nil
+    @user_host  = ENV['DB_USER_HOST']  || 'localhost'
     @verbose = true
     @log_level = Logger::ERROR
     yield self if block_given?
@@ -104,13 +107,15 @@ class MigratorTasks < ::Rake::TaskLib
                 ActiveRecord::Base.establish_connection(config)
               rescue error_class => sqlerr
                 if sqlerr.errno == access_denied_error
-                  print "#{sqlerr.error}. \nPlease provide the root password for your mysql installation\n>"
-                  root_password = $stdin.gets.strip
+                  if @admin_pass.nil?
+                    print "#{sqlerr.error}. \nPlease provide password for mysql user #{@admin_user}\n>"
+                    @admin_pass = $stdin.gets.strip
+                  end
                   grant_statement = "GRANT ALL PRIVILEGES ON #{config['database']}.* " \
-              "TO '#{config['username']}'@'localhost' " \
+              "TO '#{config['username']}'@'#{@user_host}' " \
               "IDENTIFIED BY '#{config['password']}' WITH GRANT OPTION;"
                   ActiveRecord::Base.establish_connection(config.merge(
-                                                              'database' => nil, 'username' => 'root', 'password' => root_password))
+                                                              'database' => nil, 'username' => @admin_user, 'password' => @admin_pass))
                   ActiveRecord::Base.connection.create_database(config['database'], creation_options)
                   ActiveRecord::Base.connection.execute grant_statement
                   ActiveRecord::Base.establish_connection(config)
