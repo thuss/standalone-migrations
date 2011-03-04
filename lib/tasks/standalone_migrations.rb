@@ -132,7 +132,7 @@ class MigratorTasks < ::Rake::TaskLib
               end
           end
         else
-          $stderr.puts "#{config['database']} already exists"
+          $stderr.puts "#{config['database']} already exists" unless config['adapter'] =~ /sqlite/
         end
       end
 

@@ -94,8 +94,8 @@ end
 
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
-      run_with_output("rake db:create").should =~ /SUCCESS/
-      run_with_output("rake db:drop").should =~ /SUCCESS/
+      run_with_output("rake db:create").should match /spec\/tmp\)$/
+      run_with_output("rake db:drop").should match /spec\/tmp\)$/
     end
   end
 
