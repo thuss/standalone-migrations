@@ -1,6 +1,18 @@
 task :default => :spec
-require 'rspec/core/rake_task'
-RSpec::Core::RakeTask.new {|t| t.rspec_opts = ['--color']}
+
+begin
+  require 'rspec/core/rake_task'
+rescue LoadError => e
+  $stderr.puts "RSpec 2, or one of its dependencies, is not available:"
+  $stderr.puts "#{e.class}: #{e.message}"
+  $stderr.puts "Install it with: sudo gem install rspec"
+  $stderr.puts "Test-related tasks will not be available."
+  $stderr.puts "If you have RSpec 1 installed you can try running the tests with:"
+  $stderr.puts "  spec spec"
+  $stderr.puts "However, RSpec 1 is not officially supported."
+else
+  RSpec::Core::RakeTask.new {|t| t.rspec_opts = ['--color']}
+end
 
 # rake install -> install gem locally (for tests)
 # rake release -> push to github and release to gemcutter
