@@ -3,7 +3,9 @@ require 'rake/tasklib'
 require 'logger'
 
 class MigratorTasks < ::Rake::TaskLib
-  attr_accessor :name, :base, :vendor, :config, :schema, :env, :default_env, :verbose, :log_level, :logger
+  DefaultEnv = 'development'
+
+  attr_accessor :name, :base, :vendor, :config, :schema, :env, :current_env, :verbose, :log_level, :logger
   attr_reader :migrations
 
   def initialize(name = :migrator)
@@ -16,7 +18,6 @@ class MigratorTasks < ::Rake::TaskLib
     @config = "#{base}/db/config.yml"
     @schema = "#{base}/db/schema.rb"
     @env = 'DB'
-    @default_env = 'development'
     @admin_user = ENV['DB_ADMIN_USER'] || 'root'
     @admin_pass = ENV['DB_ADMIN_PASS'] || nil
     @user_host  = ENV['DB_USER_HOST']  || 'localhost'
@@ -36,7 +37,7 @@ class MigratorTasks < ::Rake::TaskLib
     namespace :db do
       def ar_init(connect = true)
         require 'active_record'
-        ENV[@env] ||= @default_env
+        self.current_env = ENV[@env] || DefaultEnv
 
         if @config.is_a?(Hash)
           ActiveRecord::Base.configurations = @config
@@ -44,7 +45,7 @@ class MigratorTasks < ::Rake::TaskLib
           require 'erb'
           ActiveRecord::Base.configurations = YAML::load(ERB.new(IO.read(@config)).result)
         end
-        ActiveRecord::Base.establish_connection(ENV[@env]) if connect
+        ActiveRecord::Base.establish_connection(current_env) if connect
         if @logger
           logger = @logger
         else
@@ -72,6 +73,7 @@ class MigratorTasks < ::Rake::TaskLib
       task :version => :ar_init do
         puts "Current version: #{ActiveRecord::Migrator.current_version}"
       end
+
 
       def create_database(config)
         begin
@@ -137,14 +139,14 @@ class MigratorTasks < ::Rake::TaskLib
               end
           end
         else
-          $stderr.puts "#{config['database']} already exists"
+          $stderr.puts "#{config['database']} already exists" unless config['adapter'] =~ /sqlite/
         end
       end
 
       desc 'Create the database from config/database.yml for the current DATABASE_ENV'
       task :create do
         ar_init(false)
-        config = ActiveRecord::Base.configurations[self.default_env]
+        config = ActiveRecord::Base.configurations[self.current_env]
         create_database config
       end
 
@@ -166,7 +168,7 @@ class MigratorTasks < ::Rake::TaskLib
 
       desc 'Drops the database for the current DATABASE_ENV'
       task :drop => :ar_init do
-        config = ActiveRecord::Base.configurations[self.default_env]
+        config = ActiveRecord::Base.configurations[current_env]
         drop_database(config)
       end
 
