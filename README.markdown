@@ -12,6 +12,7 @@ Add to `Rakefile` in your projects base directory:
         # t.migrations = "db/migrations"
         # t.config = "db/config.yml"
         # t.schema = "db/schema.rb"
+        # t.sub_namespace = "dbname"
         # t.env = "DB"
         # t.default_env = "development"
         # t.verbose = true
@@ -76,6 +77,27 @@ If you're lazy and want to just execute raw SQL:
 ### To execute a specific up/down of one single migration
 
     rake db:migrate:up VERSION=20081220234130
+
+## Sub-namespacing
+
+When working with multiple databases in a single application it is convenient
+to have separate sets of tasks for each database. This is accomplished with
+sub_namespace parameter - for example, given the following declaration:
+
+    MigratorTasks.new do |t|
+      t.migrations = "db/migrate/widgets"
+      t.sub_namespace = "widgets"
+      ...
+    end
+
+The following tasks will be created:
+
+    db:widgets:new_migration
+    db:widgets:migrate
+    ...
+
+And migrations for this database would be created in db/migrate/widgets
+subdirectory.
 
 Contributors
 ============
