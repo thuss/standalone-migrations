@@ -19,6 +19,11 @@ end
 # rake version:bump:patch -> increase version and add a git-tag
 begin
   require 'jeweler'
+rescue LoadError => e
+  $stderr.puts "Jeweler, or one of its dependencies, is not available:"
+  $stderr.puts "#{e.class}: #{e.message}"
+  $stderr.puts "Install it with: sudo gem install jeweler"
+else
   Jeweler::Tasks.new do |gem|
     gem.name = 'standalone_migrations'
     gem.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
@@ -30,6 +35,4 @@ begin
   end
 
   Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler, or one of its dependencies, is not available. Install it with: sudo gem install jeweler"
 end
