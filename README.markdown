@@ -3,9 +3,11 @@ Rails migrations in non-Rails (and non Ruby) projects.
 USAGE
 =====
 Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
+
     sudo gem install standalone_migrations
 
 Add to `Rakefile` in your projects base directory:
+
     begin
       require 'tasks/standalone_migrations'
       MigratorTasks.new do |t|
@@ -23,6 +25,7 @@ Add to `Rakefile` in your projects base directory:
     end
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
+
     development:
       adapter: sqlite3
       database: db/development.sqlite3
