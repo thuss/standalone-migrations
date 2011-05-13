@@ -16,7 +16,6 @@ Add to `Rakefile` in your projects base directory:
         # t.schema = "db/schema.rb"
         # t.sub_namespace = "dbname"
         # t.env = "DB"
-        # t.default_env = "development"
         # t.verbose = true
         # t.log_level = Logger::ERROR
       end
