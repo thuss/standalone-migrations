@@ -156,6 +156,7 @@ class MigratorTasks < ::Rake::TaskLib
     task :create do
       ar_init(false)
       config = ActiveRecord::Base.configurations[self.current_env]
+      raise ArgumentError, "#{self.current_env} database is not configured" unless config
       create_database config
     end
 
