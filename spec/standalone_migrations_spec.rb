@@ -105,6 +105,12 @@ end
     end
   end
 
+  describe 'db:create when nonexistent environment is specified' do
+    it "should provide an informative error message" do
+      run_with_output("rake db:create DB=nonexistent").should match /nonexistent database is not configured/
+    end
+  end
+
   describe 'db:new_migration' do
     context "single migration path" do
       it "fails if i do not add a name" do
