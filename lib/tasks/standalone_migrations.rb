@@ -72,7 +72,11 @@ class MigratorTasks < ::Rake::TaskLib
 
     desc "Migrate the database using the scripts in the migrations directory. Target specific version with VERSION=x. Turn off output with VERBOSE=false."
     task :migrate => :ar_init do
-      require "#{@vendor}/migration_helpers/init"
+      begin
+        require 'migration_helpers'
+      rescue LoadError
+        require "#{@vendor}/migration_helpers/init"
+      end
       ActiveRecord::Migration.verbose = ENV['VERBOSE'] || @verbose
       @migrations.each do |path|
         ActiveRecord::Migrator.migrate(path, ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
