@@ -156,7 +156,7 @@ class MigratorTasks < ::Rake::TaskLib
       end
     end
 
-    desc 'Create the database from config/database.yml for the current DATABASE_ENV'
+    desc 'Create the database from config/database.yml for the current DB'
     task :create do
       ar_init(false)
       config = ActiveRecord::Base.configurations[self.current_env]
@@ -180,7 +180,7 @@ class MigratorTasks < ::Rake::TaskLib
       end
     end
 
-    desc 'Drops the database for the current DATABASE_ENV'
+    desc 'Drops the database for the current DB'
     task :drop => :ar_init do
       config = ActiveRecord::Base.configurations[current_env]
       drop_database(config)
@@ -289,7 +289,7 @@ class MigratorTasks < ::Rake::TaskLib
       task :prepare => ["db:#{sub_namespace_with_separator}abort_if_pending_migrations", "db:#{sub_namespace_with_separator}test:load"]
     end
 
-    desc 'generate a model=name field="field1:type field2:type"'
+    desc 'generate a model=name field="type:column_name0 type:column_name1 ... type:column_namen"'
     task :generate do
       ts = Time.now.strftime '%Y%m%d%H%%M%S'
 

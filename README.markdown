@@ -54,7 +54,7 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 
 ... and fill in the up and down migrations [Cheatsheet](http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations).
 
-If you're lazy and want to just execute raw SQL:
+#### If you really want to, you can just execute raw SQL:
 
     def self.up
       execute "insert into foo values (123,'something');"
@@ -62,6 +62,35 @@ If you're lazy and want to just execute raw SQL:
 
     def self.down
       execute "delete from foo where field='something';"
+    end
+
+#### Even better, you can use the _generate_ task to create the initial migration ####
+
+The general form is:
+
+    rake db:generate model="model_name" fields="type:column_name0 type:column_name1 ... type:column_namen"
+
+You can have as many fields as you would like.
+    
+An example to create a Person table with 3 columns (and it will automatically add the t.timestamps line)
+
+    rake db:generate model="Person" fields="string:first_name string:last_name integer:age"
+
+This will create a migration in db/migrations/
+
+    class CreatePerson < ActiveRecord::Migration
+      def self.up
+        create_table :Person do |t|
+          t.string :first_name
+          t.string :last_name
+          t.integer :age   
+          t.timestamps
+        end
+      end
+
+      def self.down
+        drop_table :Person
+      end
     end
 
 ### To apply your newest migration:
@@ -111,3 +140,4 @@ This work is based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stan
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
  - [Rich Meyers](https://github.com/richmeyers)
  - [Wes Bailey](http://exposinggotchas.blogspot.com/)
+ - [Robert J. Berger](http://blog.ibd.com/)
