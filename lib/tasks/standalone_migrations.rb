@@ -258,7 +258,7 @@ class MigratorTasks < ::Rake::TaskLib
       task :purge => "db:#{sub_namespace_with_separator}ar_init" do
         config = ActiveRecord::Base.configurations['test']
         case config["adapter"]
-          when "mysql"
+          when /mysql/
             ActiveRecord::Base.establish_connection(:test)
             ActiveRecord::Base.connection.recreate_database(config["database"], config)
           when "postgresql" #TODO i doubt this will work <-> methods are not defined
@@ -313,11 +313,11 @@ class MigratorTasks < ::Rake::TaskLib
       contents = <<-MIGRATION
 class Create#{class_name table_name} < ActiveRecord::Migration
   def self.up
-    #{create_table_str}   
+    #{create_table_str}
       t.timestamps
     end
   end
-           
+
   def self.down
     drop_table :#{table_name}
   end
