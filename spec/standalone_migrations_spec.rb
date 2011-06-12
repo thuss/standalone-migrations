@@ -12,8 +12,8 @@ describe 'Standalone migrations' do
   end
 
   def migration(name)
-    m = `cd spec/tmp/db/migrations && ls`.split("\n").detect { |m| m =~ name }
-    m ? "db/migrations/#{m}" : m
+    m = `cd spec/tmp/db/migrate && ls`.split("\n").detect { |m| m =~ name }
+    m ? "db/migrate/#{m}" : m
   end
 
   def tmp_file(file)
@@ -24,13 +24,19 @@ describe 'Standalone migrations' do
     `cd spec/tmp && #{cmd} 2>&1 && echo SUCCESS`
   end
 
+  def run!(cmd)
+    result = run(cmd)
+    raise result unless result.include?('SUCCESS')
+    result
+  end
+
   def run_with_output(cmd)
     `cd spec/tmp && #{cmd} 2>&1`
   end
 
   def make_migration(name, options={})
     task_name = options[:task_name] || 'db:new_migration'
-    migration = run("rake #{task_name} name=#{name}").match(%r{db/migrations/\d+.*.rb})[0]
+    migration = run("rake #{task_name} name=#{name}").match(%r{db/migrate/\d+.*.rb})[0]
     content = read(migration)
     content.sub!(/def self.down.*?\send/m, "def self.down;puts 'DOWN-#{name}';end")
     content.sub!(/def self.up.*?\send/m, "def self.up;puts 'UP-#{name}';end")
@@ -48,10 +54,6 @@ describe 'Standalone migrations' do
       $LOAD_PATH.unshift '#{File.expand_path('lib')}'
       begin
         require 'tasks/standalone_migrations'
-        MigratorTasks.new do |t|
-          t.log_level = Logger::INFO
-          #{config}
-        end
       rescue LoadError => e
         puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
       end
@@ -100,8 +102,8 @@ end
 
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
-      run_with_output("rake db:create").should match /spec\/tmp\)$/
-      run_with_output("rake db:drop").should match /spec\/tmp\)$/
+      run! "rake db:create --trace"
+      run! "rake db:drop"
     end
   end
 
