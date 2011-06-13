@@ -21,17 +21,9 @@ describe 'Standalone migrations' do
   end
 
   def run(cmd)
-    `cd spec/tmp && #{cmd} 2>&1 && echo SUCCESS`
-  end
-
-  def run!(cmd)
-    result = run(cmd)
-    raise result unless result.include?('SUCCESS')
+    result = `cd spec/tmp && #{cmd} 2>&1`
+    raise result unless $?.success?
     result
-  end
-
-  def run_with_output(cmd)
-    `cd spec/tmp && #{cmd} 2>&1`
   end
 
   def make_migration(name, options={})
@@ -91,65 +83,36 @@ end
     `mkdir spec/tmp`
     write_rakefile
     write 'db/config.yml', <<-TXT
-      development:
-        adapter: sqlite3
-        database: db/development.sql
-      test:
-        adapter: sqlite3
-        database: db/test.sql
+development:
+  adapter: sqlite3
+  database: db/development.sql
+test:
+  adapter: sqlite3
+  database: db/test.sql
     TXT
   end
 
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
-      run! "rake db:create --trace"
-      run! "rake db:drop"
+      run "rake db:create"
+      run "rake db:drop"
     end
   end
 
   describe 'db:create when nonexistent environment is specified' do
-    it "should provide an informative error message" do
-      run_with_output("rake db:create DB=nonexistent").should match /nonexistent database is not configured/
+    xit "should provide an informative error message" do
+      run("rake db:create DB=nonexistent").should match /nonexistent database is not configured/
     end
   end
 
   describe 'db:new_migration' do
-    context "single migration path" do
-      it "fails if i do not add a name" do
-        run("rake db:new_migration").should_not =~ /SUCCESS/
-      end
-
-      it "generates a new migration with this name and timestamp" do
-        run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*spec/tmp/db/migrations/\d+_test_abc\.rb}
-        run("ls db/migrations").should =~ /^\d+_test_abc.rb$/
-      end
+    it "fails if i do not add a name" do
+      lambda{ run("rake db:new_migration") }.should raise_error(/name=/)
     end
 
-    context "multiple migration paths" do
-      before do
-        write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
-      end
-      it "chooses the first path" do
-        run("rake db:new_migration name=test_abc").should =~ %r{Created migration .*db/migrations/\d+_test_abc\.rb}
-      end
-    end
-
-    context 'sub-namespaced task' do
-      before do
-        write_rakefile %{t.sub_namespace = "widgets"}
-      end
-      it "fails if i do not add a name" do
-        run("rake db:widgets:new_migration").should_not =~ /SUCCESS/
-      end
-
-      it "generates a new migration with this name and timestamp" do
-        run("rake db:widgets:new_migration name=test_widget").should =~ %r{Created migration .*spec/tmp/db/migrations/\d+_test_widget\.rb}
-        run("ls db/migrations").should =~ /^\d+_test_widget.rb$/
-      end
-
-      it 'does not create top level db:new_migration task' do
-        run('rake db:new_migration').should =~ /Don't know how to build task 'db:new_migration'/
-      end
+    it "generates a new migration with this name and timestamp" do
+      run("rake db:new_migration name=test_abc").should =~ %r{Created migration db/migrate/\d+_test_abc\.rb}
+      run("ls db/migrate").should =~ /^\d+_test_abc.rb$/
     end
   end
 
@@ -157,47 +120,22 @@ end
     it "should start with a new database version" do
       run("rake db:version").should =~ /Current version: 0/
     end
+
+    it "should display the current version" do
+      run("rake db:new_migration name=test_abc")
+      run("rake db:migrate")
+      run("rake db:version").should =~ /Current version: #{Time.now.year}/
+    end
   end
 
   describe 'db:migrate' do
-    context "single migration path" do
-      it "does nothing when no migrations are present" do
-        run("rake db:migrate").should =~ /SUCCESS/
-      end
-
-      it "migrates if i add a migration" do
-        run("rake db:new_migration name=xxx")
-        result = run("rake db:migrate")
-        result.should =~ /SUCCESS/
-        result.should =~ /Migrating to Xxx \(#{Time.now.year}/
-      end
+    it "does nothing when no migrations are present" do
+      run("rake db:migrate").should_not =~ /Migrating/
     end
 
-    context "multiple migration paths" do
-      before do
-        write_multiple_migrations
-      end
-      it "runs the migrator on each migration path" do
-        result = run("rake db:migrate")
-        result.should =~ /Migrating to CreateTests \(2010/
-        result.should =~ /Migrating to CreateTests2 \(2010/
-      end
-    end
-
-    context 'sub-namespaced task' do
-      before do
-        write_rakefile %{t.sub_namespace = "widgets"}
-      end
-      it 'runs the migrations' do
-        run("rake db:widgets:new_migration name=new_widget")
-        result = run("rake db:widgets:migrate")
-        result.should =~ /SUCCESS/
-        result.should =~ /Migrating to NewWidget \(#{Time.now.year}/
-      end
-
-      it 'does not create top level db:new_migration task' do
-        run('rake db:migrate').should =~ /Don't know how to build task 'db:migrate'/
-      end
+    it "migrates if i add a migration" do
+      run("rake db:new_migration name=xxx")
+      run("rake db:migrate").should =~ /Xxx: Migrating/i
     end
   end
 
