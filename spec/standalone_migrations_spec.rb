@@ -140,123 +140,44 @@ test:
   end
 
   describe 'db:migrate:down' do
-    context "single migration path" do
-      it "migrates down" do
-        make_migration('xxx')
-        sleep 1
-        version = make_migration('yyy')
-        run 'rake db:migrate'
+    it "migrates down" do
+      make_migration('xxx')
+      sleep 1
+      version = make_migration('yyy')
+      run 'rake db:migrate'
 
-        result = run("rake db:migrate:down VERSION=#{version}")
-        result.should =~ /SUCCESS/
-        result.should_not =~ /DOWN-xxx/
-        result.should =~ /DOWN-yyy/
-      end
-
-      it "fails without version" do
-        make_migration('yyy')
-        result = run("rake db:migrate:down")
-        result.should_not =~ /SUCCESS/
-      end
+      result = run("rake db:migrate:down VERSION=#{version}")
+      result.should_not =~ /DOWN-xxx/
+      result.should =~ /DOWN-yyy/
     end
 
-    context "multiple migration paths" do
-      before do
-        write_multiple_migrations
-      end
-
-      it "runs down on the correct path" do
-        run 'rake db:migrate'
-        result = run 'rake db:migrate:down VERSION=20100509095815'
-        result.should =~ /DOWN-CreateTests/
-        result.should_not =~ /DOWN-CreateTests2/
-      end
-
-      it "fails if migration number isn't found" do
-        run 'rake db:migrate'
-        result = run 'rake db:migrate:down VERSION=20100509095820'
-        result.should_not =~ /SUCCESS/
-        result.should =~ /wasn't found on path/
-      end
-    end
-
-    context 'sub-namespaced task' do
-      before do
-        write_rakefile %{t.sub_namespace = "widgets"}
-      end
-      it 'migrates down' do
-        make_sub_namespaced_migration('widgets', 'widget_xxx')
-        sleep 1
-        version = make_sub_namespaced_migration('widgets', 'widget_yyy')
-        run 'rake db:widgets:migrate'
-
-        result = run("rake db:widgets:migrate:down VERSION=#{version}")
-        result.should =~ /SUCCESS/
-        result.should_not =~ /DOWN-widget_xxx/
-        result.should =~ /DOWN-widget_yyy/
-      end
+    it "fails without version" do
+      make_migration('yyy')
+      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION/)
     end
   end
 
   describe 'db:migrate:up' do
-    context "single migration path" do
-      it "migrates up" do
-        make_migration('xxx')
-        run 'rake db:migrate'
-        sleep 1
-        version = make_migration('yyy')
-        result = run("rake db:migrate:up VERSION=#{version}")
-        result.should =~ /SUCCESS/
-        result.should_not =~ /UP-xxx/
-        result.should =~ /UP-yyy/
-      end
-
-      it "fails without version" do
-        make_migration('yyy')
-        result = run("rake db:migrate:up")
-        result.should_not =~ /SUCCESS/
-      end
+    it "migrates up" do
+      make_migration('xxx')
+      run 'rake db:migrate'
+      sleep 1
+      version = make_migration('yyy')
+      result = run("rake db:migrate:up VERSION=#{version}")
+      result.should_not =~ /UP-xxx/
+      result.should =~ /UP-yyy/
     end
 
-    context "multiple migration paths" do
-      before do
-        write_multiple_migrations
-      end
-
-      it "runs down on the correct path" do
-        result = run 'rake db:migrate:up VERSION=20100509095815'
-        result.should =~ /UP-CreateTests/
-        result.should_not =~ /UP-CreateTests2/
-      end
-
-      it "fails if migration number isn't found" do
-        result = run 'rake db:migrate:up VERSION=20100509095820'
-        result.should_not =~ /SUCCESS/
-        result.should =~ /wasn't found on path/
-      end
-    end
-
-    context 'sub-namespaced task' do
-      before do
-        write_rakefile %{t.sub_namespace = "widgets"}
-      end
-      it 'migrates up' do
-        make_sub_namespaced_migration('widgets', 'widget_xxx')
-        run 'rake db:widgets:migrate'
-        sleep 1
-        version = make_sub_namespaced_migration('widgets', 'widget_yyy')
-        result = run("rake db:widgets:migrate:up VERSION=#{version}")
-        result.should =~ /SUCCESS/
-        result.should_not =~ /UP-widget_xxx/
-        result.should =~ /UP-widget_yyy/
-      end
+    it "fails without version" do
+      make_migration('yyy')
+      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION/)
     end
   end
 
   describe 'schema:dump' do
     it "dumps the schema" do
-      result = run('rake db:schema:dump')
-      result.should =~ /SUCCESS/
+      write('db/schema.rb', '')
+      run('rake db:schema:dump')
       read('db/schema.rb').should =~ /ActiveRecord/
     end
   end
@@ -267,38 +188,44 @@ test:
       schema = "db/schema.rb"
       write(schema, read(schema)+"\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
-      result.should =~ /SUCCESS/
       result.should =~ /LOADEDDD/
+    end
+
+    it "loads all migrations" do
+      make_migration('yyy')
+      run "rake db:migrate"
+      run "rake db:drop"
+      run "rake db:create"
+      run "rake db:schema:load"
+      run( "rake db:migrate").strip.should == ''
     end
   end
 
   describe 'db:abort_if_pending_migrations' do
     it "passes when no migrations are pending" do
-      run("rake db:abort_if_pending_migrations").should_not =~ /try again/
+      run("rake db:abort_if_pending_migrations").strip.should == ''
     end
 
     it "fails when migrations are pending" do
       make_migration('yyy')
-      result = run("rake db:abort_if_pending_migrations")
-      result.should =~ /try again/
-      result.should =~ /1 pending migration/
+      lambda{ run("rake db:abort_if_pending_migrations") }.should raise_error(/1 pending migration/)
     end
   end
 
   describe 'db:test:load' do
     it 'loads' do
       write("db/schema.rb", "puts 'LOADEDDD'")
-      run("rake db:test:load").should =~ /LOADEDDD.*SUCCESS/m
+      run("rake db:test:load").should =~ /LOADEDDD/
     end
 
     it "fails without schema" do
-      run("rake db:test:load").should =~ /no such file to load/
+      lambda{ run("rake db:test:load") }.should raise_error(/try again/)
     end
   end
 
   describe 'db:test:purge' do
     it "runs" do
-      run('rake db:test:purge').should =~ /SUCCESS/
+      run('rake db:test:purge')
     end
   end
 end

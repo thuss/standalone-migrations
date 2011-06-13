@@ -36,6 +36,7 @@ end
 task(:rails_env){}
 
 task(:environment) do
+  ActiveRecord::Base.configurations = DB_CONFIG
   ActiveRecord::Base.establish_connection DB_CONFIG[Rails.env]
 end
 
