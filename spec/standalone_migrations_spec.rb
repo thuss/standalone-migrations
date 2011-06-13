@@ -36,19 +36,14 @@ describe 'Standalone migrations' do
     migration.match(/\d{14}/)[0]
   end
 
-  def make_sub_namespaced_migration(namespace, name)
-    # specify complete task name here to avoid conditionals in make_migration
-    make_migration(name, :task_name => "db:#{namespace}:new_migration")
-  end
-
   def write_rakefile(config=nil)
     write 'Rakefile', <<-TXT
-      $LOAD_PATH.unshift '#{File.expand_path('lib')}'
-      begin
-        require 'tasks/standalone_migrations'
-      rescue LoadError => e
-        puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
-      end
+$LOAD_PATH.unshift '#{File.expand_path('lib')}'
+begin
+  require 'tasks/standalone_migrations'
+rescue LoadError => e
+  puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
+end
     TXT
   end
 
@@ -56,24 +51,24 @@ describe 'Standalone migrations' do
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrations/20100509095815_create_tests.rb", <<-TXT
 class CreateTests < ActiveRecord::Migration
-def self.up
-  puts "UP-CreateTests"
-end
+  def self.up
+    puts "UP-CreateTests"
+  end
 
-def self.down
-  puts "DOWN-CreateTests"
-end
+  def self.down
+    puts "DOWN-CreateTests"
+  end
 end
     TXT
     write "db/migrations2/20100509095816_create_tests2.rb", <<-TXT
 class CreateTests2 < ActiveRecord::Migration
-def self.up
-  puts "UP-CreateTests2"
-end
+  def self.up
+    puts "UP-CreateTests2"
+  end
 
-def self.down
-  puts "DOWN-CreateTests2"
-end
+  def self.down
+    puts "DOWN-CreateTests2"
+  end
 end
     TXT
   end
