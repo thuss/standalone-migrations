@@ -2,9 +2,14 @@ require 'active_support/all'
 require 'active_record'
 require 'pathname'
 
-DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
+# earlier versions used migrations from db/migrations, so warn users about the change
+if File.directory?('db/migrations')
+  puts "DEPRECATED move your migrations into db/migrate"
+end
 
 module Rails
+  DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
+
   def self.env
     s = (ENV['RAILS_ENV'] || 'development').dup # env is frozen -> dup
     def s.development?; self == 'development';end
@@ -64,18 +69,18 @@ eof
     create_file file_name(migration), file_contents
     puts "Created migration #{file_name migration}"
   end
-end
 
-def create_file file, contents
-  path = File.dirname(file)
-  FileUtils.mkdir_p path unless File.exists? path
-  File.open(file, 'w') { |f| f.write contents }
-end
+  def create_file file, contents
+    path = File.dirname(file)
+    FileUtils.mkdir_p path unless File.exists? path
+    File.open(file, 'w') { |f| f.write contents }
+  end
 
-def file_name migration
-  File.join 'db/migrate', "#{Time.now.utc.strftime '%Y%m%d%H%M%S'}_#{migration}.rb"
-end
+  def file_name migration
+    File.join 'db/migrate', "#{Time.now.utc.strftime '%Y%m%d%H%M%S'}_#{migration}.rb"
+  end
 
-def class_name str
-  str.split('_').map { |s| s.capitalize }.join
+  def class_name str
+    str.split('_').map { |s| s.capitalize }.join
+  end
 end

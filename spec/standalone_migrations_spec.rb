@@ -87,6 +87,13 @@ test:
     TXT
   end
 
+  it "warns of deprecated folder structure" do
+    warning = /DEPRECATED.* db\/migrate/
+    run("rake db:create").should_not =~ warning
+    write('db/migrations/fooo.rb', 'xxx')
+    run("rake db:create").should =~ warning
+  end
+
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
       run "rake db:create"
