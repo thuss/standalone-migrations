@@ -40,7 +40,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
+  activerecord (>= 3)
   jeweler
   rake
   rspec (~> 2)

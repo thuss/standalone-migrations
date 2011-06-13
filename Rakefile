@@ -3,8 +3,7 @@ task :default do
 end
 
 task :all do
-  sh "AR='~>2.3.11' bundle update activerecord && bundle exec rake"
-  sh "AR='~>3.0.8' bundle update activerecord && bundle exec rake"
+  sh "AR='~>3.0.0' bundle update activerecord && bundle exec rake"
   sh "AR='~>3.1.0.rc4' bundle update activerecord && bundle exec rake"
 end
 

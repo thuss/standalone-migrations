@@ -1,7 +1,7 @@
 source :rubygems
 
 gem 'rake'
-gem 'activerecord'
+gem 'activerecord', ENV['AR'] || '>=3'
 
 group :dev do
   gem 'sqlite3'
