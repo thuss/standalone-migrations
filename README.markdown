@@ -130,6 +130,11 @@ The following tasks will be created:
 And migrations for this database would be created in db/migrate/widgets
 subdirectory.
 
+Known issues
+============
+
+ - [rake db:create] creates all databases ([rails issues](https://github.com/rails/rails/issues/1674))
+
 Contributors
 ============
  - [Todd Huss](http://gabrito.com/)
