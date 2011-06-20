@@ -10,15 +10,6 @@ Add to `Rakefile` in your projects base directory:
 
     begin
       require 'tasks/standalone_migrations'
-      MigratorTasks.new do |t|
-        # t.migrations = "db/migrations"
-        # t.config = "db/config.yml"
-        # t.schema = "db/schema.rb"
-        # t.sub_namespace = "dbname"
-        # t.env = "DB"
-        # t.verbose = true
-        # t.log_level = Logger::ERROR
-      end
     rescue LoadError => e
       puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
     end
@@ -50,7 +41,7 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 ### To create a new database migration:
 
     rake db:new_migration name=FooBarMigration
-    edit db/migrations/20081220234130_foo_bar_migration.rb
+    edit db/migrate/20081220234130_foo_bar_migration.rb
 
 ... and fill in the up and down migrations [Cheatsheet](http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations).
 
@@ -76,7 +67,7 @@ An example to create a Person table with 3 columns (and it will automatically ad
 
     rake db:generate model="Person" fields="string:first_name string:last_name integer:age"
 
-This will create a migration in db/migrations/
+This will create a migration in db/migrate/
 
     class CreatePerson < ActiveRecord::Migration
       def self.up
@@ -109,26 +100,10 @@ This will create a migration in db/migrations/
 
     rake db:migrate:up VERSION=20081220234130
 
-## Sub-namespacing
+Known issues
+============
 
-When working with multiple databases in a single application it is convenient
-to have separate sets of tasks for each database. This is accomplished with
-sub_namespace parameter - for example, given the following declaration:
-
-    MigratorTasks.new do |t|
-      t.migrations = "db/migrate/widgets"
-      t.sub_namespace = "widgets"
-      ...
-    end
-
-The following tasks will be created:
-
-    db:widgets:new_migration
-    db:widgets:migrate
-    ...
-
-And migrations for this database would be created in db/migrate/widgets
-subdirectory.
+ - [rake db:create] creates all databases ([rails issues](https://github.com/rails/rails/issues/1674))
 
 Contributors
 ============
