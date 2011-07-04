@@ -109,6 +109,14 @@ This will create a migration in db/migrations/
 
     rake db:migrate:up VERSION=20081220234130
 
+### To revert your last migration
+
+    rake db:rollback
+
+### To revert your last 3 migrations
+
+    rake db:rollback STEP=3
+
 ## Sub-namespacing
 
 When working with multiple databases in a single application it is convenient
