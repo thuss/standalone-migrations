@@ -2,3 +2,4 @@
 schema.rb
 spec/tmp
 pkg
+.rvmrc
