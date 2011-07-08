@@ -83,6 +83,15 @@ class MigratorTasks < ::Rake::TaskLib
       end
       Rake::Task["db:#{sub_namespace_with_separator}schema:dump"].execute
     end
+    
+    desc "Revert the last migration applied. Revert multiple migrations with STEP=x."
+    task :rollback => :ar_init do
+      step = ENV['STEP'] ? ENV['STEP'].to_i : 1
+      @migrations.each do |path|
+        ActiveRecord::Migrator.rollback(path, step)
+      end
+      Rake::Task["db:#{sub_namespace_with_separator}schema:dump"].execute
+    end
 
     desc "Retrieves the current schema version number"
     task :version => :ar_init do
@@ -258,7 +267,7 @@ class MigratorTasks < ::Rake::TaskLib
       task :purge => "db:#{sub_namespace_with_separator}ar_init" do
         config = ActiveRecord::Base.configurations['test']
         case config["adapter"]
-          when "mysql"
+          when *["mysql", "mysql2"]
             ActiveRecord::Base.establish_connection(:test)
             ActiveRecord::Base.connection.recreate_database(config["database"], config)
           when "postgresql" #TODO i doubt this will work <-> methods are not defined

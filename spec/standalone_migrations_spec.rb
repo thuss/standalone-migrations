@@ -57,6 +57,20 @@ describe 'Standalone migrations' do
       end
     TXT
   end
+  
+  def write_reversible_migration
+    write "db/migrations/20110703102233_create_tests.rb", <<-TXT
+class CreateTests < ActiveRecord::Migration
+def self.up
+  puts "UP-CreateTests"
+end
+
+def self.down
+  puts "DOWN-CreateTests"
+end
+end
+    TXT
+  end
 
   def write_multiple_migrations
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
@@ -196,6 +210,30 @@ end
       it 'does not create top level db:new_migration task' do
         run('rake db:migrate').should =~ /Don't know how to build task 'db:migrate'/
       end
+    end
+  end
+  
+  describe 'db:rollback' do
+    it "does nothing when no migrations have been run" do
+      run("rake db:rollback").should =~ /SUCCESS/
+    end
+    
+    it "rolls back the last migration if one has been applied" do
+      write_reversible_migration
+      run("rake db:migrate")
+      
+      result = run("rake db:rollback")
+      result.should =~ /SUCCESS/
+      result.should =~ /reverted/
+    end
+    
+    it "rolls back multiple migrations if the STEP argument is given" do
+      write_multiple_migrations
+      run("rake db:migrate")
+      
+      result = run("rake db:rollback STEP=2")
+      result.should =~ /SUCCESS/
+      result.should =~ /reverted/
     end
   end
 
