@@ -7,9 +7,9 @@ if File.directory?('db/migrations')
   puts "DEPRECATED move your migrations into db/migrate"
 end
 
-module Rails
-  DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
+DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
 
+module Rails
   def self.env
     s = (ENV['RAILS_ENV'] || 'development').dup # env is frozen -> dup
     def s.development?; self == 'development';end
