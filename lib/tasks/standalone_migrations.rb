@@ -24,7 +24,7 @@ module Rails
     s = "fake_app"
 
     def s.paths
-      Dir.glob('db/*').inject({}){|hash,x|hash[x]=x; hash}
+      Dir.glob('db/*').inject({}){|hash,x|hash[x]=[x]; hash}
     end
 
     def s.config
