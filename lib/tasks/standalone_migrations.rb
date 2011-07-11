@@ -11,7 +11,7 @@ DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
 
 module Rails
   def self.env
-    s = (ENV['RAILS_ENV'] || 'development').dup # env is frozen -> dup
+    s = (ENV['RAILS_ENV'] || ENV['DB'] || 'development').dup # env is frozen -> dup
     def s.development?; self == 'development';end
     s
   end
