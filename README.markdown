@@ -1,5 +1,13 @@
 Rails migrations in non-Rails (and non Ruby) projects.  
 
+WHAT'S NEW
+==========
+In the 1.0 release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
+
+CONTRIBUTE
+==========
+[Standalone Migrations](https://github.com/thuss/standalone-migrations) relies on the contributions of the open-source community! To submit a fix or an enhancement fork the repository, checkout the *develop* branch, make your changes, add your name to the *Contributors* section in README.markdown, and send us a pull request! If you're active and do good work we'll add you as a collaborator!
+
 USAGE
 =====
 Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
@@ -10,15 +18,6 @@ Add to `Rakefile` in your projects base directory:
 
     begin
       require 'tasks/standalone_migrations'
-      MigratorTasks.new do |t|
-        # t.migrations = "db/migrations"
-        # t.config = "db/config.yml"
-        # t.schema = "db/schema.rb"
-        # t.sub_namespace = "dbname"
-        # t.env = "DB"
-        # t.verbose = true
-        # t.log_level = Logger::ERROR
-      end
     rescue LoadError => e
       puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
     end
@@ -50,7 +49,7 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 ### To create a new database migration:
 
     rake db:new_migration name=FooBarMigration
-    edit db/migrations/20081220234130_foo_bar_migration.rb
+    edit db/migrate/20081220234130_foo_bar_migration.rb
 
 ... and fill in the up and down migrations [Cheatsheet](http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations).
 
@@ -76,7 +75,7 @@ An example to create a Person table with 3 columns (and it will automatically ad
 
     rake db:generate model="Person" fields="string:first_name string:last_name integer:age"
 
-This will create a migration in db/migrations/
+This will create a migration in db/migrate/
 
     class CreatePerson < ActiveRecord::Migration
       def self.up
@@ -103,40 +102,20 @@ This will create a migration in db/migrations/
 
 ### To migrate a specific database (for example your "testing" database)
 
-    rake db:migrate DB=test
+    rake db:migrate DB=test ... or ...
+    rake db:migrate RAILS_ENV=test
 
 ### To execute a specific up/down of one single migration
 
     rake db:migrate:up VERSION=20081220234130
-
+    
 ### To revert your last migration
 
     rake db:rollback
 
 ### To revert your last 3 migrations
 
-    rake db:rollback STEP=3
-
-## Sub-namespacing
-
-When working with multiple databases in a single application it is convenient
-to have separate sets of tasks for each database. This is accomplished with
-sub_namespace parameter - for example, given the following declaration:
-
-    MigratorTasks.new do |t|
-      t.migrations = "db/migrate/widgets"
-      t.sub_namespace = "widgets"
-      ...
-    end
-
-The following tasks will be created:
-
-    db:widgets:new_migration
-    db:widgets:migrate
-    ...
-
-And migrations for this database would be created in db/migrate/widgets
-subdirectory.
+    rake db:rollback STEP=3    
 
 Contributors
 ============
