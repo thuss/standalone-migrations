@@ -2,7 +2,7 @@ Rails migrations in non-Rails (and non Ruby) projects.
 
 WHAT'S NEW
 ==========
-In the 1.0 release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this rewrite!
+In the 1.0 release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
 
 CONTRIBUTE
 ==========
