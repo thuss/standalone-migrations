@@ -7,7 +7,9 @@ if File.directory?('db/migrations')
   puts "DEPRECATED move your migrations into db/migrate"
 end
 
-DB_CONFIG = YAML.load_file('db/config.yml').with_indifferent_access
+DB_CONFIG = YAML.load(
+  ERB.new(File.read('db/config.yml')).result
+).with_indifferent_access
 
 module Rails
   def self.env
