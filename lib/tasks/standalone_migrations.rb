@@ -68,8 +68,9 @@ class #{class_name migration} < ActiveRecord::Migration
   end
 end
 eof
-    create_file file_name(migration), file_contents
-    puts "Created migration #{file_name migration}"
+    filename = migration.underscore
+    create_file file_name(filename), file_contents
+    puts "Created migration #{file_name filename}"
   end
 
   def create_file file, contents
