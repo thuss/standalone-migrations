@@ -4,13 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{standalone_migrations}
-  s.version = "1.0.1"
+  s.name = "standalone_migrations"
+  s.version = "1.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Todd Huss", "Michael Grosser"]
-  s.date = %q{2011-07-12}
-  s.email = %q{thuss@gabrito.com}
+  s.date = "2011-10-29"
+  s.email = "thuss@gabrito.com"
   s.extra_rdoc_files = [
     "README.markdown"
   ]
@@ -29,10 +29,10 @@ Gem::Specification.new do |s|
     "vendor/migration_helpers/init.rb",
     "vendor/migration_helpers/lib/migration_helper.rb"
   ]
-  s.homepage = %q{http://github.com/thuss/standalone-migrations}
+  s.homepage = "http://github.com/thuss/standalone-migrations"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{A thin wrapper to use Rails Migrations in non Rails projects}
+  s.rubygems_version = "1.8.11"
+  s.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
