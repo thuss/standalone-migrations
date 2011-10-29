@@ -1,4 +1,4 @@
-Rails migrations in non-Rails (and non Ruby) projects.  
+Rails migrations in non-Rails (and non Ruby) projects.
 
 WHAT'S NEW
 ==========
@@ -70,7 +70,7 @@ The general form is:
     rake db:generate model="model_name" fields="type:column_name0 type:column_name1 ... type:column_namen"
 
 You can have as many fields as you would like.
-    
+
 An example to create a Person table with 3 columns (and it will automatically add the t.timestamps line)
 
     rake db:generate model="Person" fields="string:first_name string:last_name integer:age"
@@ -82,7 +82,7 @@ This will create a migration in db/migrate/
         create_table :Person do |t|
           t.string :first_name
           t.string :last_name
-          t.integer :age   
+          t.integer :age
           t.timestamps
         end
       end
@@ -108,14 +108,14 @@ This will create a migration in db/migrate/
 ### To execute a specific up/down of one single migration
 
     rake db:migrate:up VERSION=20081220234130
-    
+
 ### To revert your last migration
 
     rake db:rollback
 
 ### To revert your last 3 migrations
 
-    rake db:rollback STEP=3    
+    rake db:rollback STEP=3
 
 Contributors
 ============
