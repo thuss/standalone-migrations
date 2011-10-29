@@ -36,6 +36,8 @@ module Rails
       end
       s
     end
+
+    def s.load_seed; end        # no-op, needed for db:reset
     s
   end
 end
