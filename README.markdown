@@ -127,5 +127,6 @@ Contributors
  - [Rich Meyers](https://github.com/richmeyers)
  - [Wes Bailey](http://exposinggotchas.blogspot.com/)
  - [Robert J. Berger](http://blog.ibd.com/)
+ - [Federico Builes](http://mheroin.com)
 
 This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
