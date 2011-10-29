@@ -110,6 +110,11 @@ test:
       run("rake db:new_migration name=test_abc").should =~ %r{Created migration db/migrate/\d+_test_abc\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc.rb$/
     end
+
+    it "generates a new migration with the name converted to the Rails migration format" do
+      run("rake db:new_migration name=MyNiceModel").should =~ %r{Created migration db/migrate/\d+_my_nice_model\.rb}
+      run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
+    end
   end
 
   describe 'db:version' do
@@ -169,30 +174,30 @@ test:
       lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION/)
     end
   end
-  
+
   describe 'db:rollback' do
     it "does nothing when no migrations have been run" do
       run("rake db:version").should =~ /version: 0/
       run("rake db:rollback").should == ''
-      run("rake db:version").should =~ /version: 0/      
+      run("rake db:version").should =~ /version: 0/
     end
-    
-    it "rolls back the last migration if one has been applied" do     
-      write_multiple_migrations      
-      run("rake db:migrate")      
+
+    it "rolls back the last migration if one has been applied" do
+      write_multiple_migrations
+      run("rake db:migrate")
       run("rake db:version").should =~ /version: 20100509095816/
       run("rake db:rollback").should =~ /revert/
       run("rake db:version").should =~ /version: 20100509095815/
     end
-    
+
     it "rolls back multiple migrations if the STEP argument is given" do
-      write_multiple_migrations      
-      run("rake db:migrate")      
+      write_multiple_migrations
+      run("rake db:migrate")
       run("rake db:version").should =~ /version: 20100509095816/
       run("rake db:rollback STEP=2") =~ /revert/
       run("rake db:version").should =~ /version: 0/
     end
-  end  
+  end
 
   describe 'schema:dump' do
     it "dumps the schema" do
@@ -248,7 +253,7 @@ test:
       run('rake db:test:purge')
     end
   end
-  
+
   describe 'db:migrate when environment is specified' do
     it "runs when using the DB environment variable" do
       make_migration('yyy')
@@ -256,9 +261,9 @@ test:
       run('rake db:version DB=test').should_not =~ /version: 0/
       run('rake db:version').should =~ /version: 0/
     end
-    
+
     it "should error on an invalid database" do
       lambda{ run("rake db:create DB=nonexistent")}.should raise_error(/rake aborted/)
-    end    
+    end
   end
 end
