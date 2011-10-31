@@ -11,7 +11,7 @@ module StandaloneMigrations
       end
 
       it "use config/database.yml" do
-        configurator.config.should == 'config/database.yml'
+        configurator.config.should == 'db/config.yml'
       end
 
       it "use db/migrate dir" do
