@@ -27,5 +27,29 @@ module StandaloneMigrations
 
     end
 
+    context "passing configurations as a parameter" do
+
+      let(:args) do
+        {
+          :config       => "custom/config/database.yml",
+          :migrate_dir  => "custom/db/migrate",
+          :seeds        => "custom/db/seeds.rb",
+          :schema       => "custom/db/schema.rb"
+        }
+      end
+
+      let(:configurator) do
+        Configurator.new args
+      end
+
+      it "use custom config" do
+        configurator.config.should == args[:config]
+      end
+
+    end
+
+    context "using a .standalone_migrations file with configuration" do
+    end
+
   end
 end

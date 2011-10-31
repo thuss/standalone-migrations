@@ -1,6 +1,15 @@
 module StandaloneMigrations
   class Configurator
 
+    def initialize(options = {})
+      defaults = {
+        :config       => "config/database.yml",
+        :migrate_dir  => "db/migrate",
+        :seeds        => "db/seeds.rb",
+        :schema       => "db/schema.rb"
+      }
+    end
+
     def config
       "config/database.yml"
     end
