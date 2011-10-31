@@ -1,12 +1,16 @@
-describe Configurator, "which allows define custom dirs and files to work with your migrations" do
+require 'spec_helper'
 
-  context "without configurator" do
+module StandaloneMigrations
+  describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
-    it "should use default configuration dir (and file)" do
+    context "without configurator" do
 
-      pending "searches for database.yml on config"
+      it "should use default configuration dir (and file)" do
 
+        pending "searches for database.yml on config"
+
+      end
     end
-  end
 
+  end
 end
