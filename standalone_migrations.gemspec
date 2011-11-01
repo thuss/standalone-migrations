@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "standalone_migrations"
-  s.version = "1.0.2"
+  s.version = "1.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Todd Huss", "Michael Grosser"]
-  s.date = "2011-10-29"
+  s.date = "2011-11-01"
   s.email = "thuss@gabrito.com"
   s.extra_rdoc_files = [
     "README.markdown"
@@ -21,7 +21,10 @@ Gem::Specification.new do |s|
     "README.markdown",
     "Rakefile",
     "VERSION",
+    "lib/standalone_migrations/configurator.rb",
     "lib/tasks/standalone_migrations.rb",
+    "spec/spec_helper.rb",
+    "spec/standalone_migrations/configurator_spec.rb",
     "spec/standalone_migrations_spec.rb",
     "standalone_migrations.gemspec",
     "vendor/migration_helpers/MIT-LICENSE",
