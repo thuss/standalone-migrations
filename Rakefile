@@ -7,6 +7,17 @@ task :all do
   sh "AR='~>3.1.0.rc4' bundle update activerecord && bundle exec rake"
 end
 
+task :specs => ["specs:nodb"]
+namespace :specs do
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new "nodb" do |t|
+    t.pattern = "spec/standalone_migrations/**/*_spec.rb"
+  end
+
+  desc "run alls sepcs including those which uses database"
+  task :all => [:default, :nodb]
+end
+
 # rake install -> install gem locally (for tests)
 # rake release -> push to github and release to gemcutter
 # rake version:bump:patch -> increase version and add a git-tag

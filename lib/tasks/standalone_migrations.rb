@@ -1,14 +1,17 @@
 require 'active_support/all'
 require 'active_record'
 require 'pathname'
+require 'standalone_migrations/configurator'
 
 # earlier versions used migrations from db/migrations, so warn users about the change
 if File.directory?('db/migrations')
   puts "DEPRECATED move your migrations into db/migrate"
 end
 
+configurator = StandaloneMigrations::Configurator.new
+
 DB_CONFIG = YAML.load(
-  ERB.new(File.read('db/config.yml')).result
+  ERB.new(File.read(configurator.config)).result
 ).with_indifferent_access
 
 module Rails
@@ -26,7 +29,13 @@ module Rails
     s = "fake_app"
 
     def s.paths
-      Dir.glob('db/*').inject({}){|hash,x|hash[x]=[x]; hash}
+      configurator = StandaloneMigrations::Configurator.new
+
+      {
+        "db/migrate"   => [configurator.migrate_dir],
+        "db/seeds.rb"  => [configurator.seeds],
+        "db/schema.rb" => [configurator.schema]
+      } 
     end
 
     def s.config
@@ -40,6 +49,7 @@ module Rails
     def s.load_seed; end        # no-op, needed for db:reset
     s
   end
+
 end
 
 task(:rails_env){}
@@ -75,6 +85,10 @@ eof
     puts "Created migration #{file_name filename}"
   end
 
+  def configurator
+    StandaloneMigrations::Configurator.new
+  end
+
   def create_file file, contents
     path = File.dirname(file)
     FileUtils.mkdir_p path unless File.exists? path
@@ -82,7 +96,7 @@ eof
   end
 
   def file_name migration
-    File.join 'db/migrate', "#{Time.now.utc.strftime '%Y%m%d%H%M%S'}_#{migration}.rb"
+    File.join configurator.migrate_dir, "#{Time.now.utc.strftime '%Y%m%d%H%M%S'}_#{migration}.rb"
   end
 
   def class_name str

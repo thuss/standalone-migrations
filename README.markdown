@@ -117,6 +117,24 @@ This will create a migration in db/migrate/
 
     rake db:rollback STEP=3
 
+### Custom configuration
+
+By default, Standalone Migrations will assume there exists a "db/"
+directory in your project. But if for some reason you need a specific
+directory structure to work with, you can use a configuration file
+named .standalone_migrations in the root of your project containing
+the following:
+
+    db:
+        seeds: db/seeds.rb
+        migrate: db/migrate
+        schema: db/schema.rb
+    config:
+        database: db/config.yml
+
+These are the configurable options available. You can omit any of
+the keys and Standalone Migrations will assume the default values. 
+
 Contributors
 ============
  - [Todd Huss](http://gabrito.com/)
@@ -128,5 +146,6 @@ Contributors
  - [Wes Bailey](http://exposinggotchas.blogspot.com/)
  - [Robert J. Berger](http://blog.ibd.com/)
  - [Federico Builes](http://mheroin.com/)
+ - [Ricardo Valeriano](http://ricardovaleriano.com/)
 
 This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
