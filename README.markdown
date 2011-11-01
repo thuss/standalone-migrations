@@ -117,16 +117,13 @@ This will create a migration in db/migrate/
 
     rake db:rollback STEP=3
 
+### Custom configuration
 
-### Custom configurations
-
-  By default, Standalone Migrations will assume that exists a "db/"
-directory on your project. But if for some reason you need a specific
-directory structure to work with, you need use a configuration file
-named .standalone_migrations.
-
-  This file should be created on the root of your project and it have
-to be a valid YAML file. Take a look at this example:
+By default, Standalone Migrations will assume there exists a "db/"
+directory in your project. But if for some reason you need a specific
+directory structure to work with, you can use a configuration file
+named .standalone_migrations in the root of your project containing
+the following:
 
     db:
         seeds: db/seeds.rb
@@ -135,10 +132,8 @@ to be a valid YAML file. Take a look at this example:
     config:
         database: db/config.yml
 
-  These are de configurations available and in this example you can
-see the default values assumed by this gem. You can even ommit any of
-the "keys" on this configuration file, by doing so, Standalone
-Migrations will assume the default value. 
+These are the configurable options available. You can omit any of
+the keys and Standalone Migrations will assume the default values. 
 
 Contributors
 ============
