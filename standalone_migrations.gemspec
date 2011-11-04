@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "standalone_migrations"
-  s.version = "1.0.3"
+  s.version = "1.0.4"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Todd Huss", "Michael Grosser"]
-  s.date = "2011-11-01"
+  s.date = "2011-11-04"
   s.email = "thuss@gabrito.com"
   s.extra_rdoc_files = [
     "README.markdown"
