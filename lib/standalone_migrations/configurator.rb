@@ -37,10 +37,10 @@ module StandaloneMigrations
       return nil unless File.exists? configuration_file
       config = YAML.load( IO.read(configuration_file) ) 
       {
-        :config       => config[:config][:database],
-        :migrate_dir  => config[:db][:migrate],
-        :seeds        => config[:db][:seeds],
-        :schema       => config[:db][:schema]
+        :config       => config["config"]["database"],
+        :migrate_dir  => config["db"]["migrate"],
+        :seeds        => config["db"]["seeds"],
+        :schema       => config["db"]["schema"]
       }
     end
 
