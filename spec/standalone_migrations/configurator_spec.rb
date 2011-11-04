@@ -29,7 +29,6 @@ module StandaloneMigrations
     end
 
     context "passing configurations as a parameter" do
-
       let(:args) do
         {
           :config       => "custom/config/database.yml",
@@ -70,13 +69,13 @@ module StandaloneMigrations
 
       let(:yaml_hash) do
         {
-          :db => {
-            :seeds    => "file/db/seeds.rb",
-            :migrate  => "file/db/migrate",
-            :schema   => "file/db/schema.rb"
+          "db" => {
+            "seeds"    => "file/db/seeds.rb",
+            "migrate"  => "file/db/migrate",
+            "schema"   => "file/db/schema.rb"
           },
-          :config => {
-            :database => "file/config/database.yml"
+          "config" => {
+            "database" => "file/config/database.yml"
           }
         }
       end
@@ -89,19 +88,19 @@ module StandaloneMigrations
       end
 
       it "use custom config from file" do
-        configurator.config.should == yaml_hash[:config][:database]
+        configurator.config.should == yaml_hash["config"]["database"]
       end
 
       it "use custom migrate dir from file" do
-        configurator.migrate_dir.should == yaml_hash[:db][:migrate]
+        configurator.migrate_dir.should == yaml_hash["db"]["migrate"]
       end
 
       it "use custom seeds from file" do
-        configurator.seeds.should == yaml_hash[:db][:seeds]
+        configurator.seeds.should == yaml_hash["db"]["seeds"]
       end
 
       it "use custom schema from file" do
-        configurator.schema.should == yaml_hash[:db][:schema]
+        configurator.schema.should == yaml_hash["db"]["schema"]
       end
 
       after(:all) do
