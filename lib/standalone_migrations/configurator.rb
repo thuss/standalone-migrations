@@ -1,3 +1,5 @@
+require 'active_support/all'
+
 module StandaloneMigrations
   class Configurator
 
@@ -25,6 +27,11 @@ module StandaloneMigrations
 
     def schema
       @options[:schema]
+    end
+
+    def config_for(environment)
+      @config ||= YAML.load(ERB.new(File.read(self.config)).result).with_indifferent_access
+      @config[environment]
     end
 
     private
