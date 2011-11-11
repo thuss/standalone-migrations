@@ -4,6 +4,41 @@ require 'yaml'
 module StandaloneMigrations
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
+    describe "environment yaml configuration loading" do
+
+      let(:env_hash) do
+        {
+          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
+          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" }
+        }
+      end
+
+      before(:all) do
+        @original_dir = Dir.pwd
+        Dir.chdir( File.expand_path("../../", __FILE__) )
+        FileUtils.mkdir_p "tmp/db"
+        Dir.chdir "tmp"
+        File.open("db/config.yml", "w") do |f|
+          f.write env_hash.to_yaml
+        end
+      end
+
+      it "load the specific environment config" do
+        Configurator.new.config(:development).should_not be_nil
+      end
+
+      it "load the yaml with environment configurations" do
+        dev_config = Configurator.new.config(:development)
+        dev_config[:database].should == "db/development.sql"
+      end
+
+      after(:all) do
+        Dir.chdir @original_dir
+        FileUtils.rm_rf "tmp"
+      end
+
+    end
+
     context "default values when .standalone_configurations is missing" do
 
       let(:configurator) do
