@@ -12,9 +12,7 @@ def standalone_configurator
   @configurator ||= StandaloneMigrations::Configurator.new
 end
 
-DB_CONFIG = YAML.load(
-  ERB.new(File.read(standalone_configurator.config)).result
-).with_indifferent_access
+DB_CONFIG = standalone_configurator.config_for_all
 
 module Rails
   def self.env
