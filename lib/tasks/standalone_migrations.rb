@@ -8,10 +8,12 @@ if File.directory?('db/migrations')
   puts "DEPRECATED move your migrations into db/migrate"
 end
 
-configurator = StandaloneMigrations::Configurator.new
+def standalone_configurator
+  @configurator ||= StandaloneMigrations::Configurator.new
+end
 
 DB_CONFIG = YAML.load(
-  ERB.new(File.read(configurator.config)).result
+  ERB.new(File.read(standalone_configurator.config)).result
 ).with_indifferent_access
 
 module Rails
@@ -29,12 +31,10 @@ module Rails
     s = "fake_app"
 
     def s.paths
-      configurator = StandaloneMigrations::Configurator.new
-
       {
-        "db/migrate"   => [configurator.migrate_dir],
-        "db/seeds.rb"  => [configurator.seeds],
-        "db/schema.rb" => [configurator.schema]
+        "db/migrate"   => [standalone_configurator.migrate_dir],
+        "db/seeds.rb"  => [standalone_configurator.seeds],
+        "db/schema.rb" => [standalone_configurator.schema]
       } 
     end
 
@@ -86,7 +86,7 @@ eof
   end
 
   def configurator
-    StandaloneMigrations::Configurator.new
+    standalone_configurator
   end
 
   def create_file file, contents
