@@ -12,8 +12,6 @@ def standalone_configurator
   @configurator ||= StandaloneMigrations::Configurator.new
 end
 
-DB_CONFIG = standalone_configurator.config_for_all
-
 module Rails
   def self.env
     s = (ENV['RAILS_ENV'] || ENV['DB'] || 'development').dup # env is frozen -> dup
@@ -39,7 +37,7 @@ module Rails
     def s.config
       s = "fake_config"
       def s.database_configuration
-        DB_CONFIG
+        standalone_configurator.config_for_all
       end
       s
     end
@@ -53,8 +51,8 @@ end
 task(:rails_env){}
 
 task(:environment) do
-  ActiveRecord::Base.configurations = DB_CONFIG
-  ActiveRecord::Base.establish_connection DB_CONFIG[Rails.env]
+  ActiveRecord::Base.configurations = standalone_configurator.config_for_all
+  ActiveRecord::Base.establish_connection standalone_configurator.config_for Rails.env
 end
 
 load 'active_record/railties/databases.rake'
