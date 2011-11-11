@@ -8,7 +8,7 @@ module StandaloneMigrations
         :seeds        => "db/seeds.rb",
         :schema       => "db/schema.rb"
       }
-      @options = load_from_file || defaults.merge(options)
+      @options = load_from_file(defaults.dup) || defaults.merge(options)
     end
 
     def config
@@ -33,14 +33,14 @@ module StandaloneMigrations
       ".standalone_migrations"
     end
 
-    def load_from_file
+    def load_from_file(defaults)
       return nil unless File.exists? configuration_file
       config = YAML.load( IO.read(configuration_file) ) 
       {
-        :config       => config["config"]["database"],
-        :migrate_dir  => config["db"]["migrate"],
-        :seeds        => config["db"]["seeds"],
-        :schema       => config["db"]["schema"]
+        :config       => config["config"] ? config["config"]["database"] : defaults[:config],
+        :migrate_dir  => config["db"] ? config["db"]["migrate"] : defaults[:migrate_dir],
+        :seeds        => config["db"] ? config["db"]["seeds"] : defaults[:seeds],
+        :schema       => config["db"] ? config["db"]["schema"] : defaults[:schema]
       }
     end
 
