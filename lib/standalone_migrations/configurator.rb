@@ -29,9 +29,13 @@ module StandaloneMigrations
       @options[:schema]
     end
 
-    def config_for(environment)
+    def config_for_all
       @config ||= YAML.load(ERB.new(File.read(self.config)).result).with_indifferent_access
-      @config[environment]
+      @config.dup
+    end
+
+    def config_for(environment)
+      config_for_all[environment]
     end
 
     private
