@@ -33,6 +33,10 @@ module StandaloneMigrations
         config[:database].should == "db/development.sql"
       end
 
+      it "allow access the original configuration hash (for all environments)" do
+        Configurator.new.config_for_all.should == env_hash
+      end
+
       after(:all) do
         Dir.chdir @original_dir
         FileUtils.rm_rf "tmp"
