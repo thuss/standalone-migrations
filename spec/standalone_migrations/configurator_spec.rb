@@ -87,6 +87,25 @@ module StandaloneMigrations
         Configurator.new
       end
 
+      context "with some configurations missing" do
+
+        let(:yaml_hash) do
+          {
+            "config" => {
+              "database" => "file/config/database.yml"
+            }
+          }
+        end
+
+        it "use default values for the missing configurations" do
+          configurator.migrate_dir.should == 'db/migrate'
+        end
+
+        it "use custom config from file" do
+          configurator.config.should == yaml_hash["config"]["database"]
+        end
+      end
+
       it "use custom config from file" do
         configurator.config.should == yaml_hash["config"]["database"]
       end
