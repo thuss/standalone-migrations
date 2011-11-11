@@ -24,12 +24,13 @@ module StandaloneMigrations
       end
 
       it "load the specific environment config" do
-        Configurator.new.config(:development).should_not be_nil
+        config = Configurator.new.config_for(:development)
+        config.should == env_hash["development"]
       end
 
       it "load the yaml with environment configurations" do
-        dev_config = Configurator.new.config(:development)
-        dev_config[:database].should == "db/development.sql"
+        config = Configurator.new.config_for(:development)
+        config[:database].should == "db/development.sql"
       end
 
       after(:all) do
