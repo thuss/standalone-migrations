@@ -37,6 +37,27 @@ module StandaloneMigrations
         Configurator.new.config_for_all.should == env_hash
       end
 
+      context "customizing the environments configuration dynamically" do
+
+        let(:configurator) { Configurator.new }
+
+        it "allow access to manipulate configuration hashes" do
+          Configurator.environments_configuration do |environments_config|
+            environments_config.should == configurator.config_for_all
+          end
+        end
+
+        it "allow changes on the configuration hashes" do
+          hash = { :sbrobous => 'test' }
+          config_key = :my_new_configuration
+          Configurator.environments_configuration do |environments_config|
+            environments_configuration[config_key] = hash
+          end
+          configurator.config_for(config_key).should == hash
+        end
+
+      end
+
       after(:all) do
         Dir.chdir @original_dir
         FileUtils.rm_rf "tmp"
