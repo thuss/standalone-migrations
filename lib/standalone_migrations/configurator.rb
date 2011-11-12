@@ -2,6 +2,14 @@ require 'active_support/all'
 
 module StandaloneMigrations
   class Configurator
+    def self.load_configurations
+      @standalone_configs ||= Configurator.new.config
+      @environments_config ||= YAML.load(ERB.new(File.read(@standalone_configs)).result).with_indifferent_access
+    end
+
+    def self.environments_config
+      yield(load_configurations) if block_given?
+    end
 
     def initialize(options = {})
       defaults = {
@@ -30,8 +38,7 @@ module StandaloneMigrations
     end
 
     def config_for_all
-      @config ||= YAML.load(ERB.new(File.read(self.config)).result).with_indifferent_access
-      @config.dup
+      Configurator.load_configurations.dup
     end
 
     def config_for(environment)
