@@ -143,10 +143,11 @@ config:
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
 
-#### Changing database connection config in runtime
+#### Changing environment config in runtime
 
-if you are using Heroku or have to create your connection configuration
-in runtime, you can use the StandaloneMigrations::Configurator.environments_config
+If you are using Heroku or have to create your connection configuration
+based on runtime aspects (maybe environment variables), you can
+use the StandaloneMigrations::Configurator.environments_config
 method. Check the usage example:
 
 ```ruby
@@ -168,7 +169,35 @@ StandaloneMigrations::Configurator.environments_config do |env|
       }
     end
 
+    nil
   end
+
+end
+```
+
+You have to put this anywhere on your `Rakefile`. If you want to
+change some configuration, call the #on method on the object
+received as argument in your block passed to ::environments_config
+method call. The #on method receives the key to the configuration
+that you want to change within the block. The block should return
+your new configuration hash or nil if you want the configuration
+to stay the same.
+
+Your logic to decide the new configuration need to access some data
+in your current configuration? Then you should receive the configuration
+in your block, like this:
+
+```ruby
+require 'tasks/standalone_migrations'
+
+StandaloneMigrations::Configurator.environments_config do |env|
+
+  env.on "my_custom_config" do |current_custom_config|
+    p current_custom_config
+    # => the values on your current "my_custom_config" environment
+    nil
+  end
+
 end
 ```
 
