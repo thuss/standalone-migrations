@@ -8,11 +8,9 @@ if File.directory?('db/migrations')
   puts "DEPRECATED move your migrations into db/migrate"
 end
 
-configurator = StandaloneMigrations::Configurator.new
-
-DB_CONFIG = YAML.load(
-  ERB.new(File.read(configurator.config)).result
-).with_indifferent_access
+def standalone_configurator
+  @configurator ||= StandaloneMigrations::Configurator.new
+end
 
 module Rails
   def self.env
@@ -29,19 +27,17 @@ module Rails
     s = "fake_app"
 
     def s.paths
-      configurator = StandaloneMigrations::Configurator.new
-
       {
-        "db/migrate"   => [configurator.migrate_dir],
-        "db/seeds.rb"  => [configurator.seeds],
-        "db/schema.rb" => [configurator.schema]
+        "db/migrate"   => [standalone_configurator.migrate_dir],
+        "db/seeds.rb"  => [standalone_configurator.seeds],
+        "db/schema.rb" => [standalone_configurator.schema]
       } 
     end
 
     def s.config
       s = "fake_config"
       def s.database_configuration
-        DB_CONFIG
+        standalone_configurator.config_for_all
       end
       s
     end
@@ -55,8 +51,8 @@ end
 task(:rails_env){}
 
 task(:environment) do
-  ActiveRecord::Base.configurations = DB_CONFIG
-  ActiveRecord::Base.establish_connection DB_CONFIG[Rails.env]
+  ActiveRecord::Base.configurations = standalone_configurator.config_for_all
+  ActiveRecord::Base.establish_connection standalone_configurator.config_for Rails.env
 end
 
 load 'active_record/railties/databases.rake'
@@ -86,7 +82,7 @@ eof
   end
 
   def configurator
-    StandaloneMigrations::Configurator.new
+    standalone_configurator
   end
 
   def create_file file, contents
