@@ -1,6 +1,23 @@
 require 'active_support/all'
 
 module StandaloneMigrations
+
+  class InternalConfigurationsProxy
+
+    def initialize(configurations)
+      @configurations = configurations
+    end
+
+    def on(config_key)
+      if @configurations[config_key]
+        @configurations[config_key] = yield if block_given?
+      end
+      p @configurations
+      @configurations[config_key]
+    end
+
+  end
+
   class Configurator
     def self.load_configurations
       @standalone_configs ||= Configurator.new.config
@@ -8,7 +25,8 @@ module StandaloneMigrations
     end
 
     def self.environments_config
-      yield(load_configurations) if block_given?
+      proxy = InternalConfigurationsProxy.new(load_configurations) 
+      yield(proxy) if block_given?
     end
 
     def initialize(options = {})
