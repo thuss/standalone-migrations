@@ -135,6 +135,30 @@ the following:
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
 
+#### Changing database connection config in runtime
+
+if you are using Heroku or have to create your connection configuration
+in runtime, you can use the StandaloneMigrations::Configurator.environments_config
+method. Check the usage example:
+
+```ruby
+require 'tasks/standalone_migrations'
+
+StandaloneMigrations::Configurator.environments_config do |env|
+  if (ENV['DATABASE_URL'])
+    db = URI.parse(ENV['DATABASE_URL'])
+
+    env["production"] = {
+      :adapter  => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
+      :host     => db.host,
+      :username => db.user,
+      :password => db.password,
+      :database => db.path[1..-1],
+      :encoding => 'utf8' }
+  end
+end
+```
+
 Contributors
 ============
  - [Todd Huss](http://gabrito.com/)
