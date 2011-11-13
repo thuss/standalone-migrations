@@ -9,7 +9,8 @@ module StandaloneMigrations
       let(:env_hash) do
         {
           "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
-          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" }
+          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
+          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
         }
       end
 
@@ -41,17 +42,13 @@ module StandaloneMigrations
 
         let(:configurator) { Configurator.new }
 
-        it "allow access to manipulate configuration hashes" do
-          Configurator.environments_config do |environments_config|
-            environments_config.should == configurator.config_for_all
-          end
-        end
-
         it "allow changes on the configuration hashes" do
           hash = { 'sbrobous' => 'test' }
-          config_key = :my_new_configuration
+          config_key = "production"
           Configurator.environments_config do |environments_config|
-            environments_config[config_key] = hash
+            environments_config.on config_key do
+              hash
+            end
           end
           configurator.config_for(config_key).should == hash
         end
