@@ -10,6 +10,8 @@ end
 task :specs => ["specs:nodb"]
 namespace :specs do
   require 'rspec/core/rake_task'
+
+  desc "only specs that don't use database connection"
   RSpec::Core::RakeTask.new "nodb" do |t|
     t.pattern = "spec/standalone_migrations/**/*_spec.rb"
   end
