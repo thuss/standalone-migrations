@@ -9,8 +9,8 @@ module StandaloneMigrations
     end
 
     def on(config_key)
-      if @configurations[config_key]
-        @configurations[config_key] = yield if block_given?
+      if @configurations[config_key] && block_given?
+        @configurations[config_key] = yield(@configurations[config_key]) || @configurations[config_key]
       end
       @configurations[config_key]
     end
