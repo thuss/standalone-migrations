@@ -145,9 +145,9 @@ the keys and Standalone Migrations will assume the default values.
 
 #### Changing environment config in runtime
 
-If you are using Heroku or have to create your connection configuration
-based on runtime aspects (maybe environment variables), you can
-use the StandaloneMigrations::Configurator.environments_config
+If you are using Heroku or have to create or change your connection
+configuration based on runtime aspects (maybe environment variables),
+you can use the StandaloneMigrations::Configurator.environments_config
 method. Check the usage example:
 
 ```ruby
