@@ -41,16 +41,35 @@ module StandaloneMigrations
       context "customizing the environments configuration dynamically" do
 
         let(:configurator) { Configurator.new }
+        let(:new_config) { { 'sbrobous' => 'test' } }
 
-        it "allow changes on the configuration hashes" do
-          hash = { 'sbrobous' => 'test' }
-          config_key = "production"
-          Configurator.environments_config do |environments_config|
-            environments_config.on config_key do
-              hash
+        before(:all) do
+          Configurator.environments_config do |env|
+            env.on "production" do
+              new_config
             end
           end
-          configurator.config_for(config_key).should == hash
+        end
+
+        it "allow changes on the configuration hashes" do
+          configurator.config_for("production").should == new_config
+        end
+
+        it "return current configuration if block yielding returns nil" do
+          Configurator.environments_config do |env|
+            env.on "production" do
+              nil
+            end
+          end
+          configurator.config_for("production").should == new_config
+        end
+
+        it "pass the current configuration as block argument" do
+          Configurator.environments_config do |env|
+            env.on "production" do |current_config|
+              current_config.should == new_config
+            end
+          end
         end
 
       end
