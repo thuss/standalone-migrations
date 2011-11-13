@@ -12,7 +12,6 @@ module StandaloneMigrations
       if @configurations[config_key]
         @configurations[config_key] = yield if block_given?
       end
-      p @configurations
       @configurations[config_key]
     end
 
