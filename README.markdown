@@ -125,12 +125,14 @@ directory structure to work with, you can use a configuration file
 named .standalone_migrations in the root of your project containing
 the following:
 
-    db:
-        seeds: db/seeds.rb
-        migrate: db/migrate
-        schema: db/schema.rb
-    config:
-        database: db/config.yml
+```yaml
+db:
+    seeds: db/seeds.rb
+    migrate: db/migrate
+    schema: db/schema.rb
+config:
+    database: db/config.yml
+```
 
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
@@ -145,16 +147,21 @@ method. Check the usage example:
 require 'tasks/standalone_migrations'
 
 StandaloneMigrations::Configurator.environments_config do |env|
-  if (ENV['DATABASE_URL'])
-    db = URI.parse(ENV['DATABASE_URL'])
 
-    env["production"] = {
-      :adapter  => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
-      :host     => db.host,
-      :username => db.user,
-      :password => db.password,
-      :database => db.path[1..-1],
-      :encoding => 'utf8' }
+  env.on "production" do
+
+    if (ENV['DATABASE_URL'])
+      db = URI.parse(ENV['DATABASE_URL'])
+      return {
+        :adapter  => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
+        :host     => db.host,
+        :username => db.user,
+        :password => db.password,
+        :database => db.path[1..-1],
+        :encoding => 'utf8'
+      }
+    end
+
   end
 end
 ```
