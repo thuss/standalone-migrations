@@ -16,11 +16,13 @@ Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) the
 
 Add to `Rakefile` in your projects base directory:
 
-    begin
-      require 'tasks/standalone_migrations'
-    rescue LoadError => e
-      puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
-    end
+```ruby
+begin
+  require 'tasks/standalone_migrations'
+rescue LoadError => e
+  puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
+end
+```
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
 
@@ -55,13 +57,15 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 
 #### If you really want to, you can just execute raw SQL:
 
-    def self.up
-      execute "insert into foo values (123,'something');"
-    end
+```ruby
+def self.up
+  execute "insert into foo values (123,'something');"
+end
 
-    def self.down
-      execute "delete from foo where field='something';"
-    end
+def self.down
+  execute "delete from foo where field='something';"
+end
+```
 
 #### Even better, you can use the _generate_ task to create the initial migration ####
 
@@ -77,20 +81,22 @@ An example to create a Person table with 3 columns (and it will automatically ad
 
 This will create a migration in db/migrate/
 
-    class CreatePerson < ActiveRecord::Migration
-      def self.up
-        create_table :Person do |t|
-          t.string :first_name
-          t.string :last_name
-          t.integer :age
-          t.timestamps
-        end
-      end
-
-      def self.down
-        drop_table :Person
-      end
+```ruby
+class CreatePerson < ActiveRecord::Migration
+  def self.up
+    create_table :Person do |t|
+      t.string :first_name
+      t.string :last_name
+      t.integer :age
+      t.timestamps
     end
+  end
+
+  def self.down
+    drop_table :Person
+  end
+end
+```
 
 ### To apply your newest migration:
 
