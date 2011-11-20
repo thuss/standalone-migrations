@@ -25,7 +25,7 @@ end
 ```
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
-
+```yaml
     development:
       adapter: sqlite3
       database: db/development.sqlite3
@@ -47,6 +47,7 @@ Add database configuration to `db/config.yml` in your projects base directory e.
       database: db/test.sqlite3
       pool: 5
       timeout: 5000
+```
 
 ### To create a new database migration:
 
@@ -132,12 +133,12 @@ named .standalone_migrations in the root of your project containing
 the following:
 
 ```yaml
-db:
-    seeds: db/seeds.rb
-    migrate: db/migrate
-    schema: db/schema.rb
-config:
-    database: db/config.yml
+    db:
+        seeds: db/seeds.rb
+        migrate: db/migrate
+        schema: db/schema.rb
+    config:
+        database: db/config.yml
 ```
 
 These are the configurable options available. You can omit any of
