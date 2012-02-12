@@ -36,6 +36,7 @@ module StandaloneMigrations
         :schema       => "db/schema.rb"
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
+      ENV['SCHEMA'] = schema
     end
 
     def config
