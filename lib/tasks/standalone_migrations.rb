@@ -41,8 +41,11 @@ module Rails
       end
       s
     end
-
-    def s.load_seed; end        # no-op, needed for db:reset
+    
+    def s.load_seed
+      seed_file = paths["db/seeds.rb"].select{ |f| File.exists?(f) }.first
+      load(seed_file) if seed_file
+    end
     s
   end
 
