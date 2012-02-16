@@ -253,6 +253,25 @@ test:
       run('rake db:test:purge')
     end
   end
+  
+  describe "db:seed" do
+    it "loads" do
+      write("db/seeds.rb", "puts 'LOADEDDD'")
+      run("rake db:seed").should =~ /LOADEDDD/
+    end
+
+    it "does nothing without seeds" do
+      run("rake db:seed").length.should == 0
+    end
+  end
+
+  describe "db:reset" do
+    it "should not error when a seeds file does not exist" do
+      make_migration('yyy')
+      run('rake db:migrate DB=test')
+      run("rake db:reset").should_not raise_error(/rake aborted/)
+    end
+  end
 
   describe 'db:migrate when environment is specified' do
     it "runs when using the DB environment variable" do
