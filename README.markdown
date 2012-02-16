@@ -16,11 +16,13 @@ Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) the
 
 Add to `Rakefile` in your projects base directory:
 
-    begin
-      require 'tasks/standalone_migrations'
-    rescue LoadError => e
-      puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
-    end
+```ruby
+begin
+  require 'tasks/standalone_migrations'
+rescue LoadError => e
+  puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
+end
+```
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
 
@@ -55,13 +57,15 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 
 #### If you really want to, you can just execute raw SQL:
 
-    def self.up
-      execute "insert into foo values (123,'something');"
-    end
+```ruby
+def self.up
+  execute "insert into foo values (123,'something');"
+end
 
-    def self.down
-      execute "delete from foo where field='something';"
-    end
+def self.down
+  execute "delete from foo where field='something';"
+end
+```
 
 #### Even better, you can use the _generate_ task to create the initial migration ####
 
@@ -77,20 +81,22 @@ An example to create a Person table with 3 columns (and it will automatically ad
 
 This will create a migration in db/migrate/
 
-    class CreatePerson < ActiveRecord::Migration
-      def self.up
-        create_table :Person do |t|
-          t.string :first_name
-          t.string :last_name
-          t.integer :age
-          t.timestamps
-        end
-      end
-
-      def self.down
-        drop_table :Person
-      end
+```ruby
+class CreatePerson < ActiveRecord::Migration
+  def self.up
+    create_table :Person do |t|
+      t.string :first_name
+      t.string :last_name
+      t.integer :age
+      t.timestamps
     end
+  end
+
+  def self.down
+    drop_table :Person
+  end
+end
+```
 
 ### To apply your newest migration:
 
@@ -125,15 +131,75 @@ directory structure to work with, you can use a configuration file
 named .standalone_migrations in the root of your project containing
 the following:
 
+```yaml
     db:
         seeds: db/seeds.rb
         migrate: db/migrate
         schema: db/schema.rb
     config:
         database: db/config.yml
+```
 
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
+
+#### Changing environment config in runtime
+
+If you are using Heroku or have to create or change your connection
+configuration based on runtime aspects (maybe environment variables),
+you can use the `StandaloneMigrations::Configurator.environments_config`
+method. Check the usage example:
+
+```ruby
+require 'tasks/standalone_migrations'
+
+StandaloneMigrations::Configurator.environments_config do |env|
+
+  env.on "production" do
+
+    if (ENV['DATABASE_URL'])
+      db = URI.parse(ENV['DATABASE_URL'])
+      return {
+        :adapter  => db.scheme == 'postgres' ? 'postgresql' : db.scheme,
+        :host     => db.host,
+        :username => db.user,
+        :password => db.password,
+        :database => db.path[1..-1],
+        :encoding => 'utf8'
+      }
+    end
+
+    nil
+  end
+
+end
+```
+
+You have to put this anywhere on your `Rakefile`. If you want to
+change some configuration, call the #on method on the object
+received as argument in your block passed to ::environments_config
+method call. The #on method receives the key to the configuration
+that you want to change within the block. The block should return
+your new configuration hash or nil if you want the configuration
+to stay the same.
+
+Your logic to decide the new configuration need to access some data
+in your current configuration? Then you should receive the configuration
+in your block, like this:
+
+```ruby
+require 'tasks/standalone_migrations'
+
+StandaloneMigrations::Configurator.environments_config do |env|
+
+  env.on "my_custom_config" do |current_custom_config|
+    p current_custom_config
+    # => the values on your current "my_custom_config" environment
+    nil
+  end
+
+end
+```
 
 Contributors
 ============
