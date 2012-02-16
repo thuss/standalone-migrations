@@ -42,7 +42,13 @@ module Rails
       s
     end
 
-    def s.load_seed; end        # no-op, needed for db:reset
+    def s.load_seed
+      if ARGV[0] == "db:seed"  #Only raise an error when db:seed is called directly.
+        load standalone_configurator.seeds
+      else    # We do not want to raise an error for db:reset
+        load standalone_configurator.seeds if File.exists?(standalone_configurator.seeds) 
+      end
+    end
     s
   end
 
