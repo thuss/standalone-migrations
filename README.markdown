@@ -67,19 +67,13 @@ def self.down
 end
 ```
 
-#### Even better, you can use the _generate_ task to create the initial migration ####
+#### Even better, you can use the _new_migration_ task to create the initial migration ####
 
 The general form is:
 
-    rake db:generate model="model_name" fields="type:column_name0 type:column_name1 ... type:column_namen"
+    rake db:new_migration name=foo
 
-You can have as many fields as you would like.
-
-An example to create a Person table with 3 columns (and it will automatically add the t.timestamps line)
-
-    rake db:generate model="Person" fields="string:first_name string:last_name integer:age"
-
-This will create a migration in db/migrate/
+This will create a migration in `db/migrate/` named with a timestamp and `foo.rb`, e.g., `db/migrate/201201234_foo.rb`.
 
 ```ruby
 class CreatePerson < ActiveRecord::Migration
