@@ -53,8 +53,6 @@ Add database configuration to `db/config.yml` in your projects base directory e.
     rake db:new_migration name=FooBarMigration
     edit db/migrate/20081220234130_foo_bar_migration.rb
 
-... and fill in the up and down migrations [Cheatsheet](http://dizzy.co.uk/ruby_on_rails/cheatsheets/rails-migrations).
-
 #### If you really want to, you can just execute raw SQL:
 
 ```ruby
@@ -64,31 +62,6 @@ end
 
 def self.down
   execute "delete from foo where field='something';"
-end
-```
-
-#### Even better, you can use the _new_migration_ task to create the initial migration ####
-
-The general form is:
-
-    rake db:new_migration name=foo
-
-This will create a migration in `db/migrate/` named with a timestamp and `foo.rb`, e.g., `db/migrate/201201234_foo.rb`.
-
-```ruby
-class CreatePerson < ActiveRecord::Migration
-  def self.up
-    create_table :Person do |t|
-      t.string :first_name
-      t.string :last_name
-      t.integer :age
-      t.timestamps
-    end
-  end
-
-  def self.down
-    drop_table :Person
-  end
 end
 ```
 
