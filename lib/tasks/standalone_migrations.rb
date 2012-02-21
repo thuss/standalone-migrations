@@ -99,6 +99,6 @@ eof
   end
 
   def class_name str
-    str.split('_').map { |s| s.capitalize }.join
+    str.underscore.split('_').map { |s| s.capitalize }.join
   end
 end
