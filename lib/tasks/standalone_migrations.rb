@@ -14,7 +14,7 @@ end
 
 module Rails
   def self.env
-    s = (ENV['RAILS_ENV'] || ENV['DB'] || 'development').dup # env is frozen -> dup
+    s = (ENV['RAILS_ENV'] || ENV['RACK_ENV'] || ENV['DB'] || 'development').dup # env is frozen -> dup
     def s.development?; self == 'development';end
     s
   end
