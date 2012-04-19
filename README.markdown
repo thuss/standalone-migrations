@@ -50,7 +50,7 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 
 ### To create a new database migration:
 
-    rake db:new_migration name=FooBarMigration
+    rake db:new_migration name=foo_bar_migration
     edit db/migrate/20081220234130_foo_bar_migration.rb
 
 #### If you really want to, you can just execute raw SQL:
