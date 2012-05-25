@@ -53,14 +53,17 @@ end
 
 task(:rails_env){}
 
-task(:environment) do
-  ActiveRecord::Base.configurations = standalone_configurator.config_for_all
+task(:environment => "db:load_config") do
   ActiveRecord::Base.establish_connection standalone_configurator.config_for Rails.env
 end
 
 load 'active_record/railties/databases.rake'
 
 namespace :db do
+  task :load_config do
+    ActiveRecord::Base.configurations = standalone_configurator.config_for_all
+  end
+
   desc "Create a new migration"
   task :new_migration do |t|
     unless migration = ENV['name']
