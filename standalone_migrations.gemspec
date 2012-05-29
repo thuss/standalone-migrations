@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   ]
   s.homepage = "http://github.com/thuss/standalone-migrations"
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.17"
+  s.rubygems_version = "1.8.24"
   s.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
 
   if s.respond_to? :specification_version then
