@@ -172,6 +172,7 @@ Contributors
 ============
  - [Todd Huss](http://gabrito.com/)
  - [Two Bit Labs](http://twobitlabs.com/)
+ - [Class Monkeys](http://www.classmonkeys.com/) 
  - [Michael Grosser](http://pragmatig.wordpress.com)
  - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
@@ -181,5 +182,6 @@ Contributors
  - [Federico Builes](http://mheroin.com/)
  - [Ricardo Valeriano](http://ricardovaleriano.com/)
  - [Gazler](http://blog.gazler.com/)
+ - [Yuu Yamashita](https://github.com/yyuu)
 
 This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
