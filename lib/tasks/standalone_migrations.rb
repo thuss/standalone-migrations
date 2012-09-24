@@ -78,10 +78,10 @@ namespace :db do
 
     file_contents = <<eof
 class #{class_name migration} < ActiveRecord::Migration
-  def self.up
+  def up
   end
 
-  def self.down
+  def down
     raise ActiveRecord::IrreversibleMigration
   end
 end
