@@ -30,8 +30,8 @@ describe 'Standalone migrations' do
     task_name = options[:task_name] || 'db:new_migration'
     migration = run("rake #{task_name} name=#{name}").match(%r{db/migrate/\d+.*.rb})[0]
     content = read(migration)
-    content.sub!(/def self.down.*?\send/m, "def self.down;puts 'DOWN-#{name}';end")
-    content.sub!(/def self.up.*?\send/m, "def self.up;puts 'UP-#{name}';end")
+    content.sub!(/def down.*?\send/m, "def down;puts 'DOWN-#{name}';end")
+    content.sub!(/def up.*?\send/m, "def up;puts 'UP-#{name}';end")
     write(migration, content)
     migration.match(/\d{14}/)[0]
   end
@@ -51,22 +51,22 @@ end
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT
 class CreateTests < ActiveRecord::Migration
-  def self.up
+  def up
     puts "UP-CreateTests"
   end
 
-  def self.down
+  def down
     puts "DOWN-CreateTests"
   end
 end
     TXT
     write "db/migrate/20100509095816_create_tests2.rb", <<-TXT
 class CreateTests2 < ActiveRecord::Migration
-  def self.up
+  def up
     puts "UP-CreateTests2"
   end
 
-  def self.down
+  def down
     puts "DOWN-CreateTests2"
   end
 end
