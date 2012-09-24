@@ -4,6 +4,82 @@ require 'yaml'
 module StandaloneMigrations
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
+    describe "environment yaml configuration loading" do
+
+      let(:env_hash) do
+        {
+          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
+          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
+          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
+        }
+      end
+
+      before(:all) do
+        @original_dir = Dir.pwd
+        Dir.chdir( File.expand_path("../../", __FILE__) )
+        FileUtils.mkdir_p "tmp/db"
+        Dir.chdir "tmp"
+        File.open("db/config.yml", "w") do |f|
+          f.write env_hash.to_yaml
+        end
+      end
+
+      it "load the specific environment config" do
+        config = Configurator.new.config_for(:development)
+        config.should == env_hash["development"]
+      end
+
+      it "load the yaml with environment configurations" do
+        config = Configurator.new.config_for(:development)
+        config[:database].should == "db/development.sql"
+      end
+
+      it "allow access the original configuration hash (for all environments)" do
+        Configurator.new.config_for_all.should == env_hash
+      end
+
+      context "customizing the environments configuration dynamically" do
+
+        let(:configurator) { Configurator.new }
+        let(:new_config) { { 'sbrobous' => 'test' } }
+
+        before(:all) do
+          Configurator.environments_config do |env|
+            env.on "production" do
+              new_config
+            end
+          end
+        end
+
+        it "allow changes on the configuration hashes" do
+          configurator.config_for("production").should == new_config
+        end
+
+        it "return current configuration if block yielding returns nil" do
+          Configurator.environments_config do |env|
+            env.on "production" do
+              nil
+            end
+          end
+          configurator.config_for("production").should == new_config
+        end
+
+        it "pass the current configuration as block argument" do
+          Configurator.environments_config do |env|
+            env.on "production" do |current_config|
+              current_config.should == new_config
+            end
+          end
+        end
+
+      end
+
+      after(:all) do
+        Dir.chdir @original_dir
+      end
+
+    end
+
     context "default values when .standalone_configurations is missing" do
 
       let(:configurator) do
@@ -85,6 +161,25 @@ module StandaloneMigrations
         File.open(file, "w") { |file| file.write(yaml_hash.to_yaml) }
 
         Configurator.new
+      end
+
+      context "with some configurations missing" do
+
+        let(:yaml_hash) do
+          {
+            "config" => {
+              "database" => "file/config/database.yml"
+            }
+          }
+        end
+
+        it "use default values for the missing configurations" do
+          configurator.migrate_dir.should == 'db/migrate'
+        end
+
+        it "use custom config from file" do
+          configurator.config.should == yaml_hash["config"]["database"]
+        end
       end
 
       it "use custom config from file" do
