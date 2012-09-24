@@ -46,6 +46,10 @@ module Rails
       seed_file = paths["db/seeds.rb"].select{ |f| File.exists?(f) }.first
       load(seed_file) if seed_file
     end
+
+    def s.eager_load!
+    end
+
     s
   end
 
