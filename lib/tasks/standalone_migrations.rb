@@ -106,6 +106,6 @@ eof
   end
 
   def class_name str
-    str.parameterize.underscore.camelize
+    str.underscore.camelize
   end
 end
