@@ -13,5 +13,5 @@ require "standalone_migrations/minimal_railtie_config"
 require "standalone_migrations/tasks"
 
 if !ENV["RAILS_ENV"]
-  ENV["RAILS_ENV"] = Rails.env || ENV["RACK_ENV"] || "development"
+  ENV["RAILS_ENV"] = ENV["DB"] || ENV["RACK_ENV"] || Rails.env || "development"
 end
