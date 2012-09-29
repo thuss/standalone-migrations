@@ -7,7 +7,8 @@ require "active_record"
 
 require "standalone_migrations/configurator"
 
-APP_PATH = File.expand_path("#{lib_path}/standalone_migrations/minimal_railtie_config",  __FILE__)
+railtie_app_path = "#{lib_path}/standalone_migrations/minimal_railtie_config"
+APP_PATH = File.expand_path(railtie_app_path,  __FILE__)
 
 require "standalone_migrations/minimal_railtie_config"
 require "standalone_migrations/tasks"
