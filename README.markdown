@@ -197,5 +197,6 @@ Contributors
  - [Ricardo Valeriano](http://ricardovaleriano.com/)
  - [Gazler](http://blog.gazler.com/)
  - [Yuu Yamashita](https://github.com/yyuu)
+ - [Koen Punt](http://www.koen.pt/)
 
 This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).

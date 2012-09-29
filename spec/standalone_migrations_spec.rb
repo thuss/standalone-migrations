@@ -12,7 +12,7 @@ describe 'Standalone migrations' do
   end
 
   def migration(name)
-    m = `cd spec/tmp/db/migrate && ls`.split("\n").detect { |m| m =~ name }
+    m = `cd spec/tmp/db/migrate && ls`.split("\n").detect { |m| m =~ /#{name}/ }
     m ? "db/migrate/#{m}" : m
   end
 
@@ -51,22 +51,22 @@ end
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT
 class CreateTests < ActiveRecord::Migration
-  def self.up
+  def up
     puts "UP-CreateTests"
   end
 
-  def self.down
+  def down
     puts "DOWN-CreateTests"
   end
 end
     TXT
     write "db/migrate/20100509095816_create_tests2.rb", <<-TXT
 class CreateTests2 < ActiveRecord::Migration
-  def self.up
+  def up
     puts "UP-CreateTests2"
   end
 
-  def self.down
+  def down
     puts "DOWN-CreateTests2"
   end
 end
@@ -113,8 +113,10 @@ test:
 
     it "generates a new migration with the name converted to the Rails migration format" do
       run("rake db:new_migration name=MyNiceModel").should =~ %r{Created migration db/migrate/\d+_my_nice_model\.rb}
+      read(migration('my_nice_model')).should =~ /class MyNiceModel/
       run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
     end
+    
   end
 
   describe 'db:version' do
