@@ -1,9 +1,11 @@
+lib_path = File.expand_path("../", __FILE__)
+$:.unshift lib_path unless $:.include?(lib_path)
+
 require "rubygems"
 require "rails"
 require "active_record"
 
-lib_path = File.expand_path("../", __FILE__)
-$:.unshift lib_path unless $:.include?(lib_path)
+require "standalone_migrations/configurator"
 
 APP_PATH = File.expand_path("#{lib_path}/standalone_migrations/minimal_railtie_config",  __FILE__)
 
