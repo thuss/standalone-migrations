@@ -12,8 +12,13 @@ module StandaloneMigrations
         configure
 
         MinimalRailtieConfig.load_tasks
-        load "standalone_migrations/tasks/connection.rake"
-        load "standalone_migrations/tasks/environment.rake"
+        %w(
+          connection
+          environment
+          db/new_migration
+        ).each do
+          |task| load "standalone_migrations/tasks/#{task}.rake"
+        end
         load "active_record/railties/databases.rake"
       end
     end

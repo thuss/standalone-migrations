@@ -113,12 +113,12 @@ test:
     end
 
     it "generates a new migration with this name and timestamp" do
-      run("rake db:new_migration name=test_abc").should =~ %r{Created migration db/migrate/\d+_test_abc\.rb}
+      run("rake db:new_migration name=test_abc").should =~ %r{create(.*)db/migrate/\d+_test_abc\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc.rb$/
     end
 
     it "generates a new migration with the name converted to the Rails migration format" do
-      run("rake db:new_migration name=MyNiceModel").should =~ %r{Created migration db/migrate/\d+_my_nice_model\.rb}
+      run("rake db:new_migration name=MyNiceModel").should =~ %r{create(.*)db/migrate/\d+_my_nice_model\.rb}
       read(migration('my_nice_model')).should =~ /class MyNiceModel/
       run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
     end
