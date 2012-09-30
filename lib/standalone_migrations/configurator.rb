@@ -24,7 +24,7 @@ module StandaloneMigrations
     end
 
     def self.environments_config
-      proxy = InternalConfigurationsProxy.new(load_configurations) 
+      proxy = InternalConfigurationsProxy.new(load_configurations)
       yield(proxy) if block_given?
     end
 
