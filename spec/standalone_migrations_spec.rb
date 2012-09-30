@@ -1,4 +1,5 @@
 describe 'Standalone migrations' do
+
   def write(file, content)
     raise "cannot write nil" unless file
     file = tmp_file(file)
@@ -86,6 +87,10 @@ test:
   adapter: sqlite3
   database: db/test.sql
     TXT
+  end
+
+  after(:all) do
+    `rm -rf spec/tmp` if File.exist?('spec/tmp')
   end
 
   it "warns of deprecated folder structure" do
