@@ -1,4 +1,5 @@
 describe 'Standalone migrations' do
+
   def write(file, content)
     raise "cannot write nil" unless file
     file = tmp_file(file)
@@ -40,7 +41,8 @@ describe 'Standalone migrations' do
     write 'Rakefile', <<-TXT
 $LOAD_PATH.unshift '#{File.expand_path('lib')}'
 begin
-  require 'tasks/standalone_migrations'
+  require "standalone_migrations"
+  StandaloneMigrations::Tasks.load_tasks
 rescue LoadError => e
   puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
 end
@@ -87,6 +89,10 @@ test:
     TXT
   end
 
+  after(:all) do
+    `rm -rf spec/tmp` if File.exist?('spec/tmp')
+  end
+
   it "warns of deprecated folder structure" do
     warning = /DEPRECATED.* db\/migrate/
     run("rake db:create").should_not =~ warning
@@ -107,12 +113,12 @@ test:
     end
 
     it "generates a new migration with this name and timestamp" do
-      run("rake db:new_migration name=test_abc").should =~ %r{Created migration db/migrate/\d+_test_abc\.rb}
+      run("rake db:new_migration name=test_abc").should =~ %r{create(.*)db/migrate/\d+_test_abc\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc.rb$/
     end
 
     it "generates a new migration with the name converted to the Rails migration format" do
-      run("rake db:new_migration name=MyNiceModel").should =~ %r{Created migration db/migrate/\d+_my_nice_model\.rb}
+      run("rake db:new_migration name=MyNiceModel").should =~ %r{create(.*)db/migrate/\d+_my_nice_model\.rb}
       read(migration('my_nice_model')).should =~ /class MyNiceModel/
       run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
     end
