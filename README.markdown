@@ -189,6 +189,7 @@ Contributors
  - [Ricardo Valeriano](http://ricardovaleriano.com/)
  - [Two Bit Labs](http://twobitlabs.com/)
  - [ClassMonkeys](http://www.classmonkeys.com/) 
+ - [Windandtides](http://windandtides.com/)
  - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
  - [Rich Meyers](https://github.com/richmeyers)
