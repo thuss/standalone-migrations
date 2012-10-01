@@ -2,7 +2,7 @@ Rails migrations in non-Rails (and non Ruby) projects.
 
 WHAT'S NEW
 ==========
-In the 1.0.x release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
+In the 2.x release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Ricardo Valeriano](http://ricardovaleriano.com/) and [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
 
 CONTRIBUTE
 ==========
@@ -185,16 +185,16 @@ migration.
 Contributors
 ============
  - [Todd Huss](http://gabrito.com/)
- - [Two Bit Labs](http://twobitlabs.com/)
- - [Class Monkeys](http://www.classmonkeys.com/) 
  - [Michael Grosser](http://pragmatig.wordpress.com)
+ - [Ricardo Valeriano](http://ricardovaleriano.com/)
+ - [Two Bit Labs](http://twobitlabs.com/)
+ - [ClassMonkeys](http://www.classmonkeys.com/) 
  - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
  - [Rich Meyers](https://github.com/richmeyers)
  - [Wes Bailey](http://exposinggotchas.blogspot.com/)
  - [Robert J. Berger](http://blog.ibd.com/)
  - [Federico Builes](http://mheroin.com/)
- - [Ricardo Valeriano](http://ricardovaleriano.com/)
  - [Gazler](http://blog.gazler.com/)
  - [Yuu Yamashita](https://github.com/yyuu)
  - [Koen Punt](http://www.koen.pt/)
