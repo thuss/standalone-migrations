@@ -56,11 +56,11 @@ Add database configuration to `db/config.yml` in your projects base directory e.
 #### If you really want to, you can just execute raw SQL:
 
 ```ruby
-def self.up
+def up
   execute "insert into foo values (123,'something');"
 end
 
-def self.down
+def down
   execute "delete from foo where field='something';"
 end
 ```
@@ -99,12 +99,12 @@ named .standalone_migrations in the root of your project containing
 the following:
 
 ```yaml
-    db:
-        seeds: db/seeds.rb
-        migrate: db/migrate
-        schema: db/schema.rb
-    config:
-        database: db/config.yml
+db:
+    seeds: db/seeds.rb
+    migrate: db/migrate
+    schema: db/schema.rb
+config:
+    database: db/config.yml
 ```
 
 These are the configurable options available. You can omit any of
