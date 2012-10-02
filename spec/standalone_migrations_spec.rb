@@ -112,9 +112,14 @@ test:
       lambda{ run("rake db:new_migration") }.should raise_error(/name=/)
     end
 
-    it "generates a new migration with this name and timestamp" do
-      run("rake db:new_migration name=test_abc").should =~ %r{create(.*)db/migrate/\d+_test_abc\.rb}
-      run("ls db/migrate").should =~ /^\d+_test_abc.rb$/
+    it "generates a new migration with this name from ENV and timestamp" do
+      run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
+      run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
+    end
+    
+    it "generates a new migration with this name from args and timestamp" do
+      run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
+      run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
     end
 
     it "generates a new migration with the name converted to the Rails migration format" do
@@ -122,7 +127,16 @@ test:
       read(migration('my_nice_model')).should =~ /class MyNiceModel/
       run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
     end
-    
+
+    it "generates a new migration with name and options from ENV" do
+      run("rake db:new_migration name=add_name_and_email_to_users options='name:string email:string'")
+      read(migration('add_name_and_email_to_users')).should =~ /add_column :users, :name, :string\n\s*add_column :users, :email, :string/
+    end
+
+    it "generates a new migration with name and options from args" do
+      run("rake db:new_migration[add_website_and_username_to_users,website:string/username:string]")
+      read(migration('add_website_and_username_to_users')).should =~ /add_column :users, :website, :string\n\s*add_column :users, :username, :string/
+    end
   end
 
   describe 'db:version' do
@@ -261,7 +275,7 @@ test:
       run('rake db:test:purge')
     end
   end
-  
+
   describe "db:seed" do
     it "loads" do
       write("db/seeds.rb", "puts 'LOADEDDD'")
