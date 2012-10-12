@@ -5,7 +5,7 @@ module StandaloneMigrations
     def self.migration(name, options="")
       generator_params = [name] + options.split(" ")
       Rails::Generators.invoke "active_record:migration", generator_params,
-        destination_root: Rails.root
+        :destination_root => Rails.root
     end
   end
 end
