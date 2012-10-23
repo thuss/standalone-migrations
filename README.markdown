@@ -17,11 +17,8 @@ Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) the
 Add to `Rakefile` in your projects base directory:
 
 ```ruby
-begin
-  require 'tasks/standalone_migrations'
-rescue LoadError => e
-  puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: #{e})"
-end
+require 'standalone_migrations'
+StandaloneMigrations::Tasks.load_tasks
 ```
 
 Add database configuration to `db/config.yml` in your projects base directory e.g.:
