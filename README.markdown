@@ -12,7 +12,7 @@ USAGE
 =====
 Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
 
-  gem install standalone_migrations
+    $ gem install standalone_migrations
 
 Add to `Rakefile` in your projects base directory:
 
