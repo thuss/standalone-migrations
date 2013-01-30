@@ -1,4 +1,5 @@
 namespace :db do
+  desc "Creates a new migration file with the specified name"
   task :new_migration, :name, :options do |t, args|
     name = args[:name] || ENV['name']
     options = args[:options] || ENV['options']
