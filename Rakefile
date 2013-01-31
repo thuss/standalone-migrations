@@ -1,4 +1,3 @@
-
 require 'rubygems'
 require 'bundler/setup'
 
@@ -20,7 +19,7 @@ namespace :specs do
     t.pattern = "spec/standalone_migrations/**/*_spec.rb"
   end
 
-  desc "run alls sepcs including those which uses database"
+  desc "run all specs including those which uses database"
   task :all => [:default, :nodb]
 end
 
