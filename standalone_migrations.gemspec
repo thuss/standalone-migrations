@@ -52,18 +52,22 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<rake>, [">= 0"])
-      s.add_runtime_dependency(%q<activerecord>, ["~> 3.2.11"])
-      s.add_runtime_dependency(%q<railties>, ["~> 3.2.11"])
+      s.add_runtime_dependency(%q<rake>, ">= 0")
+      s.add_runtime_dependency(%q<activerecord>, ENV['AR'] || "~> 3.2.11")
+      s.add_runtime_dependency(%q<railties>, ENV['AR'] || "~> 3.2.11")
+      
+      s.add_development_dependency(%q<sqlite3>, "~> 1.3.6")
+      s.add_development_dependency(%q<rspec>, "~> 2.7.0")
+      s.add_development_dependency(%q<jeweler>, "~> 1.6.4")
     else
       s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<activerecord>, ["~> 3.2.11"])
-      s.add_dependency(%q<railties>, ["~> 3.2.11"])
+      s.add_dependency(%q<activerecord>, [ENV['AR'] || "~> 3.2.11"])
+      s.add_dependency(%q<railties>, [ENV['AR'] || "~> 3.2.11"])
     end
   else
     s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<activerecord>, ["~> 3.2.11"])
-    s.add_dependency(%q<railties>, ["~> 3.2.11"])
+    s.add_dependency(%q<activerecord>, [ENV['AR'] || "~> 3.2.11"])
+    s.add_dependency(%q<railties>, [ENV['AR'] || "~> 3.2.11"])
   end
 end
 
