@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Todd Huss", "Michael Grosser"]
-  s.date = "2013-02-28"
+  s.date = "2013-03-19"
   s.email = "thuss@gabrito.com"
   s.extra_rdoc_files = [
     "README.markdown"
@@ -54,17 +54,17 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<rake>, [">= 0"])
-      s.add_runtime_dependency(%q<activerecord>, ["~> 3.2.13.rc"])
-      s.add_runtime_dependency(%q<railties>, ["~> 3.2.13.rc"])
+      s.add_runtime_dependency(%q<activerecord>, ["~> 3.2.13"])
+      s.add_runtime_dependency(%q<railties>, ["~> 3.2.13"])
     else
       s.add_dependency(%q<rake>, [">= 0"])
-      s.add_dependency(%q<activerecord>, ["~> 3.2.13.rc"])
-      s.add_dependency(%q<railties>, ["~> 3.2.13.rc"])
+      s.add_dependency(%q<activerecord>, ["~> 3.2.13"])
+      s.add_dependency(%q<railties>, ["~> 3.2.13"])
     end
   else
     s.add_dependency(%q<rake>, [">= 0"])
-    s.add_dependency(%q<activerecord>, ["~> 3.2.13.rc"])
-    s.add_dependency(%q<railties>, ["~> 3.2.13.rc"])
+    s.add_dependency(%q<activerecord>, ["~> 3.2.13"])
+    s.add_dependency(%q<railties>, ["~> 3.2.13"])
   end
 end
 
