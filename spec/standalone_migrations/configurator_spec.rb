@@ -14,6 +14,14 @@ module StandaloneMigrations
         }
       end
 
+      let(:env_hash_other_db) do
+        {
+          "development" => { "adapter" => "mysql2", "database" => "database_name" },
+          "test" => { "adapter" => "mysql2", "database" => "database_name" },
+          "production" => {"adapter" => "mysql2", "database" => "database_name" }
+        }
+      end
+
       before(:all) do
         @original_dir = Dir.pwd
         Dir.chdir( File.expand_path("../../", __FILE__) )
@@ -156,11 +164,49 @@ module StandaloneMigrations
         }
       end
 
+      let(:yaml_hash_other_db) do
+        {
+          "db" => {
+            "seeds"    => "db2/seeds.rb",
+            "migrate"  => "db2/migrate",
+            "schema"   => "db2/schema.rb"
+          },
+          "config" => {
+            "database" => "config/config_other.yml"
+          }
+        }
+      end
+
       let(:configurator) do
         file = ".standalone_migrations"
         File.open(file, "w") { |file| file.write(yaml_hash.to_yaml) }
-
         Configurator.new
+      end
+
+      context "with database environment variable passed" do
+
+        before(:all) do
+          ENV['DATABASE'] = "other_db"
+        end
+
+        let(:other_configurator) do
+          file_other_db = ".other_db.standalone_migrations"
+          File.open(file_other_db, "w") { |file| file.write(yaml_hash_other_db.to_yaml) }
+          Configurator.new
+        end
+
+        it "look up named dot file" do
+          other_configurator.config.should == yaml_hash_other_db['config']['database']
+        end
+
+        it "load config from named dot file" do
+          other_configurator.migrate_dir.should == 'db2/migrate'
+        end
+
+        after(:all) do
+          ENV['DATABASE'] = nil
+        end
+
       end
 
       context "with some configurations missing" do
@@ -180,6 +226,7 @@ module StandaloneMigrations
         it "use custom config from file" do
           configurator.config.should == yaml_hash["config"]["database"]
         end
+
       end
 
       it "use custom config from file" do

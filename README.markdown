@@ -107,6 +107,56 @@ config:
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
 
+###Multiple database support
+
+####Structure
+
+Create a custom configuration file for each database and name them `.database_name.standalone_migrations`. The same conditions apply as described under Custom Configuration, however you are most likely want to specify all options to avoid conflicts and errors.
+
+An example set up would look like this:
+
+```
+app/
+|-- db/
+|   |-- migrate/
+|   |   |-- db1/
+|   |   |   |-- 001_migration.rb
+|   |   |   
+|   |   |-- db2/
+|   |       |-- 001_migration.rb
+|   |    
+|   |-- config_db1.yml
+|   |-- config_db2.yml
+|   |-- seeds_db1.rb
+|   |-- seeds_db2.rb
+|   |-- schema_db1.rb
+|   |-- schema_db2.rb
+|
+|-- .db1.standalone_migrations
+|-- .db2.standalone_migrations
+```
+Sample config file:
+
+```yaml
+db:
+    seeds: db/seeds_db1.rb
+    migrate: db/migrate/db1
+    schema: db/schema_db1.rb
+config:
+    database: db/config_db1.yml
+```
+Of course you can achieve a different layout by simply editing the paths.
+
+#####Running
+
+You can run the Rake tasks on a particular database by passing the `DATABASE` environment variable to it:
+
+    $ rake DATABASE=db1 db:version
+
+Combined with the environment selector:
+
+    $ rake DATABASE=db2 DB=production db:migrate
+
 #### Changing environment config in runtime
 
 If you are using Heroku or have to create or change your connection
