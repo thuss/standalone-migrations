@@ -204,6 +204,7 @@ module StandaloneMigrations
         end
 
         after(:all) do
+          File.delete ".other_db.standalone_migrations"
           ENV['DATABASE'] = nil
         end
 
