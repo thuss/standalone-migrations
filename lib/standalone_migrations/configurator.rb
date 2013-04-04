@@ -66,7 +66,11 @@ module StandaloneMigrations
     private
 
     def configuration_file
-      ".standalone_migrations"
+      if !ENV['DATABASE']
+        ".standalone_migrations"
+      else
+        ".#{ENV['DATABASE']}.standalone_migrations"
+      end
     end
 
     def load_from_file(defaults)
