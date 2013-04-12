@@ -3,9 +3,11 @@ module StandaloneMigrations
     class << self
       def configure
         Deprecations.new.call
-        config_database_file = Configurator.new.config
+        configurator = Configurator.new
         paths = Rails.application.config.paths
-        paths.add "config/database", :with => config_database_file
+        paths.add "config/database", :with => configurator.config
+        paths.add "db/migrate", :with => configurator.migrate_dir
+        paths.add "db/seeds", :with => configurator.seeds
       end
 
       def load_tasks
