@@ -13,8 +13,8 @@ describe 'Standalone migrations' do
   end
 
   def migration(name)
-    m = `cd spec/tmp/db/migrate && ls`.split("\n").detect { |m| m =~ /#{name}/ }
-    m ? "db/migrate/#{m}" : m
+    m = `cd spec/tmp/db/default/migrate && ls`.split("\n").detect { |m| m =~ /#{name}/ }
+    m ? "db/default/migrate/#{m}" : m
   end
 
   def tmp_file(file)
@@ -30,7 +30,7 @@ describe 'Standalone migrations' do
   def make_migration(name, options={})
     task_name = options[:task_name] || 'db:new_migration'
     migration = run("rake #{task_name} name=#{name}").match(%r{db/migrate/\d+.*.rb})[0]
-    content = read(migration)
+    content = read("db/default/migrate/#{File.basename(migration)}")
     content.sub!(/def down.*?\send/m, "def down;puts 'DOWN-#{name}';end")
     content.sub!(/def up.*?\send/m, "def up;puts 'UP-#{name}';end")
     write(migration, content)
@@ -51,7 +51,7 @@ end
 
   def write_multiple_migrations
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
-    write "db/migrate/20100509095815_create_tests.rb", <<-TXT
+    write "db/default/migrate/20100509095815_create_tests.rb", <<-TXT
 class CreateTests < ActiveRecord::Migration
   def up
     puts "UP-CreateTests"
@@ -62,7 +62,7 @@ class CreateTests < ActiveRecord::Migration
   end
 end
     TXT
-    write "db/migrate/20100509095816_create_tests2.rb", <<-TXT
+    write "db/default/migrate/20100509095816_create_tests2.rb", <<-TXT
 class CreateTests2 < ActiveRecord::Migration
   def up
     puts "UP-CreateTests2"
@@ -77,9 +77,9 @@ end
 
   before do
     `rm -rf spec/tmp` if File.exist?('spec/tmp')
-    `mkdir spec/tmp`
+    `mkdir -p spec/tmp/db/default/migrate`
     write_rakefile
-    write 'db/config.yml', <<-TXT
+    write 'db/default/config.yml', <<-TXT
 development:
   adapter: sqlite3
   database: db/development.sql
@@ -114,18 +114,18 @@ test:
 
     it "generates a new migration with this name from ENV and timestamp" do
       run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
-      run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
+      run("ls db/default/migrate").should =~ /^\d+_test_abc_env.rb$/
     end
     
     it "generates a new migration with this name from args and timestamp" do
       run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
-      run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
+      run("ls db/default/migrate").should =~ /^\d+_test_abc_args.rb$/
     end
 
     it "generates a new migration with the name converted to the Rails migration format" do
       run("rake db:new_migration name=MyNiceModel").should =~ %r{create(.*)db/migrate/\d+_my_nice_model\.rb}
       read(migration('my_nice_model')).should =~ /class MyNiceModel/
-      run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
+      run("ls db/default/migrate").should =~ /^\d+_my_nice_model.rb$/
     end
 
     it "generates a new migration with name and options from ENV" do
@@ -164,14 +164,12 @@ test:
 
   describe 'db:migrate:down' do
     it "migrates down" do
-      make_migration('xxx')
-      sleep 1
-      version = make_migration('yyy')
+      version = make_migration('xxx')
       run 'rake db:migrate'
 
       result = run("rake db:migrate:down VERSION=#{version}")
       result.should_not =~ /DOWN-xxx/
-      result.should =~ /DOWN-yyy/
+      result.should =~ /0/
     end
 
     it "fails without version" do
@@ -182,13 +180,12 @@ test:
 
   describe 'db:migrate:up' do
     it "migrates up" do
-      make_migration('xxx')
+      version = make_migration('xxx')
       run 'rake db:migrate'
-      sleep 1
-      version = make_migration('yyy')
-      result = run("rake db:migrate:up VERSION=#{version}")
-      result.should_not =~ /UP-xxx/
-      result.should =~ /UP-yyy/
+      run("rake db:migrate:up VERSION=#{version}")
+      result = run("rake db:version")
+      result.should_not =~ /^\w+: 0\n$/
+      result.should =~ /#{version}/
     end
 
     it "fails without version" do
@@ -223,16 +220,16 @@ test:
 
   describe 'schema:dump' do
     it "dumps the schema" do
-      write('db/schema.rb', '')
+      write('db/default/schema.rb', '')
       run('rake db:schema:dump')
-      read('db/schema.rb').should =~ /ActiveRecord/
+      read('db/default/schema.rb').should =~ /ActiveRecord/
     end
   end
 
   describe 'db:schema:load' do
     it "loads the schema" do
       run('rake db:schema:dump')
-      schema = "db/schema.rb"
+      schema = "db/default/schema.rb"
       write(schema, read(schema)+"\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
       result.should =~ /LOADEDDD/
@@ -261,7 +258,7 @@ test:
 
   describe 'db:test:load' do
     it 'loads' do
-      write("db/schema.rb", "puts 'LOADEDDD'")
+      write("db/default/schema.rb", "puts 'LOADEDDD'")
       run("rake db:test:load").should =~ /LOADEDDD/
     end
 
@@ -278,7 +275,7 @@ test:
 
   describe "db:seed" do
     it "loads" do
-      write("db/seeds.rb", "puts 'LOADEDDD'")
+      write("db/default/seeds.rb", "puts 'LOADEDDD'")
       run("rake db:seed").should =~ /LOADEDDD/
     end
 

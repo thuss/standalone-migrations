@@ -25,9 +25,9 @@ module StandaloneMigrations
       before(:all) do
         @original_dir = Dir.pwd
         Dir.chdir( File.expand_path("../../", __FILE__) )
-        FileUtils.mkdir_p "tmp/db"
+        FileUtils.mkdir_p "tmp/db/default"
         Dir.chdir "tmp"
-        File.open("db/config.yml", "w") do |f|
+        File.open("db/default/config.yml", "w") do |f|
           f.write env_hash.to_yaml
         end
       end
@@ -95,19 +95,19 @@ module StandaloneMigrations
       end
 
       it "use config/database.yml" do
-        configurator.config.should == 'db/config.yml'
+        configurator.config.should == 'db/default/config.yml'
       end
 
       it "use db/migrate dir" do
-        configurator.migrate_dir.should == 'db/migrate'
+        configurator.migrate_dir.should == 'db/default/migrate'
       end
 
       it "use db/seeds.rb" do
-        configurator.seeds.should == "db/seeds.rb"
+        configurator.seeds.should == "db/default/seeds.rb"
       end
 
       it "use db/schema.rb" do
-        configurator.schema.should == "db/schema.rb"
+        configurator.schema.should == "db/default/schema.rb"
       end
 
     end
@@ -221,7 +221,7 @@ module StandaloneMigrations
         end
 
         it "use default values for the missing configurations" do
-          configurator.migrate_dir.should == 'db/migrate'
+          configurator.migrate_dir.should == 'db/default/migrate'
         end
 
         it "use custom config from file" do

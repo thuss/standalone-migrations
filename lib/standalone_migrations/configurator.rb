@@ -30,13 +30,18 @@ module StandaloneMigrations
 
     def initialize(options = {})
       defaults = {
-        :config       => "db/config.yml",
-        :migrate_dir  => "db/migrate",
-        :seeds        => "db/seeds.rb",
-        :schema       => "db/schema.rb"
+        :config       => "#{db_dir}/config.yml",
+        :migrate_dir  => "#{db_dir}/migrate",
+        :seeds        => "#{db_dir}/seeds.rb",
+        :schema       => "#{db_dir}/schema.rb"
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
       ENV['SCHEMA'] = File.expand_path(schema)
+    end
+
+    def db_dir
+      db_source = ENV['SOURCE'] || 'default'
+      "db/#{db_source}"
     end
 
     def config
