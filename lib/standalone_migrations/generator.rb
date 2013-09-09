@@ -11,7 +11,8 @@ module StandaloneMigrations
 
     def self.move_migration(name)
       Dir.glob("db/migrate/*.rb").each do |migration|
-        new_path = "db/#{ENV['SOURCE']}/migrate/#{File.basename(migration)}"
+        new_path_source = ENV['SOURCE'] || 'default'
+        new_path = "db/#{new_path_source}/migrate/#{File.basename(migration)}"
         begin
           if migration_exists?(name, new_path)
             raise "A migration already exists by the name of #{name}"+
