@@ -1,5 +1,10 @@
 Rails migrations in non-Rails (and non Ruby) projects.
 
+ACTIVE RECORD 4 SUPPORT
+===============
+
+Rake tasks were significantly refactored in Active Record 4. Support for Active Record 4 is provided by the [Active Record Migrations](https://github.com/rosenfeld/active_record_migrations) gem. Standalone Migrations continues to Support Active Record 3.
+
 WHAT'S NEW
 ==========
 In the 2.x release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Ricardo Valeriano](http://ricardovaleriano.com/) and [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
