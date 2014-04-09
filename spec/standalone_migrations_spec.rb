@@ -81,7 +81,7 @@ end
     write_rakefile
     write 'db/config.yml', <<-TXT
 development:
-  adapter: sqlite3
+  adapter: <%= "sqlite3" %>
   database: db/development.sql
 test:
   adapter: sqlite3

@@ -75,7 +75,7 @@ module StandaloneMigrations
 
     def load_from_file(defaults)
       return nil unless File.exists? configuration_file
-      config = YAML.load( IO.read(configuration_file) ) 
+      config = YAML.load( ERB.new(IO.read(configuration_file)).result )
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
         :migrate_dir  => config["db"] ? config["db"]["migrate"] : defaults[:migrate_dir],
