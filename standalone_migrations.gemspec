@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.version = "2.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.require_paths = ["lib"]
   s.authors = ["Todd Huss", "Michael Grosser"]
   s.date = "2014-04-12"
   s.email = "thuss@gabrito.com"
@@ -47,8 +48,7 @@ Gem::Specification.new do |s|
     "vendor/migration_helpers/lib/migration_helper.rb"
   ]
   s.homepage = "http://github.com/thuss/standalone-migrations"
-  s.require_paths = ["lib"]
-  s.rubygems_version = "2.1.7"
+  s.rubygems_version = "2.2.2"
   s.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
 
   if s.respond_to? :specification_version then
