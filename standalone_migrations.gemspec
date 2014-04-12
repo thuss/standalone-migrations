@@ -13,13 +13,14 @@ Gem::Specification.new do |s|
   s.date = "2014-04-12"
   s.email = "thuss@gabrito.com"
   s.extra_rdoc_files = [
+    "LICENSE",
     "README.markdown"
   ]
   s.files = [
     ".travis.yml",
     "Gemfile",
     "Gemfile.lock",
-    "MIT-LICENSE",
+    "LICENSE",
     "README.markdown",
     "Rakefile",
     "VERSION",
