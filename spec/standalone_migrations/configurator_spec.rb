@@ -216,6 +216,9 @@ module StandaloneMigrations
           {
             "config" => {
               "database" => "file/config/database.yml"
+            },
+            "db" => {
+              "seeds" => "file/db/seeds.rb"
             }
           }
         end
@@ -226,6 +229,10 @@ module StandaloneMigrations
 
         it "use custom config from file" do
           configurator.config.should == yaml_hash["config"]["database"]
+        end
+
+        it "use custom config value from partial configuration" do
+          configurator.seeds.should == yaml_hash["db"]["seeds"]
         end
 
       end
