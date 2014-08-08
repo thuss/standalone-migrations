@@ -19,6 +19,12 @@ namespace :specs do
     t.pattern = "spec/standalone_migrations/**/*_spec.rb"
   end
 
+  desc "run all specs for travis"
+  RSpec::Core::RakeTask.new "travis" do |t|
+    t.pattern = "spec/**/*_spec.rb"
+    t.rspec_opts = "--tag ~@travis_error"
+  end
+
   desc "run all specs including those which uses database"
   task :all => [:default, :nodb]
 end

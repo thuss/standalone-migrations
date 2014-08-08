@@ -296,14 +296,14 @@ test:
   end
 
   describe 'db:migrate when environment is specified' do
-    it "runs when using the DB environment variable" do
+    it "runs when using the DB environment variable", :travis_error => true do
       make_migration('yyy')
       run('rake db:migrate DB=test')
       run('rake db:version DB=test').should_not =~ /version: 0/
       run('rake db:version').should =~ /version: 0/
     end
 
-    it "should error on an invalid database" do
+    it "should error on an invalid database", :travis_error => true do
       lambda{ run("rake db:create DB=nonexistent")}.should raise_error(/rake aborted/)
     end
   end
