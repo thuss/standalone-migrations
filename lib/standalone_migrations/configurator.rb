@@ -78,9 +78,9 @@ module StandaloneMigrations
       config = YAML.load( ERB.new(IO.read(configuration_file)).result )
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
-        :migrate_dir  => config["db"] ? config["db"]["migrate"] : defaults[:migrate_dir],
-        :seeds        => config["db"] ? config["db"]["seeds"] : defaults[:seeds],
-        :schema       => config["db"] ? config["db"]["schema"] : defaults[:schema]
+        :migrate_dir  => (config["db"] || {})["migrate"] || defaults[:migrate_dir],
+        :seeds        => (config["db"] || {})["seeds"] || defaults[:seeds],
+        :schema       => (config["db"] || {})["schema"] || defaults[:schema]
       }
     end
 

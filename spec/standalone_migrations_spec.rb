@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 describe 'Standalone migrations' do
 
   def write(file, content)
@@ -81,7 +83,7 @@ end
     write_rakefile
     write 'db/config.yml', <<-TXT
 development:
-  adapter: <%= "sqlite3" %>
+  adapter: sqlite3
   database: db/development.sql
 test:
   adapter: sqlite3
@@ -104,6 +106,25 @@ test:
     it "should create the database and drop the database that was created" do
       run "rake db:create"
       run "rake db:drop"
+    end
+  end
+
+  describe 'callbacks' do
+    it 'runs the callbacks' do
+      StandaloneMigrations::Tasks.should_receive(:configure)
+
+      connection_established = false
+      ActiveRecord::Base.should_receive(:establish_connection) do
+        connection_established = true
+      end
+      StandaloneMigrations.should_receive(:run_on_load_callbacks) do
+        connection_established.should be_true
+      end
+
+      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do 
+        load "Rakefile"
+        Rake::Task['standalone:connection'].invoke
+      end
     end
   end
 
@@ -296,15 +317,15 @@ test:
   end
 
   describe 'db:migrate when environment is specified' do
-    it "runs when using the DB environment variable" do
+    it "runs when using the DB environment variable", :travis_error => true do
       make_migration('yyy')
-      run('rake db:migrate DB=test')
-      run('rake db:version DB=test').should_not =~ /version: 0/
+      run('rake db:migrate RAILS_ENV=test')
+      run('rake db:version RAILS_ENV=test').should_not =~ /version: 0/
       run('rake db:version').should =~ /version: 0/
     end
 
-    it "should error on an invalid database" do
-      lambda{ run("rake db:create DB=nonexistent")}.should raise_error(/rake aborted/)
+    it "should error on an invalid database", :travis_error => true do
+      lambda{ run("rake db:create RAILS_ENV=nonexistent")}.should raise_error(/rake aborted/)
     end
   end
 end

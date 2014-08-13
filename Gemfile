@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem 'rake', '~> 10.0'
 gem 'activerecord', ENV['AR'] || '~> 3.2'
