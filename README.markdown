@@ -107,6 +107,18 @@ config:
 These are the configurable options available. You can omit any of
 the keys and Standalone Migrations will assume the default values. 
 
+### on_loaded callbacks
+
+If you would like to use an external library such as [foreigner](https://github.com/matthuhiggins/foreigner) with standalone migrations, you can add the following to your `Rakefile`:
+
+```ruby
+require 'foreigner'
+
+StandaloneMigrations.on_load do
+  Foreigner.load
+end
+```
+
 ###Multiple database support
 
 ####Structure
@@ -248,5 +260,6 @@ Contributors
  - [Koen Punt](http://www.koen.pt/)
  - [Parker Moore](http://www.parkermoore.de/)
  - [Marcell Jusztin](http://www.morcmarc.com)
+ - [Eric Hayes](http://ejhay.es)
 
 This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
