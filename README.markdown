@@ -114,7 +114,7 @@ If you would like to use an external library such as [foreigner](https://github.
 ```ruby
 require 'foreigner'
 
-StandaloneMigrations.on_load do
+StandaloneMigrations.on_loaded do
   Foreigner.load
 end
 ```
