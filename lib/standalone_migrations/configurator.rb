@@ -20,7 +20,11 @@ module StandaloneMigrations
   class Configurator
     def self.load_configurations
       @standalone_configs ||= Configurator.new.config
-      @environments_config ||= YAML.load(ERB.new(File.read(@standalone_configs)).result).with_indifferent_access
+      if url = ENV['DATABASE_URL']
+        @environments_config = {url: url}
+      else
+        @environments_config ||= YAML.load(ERB.new(File.read(@standalone_configs)).result).with_indifferent_access
+      end
     end
 
     def self.environments_config

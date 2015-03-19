@@ -44,6 +44,7 @@ describe 'Standalone migrations' do
 $LOAD_PATH.unshift '#{File.expand_path('lib')}'
 begin
   require "standalone_migrations"
+  ActiveRecord::Tasks::DatabaseTasks.database_configuration = YAML.load_file('db/config.yml')
   StandaloneMigrations::Tasks.load_tasks
 rescue LoadError => e
   puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
@@ -99,7 +100,7 @@ test:
     warning = /DEPRECATED.* db\/migrate/
     run("rake db:create").should_not =~ warning
     write('db/migrations/fooo.rb', 'xxx')
-    run("rake db:create").should =~ warning
+    run("rake db:create --trace").should =~ warning
   end
 
   describe 'db:create and drop' do
@@ -191,8 +192,8 @@ test:
       run 'rake db:migrate'
 
       result = run("rake db:migrate:down VERSION=#{version}")
-      result.should_not =~ /DOWN-xxx/
-      result.should =~ /DOWN-yyy/
+      result.should_not =~ /Xxx: reverting/
+      result.should =~ /Yyy: reverting/
     end
 
     it "fails without version" do
@@ -208,8 +209,8 @@ test:
       sleep 1
       version = make_migration('yyy')
       result = run("rake db:migrate:up VERSION=#{version}")
-      result.should_not =~ /UP-xxx/
-      result.should =~ /UP-yyy/
+      result.should_not =~ /Xxx: migrating/
+      result.should =~ /Yyy: migrating/
     end
 
     it "fails without version" do
