@@ -2,7 +2,7 @@ Rails migrations in non-Rails (and non Ruby) projects.
 
 WHAT'S NEW
 ==========
-In the 2.x release we have moved to using Rails 3 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 3 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! This removed 95% of the code we have to maintain. Big thanks to [Ricardo Valeriano](http://ricardovaleriano.com/) and [Michael Grosser](http://pragmatig.wordpress.com) for undertaking this major rewrite!
+In the 4.x release we have moved to using Rails 4 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 4 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! 
 
 CONTRIBUTE
 ==========
@@ -247,7 +247,6 @@ Contributors
  - [Michael Grosser](http://pragmatig.wordpress.com)
  - [Ricardo Valeriano](http://ricardovaleriano.com/)
  - [Two Bit Labs](http://twobitlabs.com/)
- - [ClassMonkeys](http://www.classmonkeys.com/) 
  - [Windandtides](http://windandtides.com/)
  - [Eric Lindvall](http://bitmonkey.net)
  - [Steve Hodgkiss](http://stevehodgkiss.com/)
@@ -261,5 +260,4 @@ Contributors
  - [Parker Moore](http://www.parkermoore.de/)
  - [Marcell Jusztin](http://www.morcmarc.com)
  - [Eric Hayes](http://ejhay.es)
-
-This work is originally based on [Lincoln Stoll's blog post](http://lstoll.net/2008/04/stand-alone-activerecord-migrations/) and [David Welton's post](http://journal.dedasys.com/2007/01/28/using-migrations-outside-of-rails).
+ - [Yi Wen](https://github.com/ywen)
