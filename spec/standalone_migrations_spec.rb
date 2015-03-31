@@ -44,7 +44,6 @@ describe 'Standalone migrations' do
 $LOAD_PATH.unshift '#{File.expand_path('lib')}'
 begin
   require "standalone_migrations"
-  ActiveRecord::Tasks::DatabaseTasks.database_configuration = YAML.load_file('db/config.yml')
   StandaloneMigrations::Tasks.load_tasks
 rescue LoadError => e
   puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"

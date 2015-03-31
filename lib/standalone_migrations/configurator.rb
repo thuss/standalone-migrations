@@ -1,9 +1,11 @@
 require 'active_support/all'
+require 'yaml'
 
 module StandaloneMigrations
 
   class InternalConfigurationsProxy
 
+    attr_reader :configurations
     def initialize(configurations)
       @configurations = configurations
     end

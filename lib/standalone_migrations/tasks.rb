@@ -12,7 +12,9 @@ module StandaloneMigrations
 
       def load_tasks
         configure
-
+        Configurator.environments_config do |proxy|
+          ActiveRecord::Tasks::DatabaseTasks.database_configuration = proxy.configurations
+        end
         MinimalRailtieConfig.load_tasks
         %w(
           connection
