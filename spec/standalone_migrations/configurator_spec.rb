@@ -39,7 +39,7 @@ module StandaloneMigrations
 
       it "load the yaml with environment configurations" do
         config = Configurator.new.config_for(:development)
-        config[:database].should == "db/development.sql"
+        config["database"].should == "db/development.sql"
       end
 
       it "allow access the original configuration hash (for all environments)" do

@@ -22,11 +22,9 @@ module StandaloneMigrations
   class Configurator
     def self.load_configurations
       @standalone_configs ||= Configurator.new.config
-      if url = ENV['DATABASE_URL']
-        @environments_config = {url: url}
-      else
-        @environments_config ||= YAML.load(ERB.new(File.read(@standalone_configs)).result).with_indifferent_access
-      end
+      @env_config ||= Rails.application.config.database_configuration
+      ActiveRecord::Base.configurations = @env_config
+      @env_config
     end
 
     def self.environments_config
@@ -43,6 +41,9 @@ module StandaloneMigrations
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
       ENV['SCHEMA'] = ENV['SCHEMA'] || File.expand_path(schema)
+
+      Rails.application.config.root = Pathname.pwd
+      Rails.application.config.paths["config/database"] = config
     end
 
     def config
@@ -66,7 +67,7 @@ module StandaloneMigrations
     end
 
     def config_for(environment)
-      config_for_all[environment]
+      config_for_all[environment.to_s]
     end
 
     private
