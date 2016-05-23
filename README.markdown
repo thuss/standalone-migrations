@@ -72,7 +72,6 @@ end
 
 ### To migrate a specific database (for example your "testing" database)
 
-    rake db:migrate DB=test ... or ...
     rake db:migrate RAILS_ENV=test
 
 ### To execute a specific up/down of one single migration
@@ -163,11 +162,11 @@ Of course you can achieve a different layout by simply editing the paths.
 
 You can run the Rake tasks on a particular database by passing the `DATABASE` environment variable to it:
 
-    $ rake DATABASE=db1 db:version
+    $ rake db:version DATABASE=db1
 
 Combined with the environment selector:
 
-    $ rake DATABASE=db2 DB=production db:migrate
+    $ rake db:migrate DATABASE=db2 RAILS_ENV=production
 
 #### Changing environment config in runtime
 
