@@ -1,5 +1,7 @@
 Rails migrations in non-Rails (and non Ruby) projects.
 
+[![Build Status](https://travis-ci.org/thuss/standalone-migrations.svg?branch=master)](https://travis-ci.org/thuss/standalone-migrations)
+
 WHAT'S NEW
 ==========
 In the 4.x release we have moved to using Rails 4 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 4 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! 
