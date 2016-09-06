@@ -60,17 +60,17 @@ Gem::Specification.new do |s|
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<rake>, ["~> 10.0"])
-      s.add_runtime_dependency(%q<activerecord>, ["~> 4.2.0"])
-      s.add_runtime_dependency(%q<railties>, ["~> 4.2.0"])
+      s.add_runtime_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
+      s.add_runtime_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
     else
       s.add_dependency(%q<rake>, ["~> 10.0"])
-      s.add_dependency(%q<activerecord>, ["~> 4.2.0"])
-      s.add_dependency(%q<railties>, ["~> 4.2.0"])
+      s.add_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
+      s.add_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
     end
   else
     s.add_dependency(%q<rake>, ["~> 10.0"])
-    s.add_dependency(%q<activerecord>, ["~> 4.2.0"])
-    s.add_dependency(%q<railties>, ["~> 4.2.0"])
+    s.add_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
+    s.add_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
   end
 end
 
