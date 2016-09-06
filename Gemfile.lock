@@ -110,9 +110,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord (~> 4.2.0)
+  activerecord (>= 4.1.13)
   jeweler
-  railties (~> 4.2.0)
+  railties (>= 4.1.13)
   rake (~> 10.0)
   rspec (~> 2)
   sqlite3
+
+BUNDLED WITH
+   1.12.5
