@@ -26,7 +26,6 @@ GEM
     addressable (2.4.0)
     arel (5.0.1.20140414130214)
     builder (3.2.2)
-    concurrent-ruby (1.0.2)
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.2.5)
@@ -55,9 +54,6 @@ GEM
       semver
     json (1.8.3)
     jwt (1.5.4)
-    loofah (2.0.3)
-      nokogiri (>= 1.5.9)
-    method_source (0.8.2)
     mini_portile2 (2.1.0)
     minitest (5.9.0)
     multi_json (1.12.1)
