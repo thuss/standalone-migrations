@@ -1,8 +1,10 @@
 Rails migrations in non-Rails (and non Ruby) projects.
 
+[![Build Status](https://travis-ci.org/thuss/standalone-migrations.svg?branch=master)](https://travis-ci.org/thuss/standalone-migrations)
+
 WHAT'S NEW
 ==========
-In the 4.x release we have moved to using Rails 4 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 4 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! 
+In the 5.x release we have moved to using Rails 5 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 5 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too! 
 
 CONTRIBUTE
 ==========
@@ -72,7 +74,6 @@ end
 
 ### To migrate a specific database (for example your "testing" database)
 
-    rake db:migrate DB=test ... or ...
     rake db:migrate RAILS_ENV=test
 
 ### To execute a specific up/down of one single migration
@@ -105,7 +106,7 @@ config:
 ```
 
 These are the configurable options available. You can omit any of
-the keys and Standalone Migrations will assume the default values. 
+the keys and Standalone Migrations will assume the default values.
 
 ### on_loaded callbacks
 
@@ -163,11 +164,11 @@ Of course you can achieve a different layout by simply editing the paths.
 
 You can run the Rake tasks on a particular database by passing the `DATABASE` environment variable to it:
 
-    $ rake DATABASE=db1 db:version
+    $ rake db:version DATABASE=db1
 
 Combined with the environment selector:
 
-    $ rake DATABASE=db2 DB=production db:migrate
+    $ rake db:migrate DATABASE=db2 RAILS_ENV=production
 
 #### Changing environment config in runtime
 

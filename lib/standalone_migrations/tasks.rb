@@ -7,7 +7,7 @@ module StandaloneMigrations
         paths = Rails.application.config.paths
         paths.add "config/database", :with => configurator.config
         paths.add "db/migrate", :with => configurator.migrate_dir
-        paths.add "db/seeds", :with => configurator.seeds
+        paths.add "db/seeds.rb", :with => configurator.seeds
       end
 
       def load_tasks

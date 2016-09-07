@@ -303,6 +303,27 @@ test:
       run("rake db:seed").should =~ /LOADEDDD/
     end
 
+    describe 'with non-default seed file' do
+      let(:yaml_hash) do
+        {
+          "db" => {
+            "seeds" => "db/seeds2.rb",
+          }
+        }
+      end
+
+      before do
+        write(".standalone_migrations", yaml_hash.to_yaml)
+      end
+
+
+      it "loads" do
+        write("db/seeds2.rb", "puts 'LOADEDDD'")
+        run("rake db:seed").should =~ /LOADEDDD/
+      end
+    end
+
+
     it "does nothing without seeds" do
       run("rake db:seed").length.should == 0
     end

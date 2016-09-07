@@ -21,7 +21,7 @@ module StandaloneMigrations
 
   class Configurator
     def self.load_configurations
-      @standalone_configs ||= Configurator.new.config
+      self.new
       @env_config ||= Rails.application.config.database_configuration
       ActiveRecord::Base.configurations = @env_config
       @env_config
