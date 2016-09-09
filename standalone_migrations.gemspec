@@ -55,22 +55,8 @@ Gem::Specification.new do |s|
   s.rubygems_version = "2.4.8"
   s.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
 
-  if s.respond_to? :specification_version then
-    s.specification_version = 4
-
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<rake>, ["~> 10.0"])
-      s.add_runtime_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
-      s.add_runtime_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
-    else
-      s.add_dependency(%q<rake>, ["~> 10.0"])
-      s.add_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
-      s.add_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
-    end
-  else
-    s.add_dependency(%q<rake>, ["~> 10.0"])
-    s.add_dependency(%q<activerecord>, ['>= 4.1.13', '< 4.1.15'])
-    s.add_dependency(%q<railties>, ['>= 4.1.13', '< 4.1.15'])
-  end
+  s.add_dependency(%q<rake>, ["~> 10.0"])
+  s.add_dependency(%q<activerecord>, ['= 4.1.13')
+  s.add_dependency(%q<railties>, ['= 4.1.13')
 end
 
