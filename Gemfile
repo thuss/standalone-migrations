@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'rake', '~> 10.0'
-gem 'activerecord', ENV['AR'] || [">= 4.2.7", "< 5.1.0"]
-gem 'railties', ENV['AR'] || [">= 4.2.7", "< 5.1.0"]
+gem 'activerecord', '= 4.1.13'
+gem 'railties', '= 4.1.13'
 
 group :dev do
   gem 'sqlite3'
