@@ -2,7 +2,7 @@ language: ruby
 rvm:
   - 2.2.2
 env:
-  - AR="~> 4.2.0"
-  - AR="~> 5.0.0"
-  - AR=">= 5.1.0.rc2,< 5.2"
+  - AR="~> 4.2.0" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+  - AR="~> 5.0.0" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+  - AR=">= 5.1.0.rc2,< 5.2" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
 script: bundle exec rake specs:travis
