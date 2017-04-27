@@ -343,7 +343,7 @@ test:
     it "should not error when a seeds file does not exist" do
       make_migration('yyy')
       run('rake db:migrate DB=test')
-      run("rake db:reset").should_not raise_error
+      lambda{ run("rake db:reset") }.should_not raise_error
     end
   end
 
