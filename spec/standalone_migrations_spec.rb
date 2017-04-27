@@ -124,7 +124,7 @@ test:
         connection_established = true
       end
       StandaloneMigrations.should_receive(:run_on_load_callbacks) do
-        connection_established.should be_true
+        connection_established.should be true
       end
 
       Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do
@@ -343,7 +343,7 @@ test:
     it "should not error when a seeds file does not exist" do
       make_migration('yyy')
       run('rake db:migrate DB=test')
-      run("rake db:reset").should_not raise_error(/rake aborted/)
+      run("rake db:reset").should_not raise_error
     end
   end
 

@@ -24,7 +24,7 @@ module StandaloneMigrations
         # invoke the callbacks
         StandaloneMigrations.run_on_load_callbacks
 
-        callback_was_called.should be_true
+        callback_was_called.should be true
       end
 
       it "can pass multiple blocks to on_loaded" do
