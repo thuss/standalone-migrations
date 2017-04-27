@@ -3,3 +3,4 @@
 schema.rb
 spec/tmp
 pkg
+Gemfile.lock

@@ -52,9 +52,15 @@ end
   end
 
   def write_multiple_migrations
+    migration_superclass = if Rails::VERSION::MAJOR >= 5
+      "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
+    else
+      "ActiveRecord::Migration"
+    end
+
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT
-class CreateTests < ActiveRecord::Migration
+class CreateTests < #{migration_superclass}
   def up
     puts "UP-CreateTests"
   end
@@ -65,7 +71,7 @@ class CreateTests < ActiveRecord::Migration
 end
     TXT
     write "db/migrate/20100509095816_create_tests2.rb", <<-TXT
-class CreateTests2 < ActiveRecord::Migration
+class CreateTests2 < #{migration_superclass}
   def up
     puts "UP-CreateTests2"
   end
@@ -118,10 +124,10 @@ test:
         connection_established = true
       end
       StandaloneMigrations.should_receive(:run_on_load_callbacks) do
-        connection_established.should be_true
+        connection_established.should be true
       end
 
-      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do 
+      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do
         load "Rakefile"
         Rake::Task['standalone:connection'].invoke
       end
@@ -137,7 +143,7 @@ test:
       run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
     end
-    
+
     it "generates a new migration with this name from args and timestamp" do
       run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
@@ -197,7 +203,9 @@ test:
 
     it "fails without version" do
       make_migration('yyy')
-      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION/)
+      # Rails has a bug where it's sending a bad failure exception
+      # https://github.com/rails/rails/issues/28905
+      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION|version/)
     end
   end
 
@@ -214,7 +222,9 @@ test:
 
     it "fails without version" do
       make_migration('yyy')
-      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION/)
+      # Rails has a bug where it's sending a bad failure exception
+      # https://github.com/rails/rails/issues/28905
+      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION|version/)
     end
   end
 
@@ -333,7 +343,7 @@ test:
     it "should not error when a seeds file does not exist" do
       make_migration('yyy')
       run('rake db:migrate DB=test')
-      run("rake db:reset").should_not raise_error(/rake aborted/)
+      lambda{ run("rake db:reset") }.should_not raise_error
     end
   end
 
