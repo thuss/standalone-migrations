@@ -1,4 +1,8 @@
 language: ruby
 rvm:
   - 2.2.2
+env:
+  - AR="~> 4.2.0"
+  - AR="~> 5.0.0"
+  - AR=">= 5.1.0.rc2,< 5.2"
 script: bundle exec rake specs:travis
