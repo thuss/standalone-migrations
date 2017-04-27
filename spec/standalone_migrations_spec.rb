@@ -127,7 +127,7 @@ test:
         connection_established.should be_true
       end
 
-      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do 
+      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do
         load "Rakefile"
         Rake::Task['standalone:connection'].invoke
       end
@@ -143,7 +143,7 @@ test:
       run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
     end
-    
+
     it "generates a new migration with this name from args and timestamp" do
       run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
       run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
@@ -203,7 +203,9 @@ test:
 
     it "fails without version" do
       make_migration('yyy')
-      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION/)
+      # Rails has a bug where it's sending a bad failure exception
+      # https://github.com/rails/rails/issues/28905
+      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION|version/)
     end
   end
 
@@ -220,7 +222,9 @@ test:
 
     it "fails without version" do
       make_migration('yyy')
-      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION/)
+      # Rails has a bug where it's sending a bad failure exception
+      # https://github.com/rails/rails/issues/28905
+      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION|version/)
     end
   end
 
