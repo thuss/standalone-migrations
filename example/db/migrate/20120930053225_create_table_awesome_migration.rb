@@ -1,4 +1,4 @@
-class CreateTableAwesomeMigration < ActiveRecord::Migration
+class CreateTableAwesomeMigration < ActiveRecord::Migration[5.0]
   def up
   end
 
