@@ -120,9 +120,9 @@ StandaloneMigrations.on_loaded do
 end
 ```
 
-###Multiple database support
+### Multiple database support
 
-####Structure
+#### Structure
 
 Create a custom configuration file for each database and name them `.database_name.standalone_migrations`. The same conditions apply as described under Custom Configuration, however you are most likely want to specify all options to avoid conflicts and errors.
 
@@ -160,7 +160,7 @@ config:
 ```
 Of course you can achieve a different layout by simply editing the paths.
 
-#####Running
+##### Running
 
 You can run the Rake tasks on a particular database by passing the `DATABASE` environment variable to it:
 
