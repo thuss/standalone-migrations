@@ -67,7 +67,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<railties>, ["< 5.2.0", ">= 4.2.7"])
     end
   else
-    s.add_dependency(%q<rake>, ["~> 10.0"])
+    s.add_dependency(%q<rake>, [">= 10.0"])
     s.add_dependency(%q<activerecord>, ["< 5.2.0", ">= 4.2.7"])
     s.add_dependency(%q<railties>, ["< 5.2.0", ">= 4.2.7"])
   end
