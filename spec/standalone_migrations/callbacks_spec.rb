@@ -7,11 +7,11 @@ module StandaloneMigrations
     describe ".on_loaded" do
 
       it "responds to on_loaded" do
-        StandaloneMigrations.should respond_to :on_loaded
+        expect(StandaloneMigrations).to respond_to :on_loaded
       end
 
       it "responds to run_on_load_callbacks" do
-        StandaloneMigrations.should respond_to :run_on_load_callbacks
+        expect(StandaloneMigrations).to respond_to :run_on_load_callbacks
       end
 
       it "can pass a block do on_loaded" do
@@ -24,7 +24,7 @@ module StandaloneMigrations
         # invoke the callbacks
         StandaloneMigrations.run_on_load_callbacks
 
-        callback_was_called.should be true
+        expect(callback_was_called).to be true
       end
 
       it "can pass multiple blocks to on_loaded" do
@@ -38,7 +38,7 @@ module StandaloneMigrations
 
         StandaloneMigrations.run_on_load_callbacks
 
-        callback_count.should == 4
+        expect(callback_count).to eq(4)
       end
 
     end

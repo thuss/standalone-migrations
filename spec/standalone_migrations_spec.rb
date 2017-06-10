@@ -103,9 +103,9 @@ test:
 
   it "warns of deprecated folder structure" do
     warning = /DEPRECATED.* db\/migrate/
-    run("rake db:create").should_not =~ warning
+    expect(run("rake db:create")).not_to match(warning)
     write('db/migrations/fooo.rb', 'xxx')
-    run("rake db:create --trace").should =~ warning
+    expect(run("rake db:create --trace")).to match(warning)
   end
 
   describe 'db:create and drop' do
@@ -117,14 +117,14 @@ test:
 
   describe 'callbacks' do
     it 'runs the callbacks' do
-      StandaloneMigrations::Tasks.should_receive(:configure)
+      expect(StandaloneMigrations::Tasks).to receive(:configure)
 
       connection_established = false
-      ActiveRecord::Base.should_receive(:establish_connection) do
+      expect(ActiveRecord::Base).to receive(:establish_connection) do
         connection_established = true
       end
-      StandaloneMigrations.should_receive(:run_on_load_callbacks) do
-        connection_established.should be true
+      expect(StandaloneMigrations).to receive(:run_on_load_callbacks) do
+        expect(connection_established).to be true
       end
 
       Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do
@@ -136,56 +136,56 @@ test:
 
   describe 'db:new_migration' do
     it "fails if i do not add a name" do
-      lambda{ run("rake db:new_migration") }.should raise_error(/name=/)
+      expect(lambda{ run("rake db:new_migration") }).to raise_error(/name=/)
     end
 
     it "generates a new migration with this name from ENV and timestamp" do
-      run("rake db:new_migration name=test_abc_env").should =~ %r{create(.*)db/migrate/\d+_test_abc_env\.rb}
-      run("ls db/migrate").should =~ /^\d+_test_abc_env.rb$/
+      expect(run("rake db:new_migration name=test_abc_env")).to match(%r{create(.*)db/migrate/\d+_test_abc_env\.rb})
+      expect(run("ls db/migrate")).to match(/^\d+_test_abc_env.rb$/)
     end
 
     it "generates a new migration with this name from args and timestamp" do
-      run("rake db:new_migration[test_abc_args]").should =~ %r{create(.*)db/migrate/\d+_test_abc_args\.rb}
-      run("ls db/migrate").should =~ /^\d+_test_abc_args.rb$/
+      expect(run("rake db:new_migration[test_abc_args]")).to match(%r{create(.*)db/migrate/\d+_test_abc_args\.rb})
+      expect(run("ls db/migrate")).to match(/^\d+_test_abc_args.rb$/)
     end
 
     it "generates a new migration with the name converted to the Rails migration format" do
-      run("rake db:new_migration name=MyNiceModel").should =~ %r{create(.*)db/migrate/\d+_my_nice_model\.rb}
-      read(migration('my_nice_model')).should =~ /class MyNiceModel/
-      run("ls db/migrate").should =~ /^\d+_my_nice_model.rb$/
+      expect(run("rake db:new_migration name=MyNiceModel")).to match(%r{create(.*)db/migrate/\d+_my_nice_model\.rb})
+      expect(read(migration('my_nice_model'))).to match(/class MyNiceModel/)
+      expect(run("ls db/migrate")).to match(/^\d+_my_nice_model.rb$/)
     end
 
     it "generates a new migration with name and options from ENV" do
       run("rake db:new_migration name=add_name_and_email_to_users options='name:string email:string'")
-      read(migration('add_name_and_email_to_users')).should =~ /add_column :users, :name, :string\n\s*add_column :users, :email, :string/
+      expect(read(migration('add_name_and_email_to_users'))).to match(/add_column :users, :name, :string\n\s*add_column :users, :email, :string/)
     end
 
     it "generates a new migration with name and options from args" do
       run("rake db:new_migration[add_website_and_username_to_users,website:string/username:string]")
-      read(migration('add_website_and_username_to_users')).should =~ /add_column :users, :website, :string\n\s*add_column :users, :username, :string/
+      expect(read(migration('add_website_and_username_to_users'))).to match(/add_column :users, :website, :string\n\s*add_column :users, :username, :string/)
     end
   end
 
   describe 'db:version' do
     it "should start with a new database version" do
-      run("rake db:version").should =~ /Current version: 0/
+      expect(run("rake db:version")).to match(/Current version: 0/)
     end
 
     it "should display the current version" do
       run("rake db:new_migration name=test_abc")
       run("rake --trace db:migrate")
-      run("rake db:version").should =~ /Current version: #{Time.now.year}/
+      expect(run("rake db:version")).to match(/Current version: #{Time.now.year}/)
     end
   end
 
   describe 'db:migrate' do
     it "does nothing when no migrations are present" do
-      run("rake db:migrate").should_not =~ /Migrating/
+      expect(run("rake db:migrate")).not_to match(/Migrating/)
     end
 
     it "migrates if i add a migration" do
       run("rake db:new_migration name=xxx")
-      run("rake db:migrate").should =~ /Xxx: Migrating/i
+      expect(run("rake db:migrate")).to match(/Xxx: Migrating/i)
     end
   end
 
@@ -197,15 +197,15 @@ test:
       run 'rake db:migrate'
 
       result = run("rake db:migrate:down VERSION=#{version}")
-      result.should_not =~ /Xxx: reverting/
-      result.should =~ /Yyy: reverting/
+      expect(result).not_to match(/Xxx: reverting/)
+      expect(result).to match(/Yyy: reverting/)
     end
 
     it "fails without version" do
       make_migration('yyy')
       # Rails has a bug where it's sending a bad failure exception
       # https://github.com/rails/rails/issues/28905
-      lambda{ run("rake db:migrate:down") }.should raise_error(/VERSION|version/)
+      expect(lambda{ run("rake db:migrate:down") }).to raise_error(/VERSION|version/)
     end
   end
 
@@ -216,39 +216,39 @@ test:
       sleep 1
       version = make_migration('yyy')
       result = run("rake db:migrate:up VERSION=#{version}")
-      result.should_not =~ /Xxx: migrating/
-      result.should =~ /Yyy: migrating/
+      expect(result).not_to match(/Xxx: migrating/)
+      expect(result).to match(/Yyy: migrating/)
     end
 
     it "fails without version" do
       make_migration('yyy')
       # Rails has a bug where it's sending a bad failure exception
       # https://github.com/rails/rails/issues/28905
-      lambda{ run("rake db:migrate:up") }.should raise_error(/VERSION|version/)
+      expect(lambda{ run("rake db:migrate:up") }).to raise_error(/VERSION|version/)
     end
   end
 
   describe 'db:rollback' do
     it "does nothing when no migrations have been run" do
-      run("rake db:version").should =~ /version: 0/
-      run("rake db:rollback").should == ''
-      run("rake db:version").should =~ /version: 0/
+      expect(run("rake db:version")).to match(/version: 0/)
+      expect(run("rake db:rollback")).to eq('')
+      expect(run("rake db:version")).to match(/version: 0/)
     end
 
     it "rolls back the last migration if one has been applied" do
       write_multiple_migrations
       run("rake db:migrate")
-      run("rake db:version").should =~ /version: 20100509095816/
-      run("rake db:rollback").should =~ /revert/
-      run("rake db:version").should =~ /version: 20100509095815/
+      expect(run("rake db:version")).to match(/version: 20100509095816/)
+      expect(run("rake db:rollback")).to match(/revert/)
+      expect(run("rake db:version")).to match(/version: 20100509095815/)
     end
 
     it "rolls back multiple migrations if the STEP argument is given" do
       write_multiple_migrations
       run("rake db:migrate")
-      run("rake db:version").should =~ /version: 20100509095816/
+      expect(run("rake db:version")).to match(/version: 20100509095816/)
       run("rake db:rollback STEP=2") =~ /revert/
-      run("rake db:version").should =~ /version: 0/
+      expect(run("rake db:version")).to match(/version: 0/)
     end
   end
 
@@ -256,7 +256,7 @@ test:
     it "dumps the schema" do
       write('db/schema.rb', '')
       run('rake db:schema:dump')
-      read('db/schema.rb').should =~ /ActiveRecord/
+      expect(read('db/schema.rb')).to match(/ActiveRecord/)
     end
   end
 
@@ -266,7 +266,7 @@ test:
       schema = "db/schema.rb"
       write(schema, read(schema)+"\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
-      result.should =~ /LOADEDDD/
+      expect(result).to match(/LOADEDDD/)
     end
 
     it "loads all migrations" do
@@ -275,29 +275,29 @@ test:
       run "rake db:drop"
       run "rake db:create"
       run "rake db:schema:load"
-      run( "rake db:migrate").strip.should == ''
+      expect(run( "rake db:migrate").strip).to eq('')
     end
   end
 
   describe 'db:abort_if_pending_migrations' do
     it "passes when no migrations are pending" do
-      run("rake db:abort_if_pending_migrations").strip.should == ''
+      expect(run("rake db:abort_if_pending_migrations").strip).to eq('')
     end
 
     it "fails when migrations are pending" do
       make_migration('yyy')
-      lambda{ run("rake db:abort_if_pending_migrations") }.should raise_error(/1 pending migration/)
+      expect(lambda{ run("rake db:abort_if_pending_migrations") }).to raise_error(/1 pending migration/)
     end
   end
 
   describe 'db:test:load' do
     it 'loads' do
       write("db/schema.rb", "puts 'LOADEDDD'")
-      run("rake db:test:load").should =~ /LOADEDDD/
+      expect(run("rake db:test:load")).to match(/LOADEDDD/)
     end
 
     it "fails without schema" do
-      lambda{ run("rake db:test:load") }.should raise_error(/try again/)
+      expect(lambda{ run("rake db:test:load") }).to raise_error(/try again/)
     end
   end
 
@@ -310,7 +310,7 @@ test:
   describe "db:seed" do
     it "loads" do
       write("db/seeds.rb", "puts 'LOADEDDD'")
-      run("rake db:seed").should =~ /LOADEDDD/
+      expect(run("rake db:seed")).to match(/LOADEDDD/)
     end
 
     describe 'with non-default seed file' do
@@ -329,13 +329,13 @@ test:
 
       it "loads" do
         write("db/seeds2.rb", "puts 'LOADEDDD'")
-        run("rake db:seed").should =~ /LOADEDDD/
+        expect(run("rake db:seed")).to match(/LOADEDDD/)
       end
     end
 
 
     it "does nothing without seeds" do
-      run("rake db:seed").length.should == 0
+      expect(run("rake db:seed").length).to eq(0)
     end
   end
 
@@ -343,7 +343,7 @@ test:
     it "should not error when a seeds file does not exist" do
       make_migration('yyy')
       run('rake db:migrate DB=test')
-      lambda{ run("rake db:reset") }.should_not raise_error
+      expect(lambda{ run("rake db:reset") }).not_to raise_error
     end
   end
 
@@ -351,12 +351,12 @@ test:
     it "runs when using the DB environment variable", :travis_error => true do
       make_migration('yyy')
       run('rake db:migrate RAILS_ENV=test')
-      run('rake db:version RAILS_ENV=test').should_not =~ /version: 0/
-      run('rake db:version').should =~ /version: 0/
+      expect(run('rake db:version RAILS_ENV=test')).not_to match(/version: 0/)
+      expect(run('rake db:version')).to match(/version: 0/)
     end
 
     it "should error on an invalid database", :travis_error => true do
-      lambda{ run("rake db:create RAILS_ENV=nonexistent")}.should raise_error(/rake aborted/)
+      expect(lambda{ run("rake db:create RAILS_ENV=nonexistent")}).to raise_error(/rake aborted/)
     end
   end
 end
