@@ -263,3 +263,4 @@ Contributors
  - [Eric Hayes](http://ejhay.es)
  - [Yi Wen](https://github.com/ywen)
  - [Jonathan Rochkind](https://github.com/jrochkind)
+ - [Michael Mikhailov](https://github.com/yohanson)
