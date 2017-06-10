@@ -6,13 +6,6 @@ module StandaloneMigrations
 
     describe "environment yaml configuration loading" do
 
-      let(:env_hash) do
-        {
-          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
-          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
-          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
-        }
-      end
 
       let(:env_hash_other_db) do
         {
@@ -23,44 +16,49 @@ module StandaloneMigrations
       end
 
       before(:all) do
+        @env_hash = {
+          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
+          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
+          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
+        }
         @original_dir = Dir.pwd
         Dir.chdir( File.expand_path("../../", __FILE__) )
         FileUtils.mkdir_p "tmp/db"
         Dir.chdir "tmp"
         File.open("db/config.yml", "w") do |f|
-          f.write env_hash.to_yaml
+          f.write @env_hash.to_yaml
         end
       end
 
       it "load the specific environment config" do
         config = Configurator.new.config_for(:development)
-        config.should == env_hash["development"]
+        expect(config).to eq(@env_hash["development"])
       end
 
       it "load the yaml with environment configurations" do
         config = Configurator.new.config_for(:development)
-        config["database"].should == "db/development.sql"
+        expect(config["database"]).to eq("db/development.sql")
       end
 
       it "allow access the original configuration hash (for all environments)" do
-        Configurator.new.config_for_all.should == env_hash
+        expect(Configurator.new.config_for_all).to eq(@env_hash)
       end
 
       context "customizing the environments configuration dynamically" do
 
         let(:configurator) { Configurator.new }
-        let(:new_config) { { 'sbrobous' => 'test' } }
 
         before(:all) do
+          @new_config = { 'sbrobous' => 'test' }
           Configurator.environments_config do |env|
             env.on "production" do
-              new_config
+              @new_config
             end
           end
         end
 
         it "allow changes on the configuration hashes" do
-          configurator.config_for("production").should == new_config
+          expect(configurator.config_for("production")).to eq(@new_config)
         end
 
         it "return current configuration if block yielding returns nil" do
@@ -69,13 +67,13 @@ module StandaloneMigrations
               nil
             end
           end
-          configurator.config_for("production").should == new_config
+          expect(configurator.config_for("production")).to eq(@new_config)
         end
 
         it "pass the current configuration as block argument" do
           Configurator.environments_config do |env|
             env.on "production" do |current_config|
-              current_config.should == new_config
+              expect(current_config).to eq(@new_config)
             end
           end
         end
@@ -95,19 +93,19 @@ module StandaloneMigrations
       end
 
       it "use config/database.yml" do
-        configurator.config.should == 'db/config.yml'
+        expect(configurator.config).to eq('db/config.yml')
       end
 
       it "use db/migrate dir" do
-        configurator.migrate_dir.should == 'db/migrate'
+        expect(configurator.migrate_dir).to eq('db/migrate')
       end
 
       it "use db/seeds.rb" do
-        configurator.seeds.should == "db/seeds.rb"
+        expect(configurator.seeds).to eq("db/seeds.rb")
       end
 
       it "use db/schema.rb" do
-        configurator.schema.should == "db/schema.rb"
+        expect(configurator.schema).to eq("db/schema.rb")
       end
 
     end
@@ -127,19 +125,19 @@ module StandaloneMigrations
       end
 
       it "use custom config" do
-        configurator.config.should == args[:config]
+        expect(configurator.config).to eq(args[:config])
       end
 
       it "use custom migrate dir" do
-        configurator.migrate_dir.should == args[:migrate_dir]
+        expect(configurator.migrate_dir).to eq(args[:migrate_dir])
       end
 
       it "use custom seeds" do
-        configurator.seeds.should == args[:seeds]
+        expect(configurator.seeds).to eq(args[:seeds])
       end
 
       it "use custom schema" do
-        configurator.schema.should == args[:schema]
+        expect(configurator.schema).to eq(args[:schema])
       end
 
     end
@@ -196,11 +194,11 @@ module StandaloneMigrations
         end
 
         it "look up named dot file" do
-          other_configurator.config.should == yaml_hash_other_db['config']['database']
+          expect(other_configurator.config).to eq(yaml_hash_other_db['config']['database'])
         end
 
         it "load config from named dot file" do
-          other_configurator.migrate_dir.should == 'db2/migrate'
+          expect(other_configurator.migrate_dir).to eq('db2/migrate')
         end
 
         after(:all) do
@@ -224,33 +222,33 @@ module StandaloneMigrations
         end
 
         it "use default values for the missing configurations" do
-          configurator.migrate_dir.should == 'db/migrate'
+          expect(configurator.migrate_dir).to eq('db/migrate')
         end
 
         it "use custom config from file" do
-          configurator.config.should == yaml_hash["config"]["database"]
+          expect(configurator.config).to eq(yaml_hash["config"]["database"])
         end
 
         it "use custom config value from partial configuration" do
-          configurator.seeds.should == yaml_hash["db"]["seeds"]
+          expect(configurator.seeds).to eq(yaml_hash["db"]["seeds"])
         end
 
       end
 
       it "use custom config from file" do
-        configurator.config.should == yaml_hash["config"]["database"]
+        expect(configurator.config).to eq(yaml_hash["config"]["database"])
       end
 
       it "use custom migrate dir from file" do
-        configurator.migrate_dir.should == yaml_hash["db"]["migrate"]
+        expect(configurator.migrate_dir).to eq(yaml_hash["db"]["migrate"])
       end
 
       it "use custom seeds from file" do
-        configurator.seeds.should == yaml_hash["db"]["seeds"]
+        expect(configurator.seeds).to eq(yaml_hash["db"]["seeds"])
       end
 
       it "use custom schema from file" do
-        configurator.schema.should == yaml_hash["db"]["schema"]
+        expect(configurator.schema).to eq(yaml_hash["db"]["schema"])
       end
 
       after(:all) do
