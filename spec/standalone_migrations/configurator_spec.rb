@@ -105,7 +105,7 @@ module StandaloneMigrations
       end
 
       it "use db/schema.rb" do
-        expect(configurator.schema).to eq("db/schema.rb")
+        expect(configurator.schema).to end_with("/db/schema.rb")
       end
 
     end
