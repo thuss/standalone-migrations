@@ -12,7 +12,7 @@ CONTRIBUTE
 
 USAGE
 =====
-Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql`) then:
+Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql` or `gem install mysql2`) then:
 
     $ gem install standalone_migrations
 
