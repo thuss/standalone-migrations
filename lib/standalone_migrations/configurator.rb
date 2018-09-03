@@ -21,7 +21,6 @@ module StandaloneMigrations
 
   class Configurator
     def self.load_configurations
-      self.new
       @env_config ||= Rails.application.config.database_configuration
       ActiveRecord::Base.configurations = @env_config
       @env_config
@@ -37,13 +36,16 @@ module StandaloneMigrations
       defaults = {
         :config       => "db/config.yml",
         :migrate_dir  => "db/migrate",
+        :root         => Pathname.pwd,
         :seeds        => "db/seeds.rb",
         :schema       => default_schema
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
 
-      Rails.application.config.root = Pathname.pwd
+      Rails.application.config.root = root
       Rails.application.config.paths["config/database"] = config
+      Rails.application.config.paths["db/migrate"] = migrate_dir
+      Rails.application.config.paths["db/seeds.rb"] = seeds
     end
 
     def config
@@ -52,6 +54,10 @@ module StandaloneMigrations
 
     def migrate_dir
       @options[:migrate_dir]
+    end
+
+    def root
+      @options[:root]
     end
 
     def seeds
@@ -86,6 +92,7 @@ module StandaloneMigrations
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
         :migrate_dir  => (config["db"] || {})["migrate"] || defaults[:migrate_dir],
+        :root         => config["root"] || defaults[:root],
         :seeds        => (config["db"] || {})["seeds"] || defaults[:seeds],
         :schema       => (config["db"] || {})["schema"] || defaults[:schema]
       }

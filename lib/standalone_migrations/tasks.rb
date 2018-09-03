@@ -1,17 +1,13 @@
 module StandaloneMigrations
   class Tasks
     class << self
-      def configure
+      def configure(options = {})
         Deprecations.new.call
-        configurator = Configurator.new
-        paths = Rails.application.config.paths
-        paths.add "config/database", :with => configurator.config
-        paths.add "db/migrate", :with => configurator.migrate_dir
-        paths.add "db/seeds.rb", :with => configurator.seeds
+        configurator = Configurator.new options
       end
 
-      def load_tasks
-        configure
+      def load_tasks(options = {})
+        configure(options)
         Configurator.environments_config do |proxy|
           ActiveRecord::Tasks::DatabaseTasks.database_configuration = proxy.configurations
         end
