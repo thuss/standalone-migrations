@@ -265,3 +265,4 @@ Contributors
  - [Jonathan Rochkind](https://github.com/jrochkind)
  - [Michael Mikhailov](https://github.com/yohanson)
  - [Benjamin Dobell](https://github.com/Benjamin-Dobell)
+ - [Hassan Mahmoud](https://github.com/HassanTC)
