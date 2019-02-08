@@ -42,6 +42,7 @@ module StandaloneMigrations
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
 
+      ENV['SCHEMA'] = schema
       Rails.application.config.root = root
       Rails.application.config.paths["config/database"] = config
       Rails.application.config.paths["db/migrate"] = migrate_dir

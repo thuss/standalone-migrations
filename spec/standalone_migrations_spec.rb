@@ -1,5 +1,4 @@
 require 'spec_helper'
-
 describe 'Standalone migrations' do
 
   def write(file, content)
@@ -21,6 +20,10 @@ describe 'Standalone migrations' do
 
   def tmp_file(file)
     "spec/tmp/#{file}"
+  end
+
+  def schema
+    ENV['SCHEMA']
   end
 
   def run(cmd)
@@ -87,6 +90,7 @@ end
     `rm -rf spec/tmp` if File.exist?('spec/tmp')
     `mkdir spec/tmp`
     write_rakefile
+    write(schema, '')
     write 'db/config.yml', <<-TXT
 development:
   adapter: sqlite3
@@ -254,16 +258,15 @@ test:
 
   describe 'schema:dump' do
     it "dumps the schema" do
-      write('db/schema.rb', '')
+      write(schema, '')
       run('rake db:schema:dump')
-      expect(read('db/schema.rb')).to match(/ActiveRecord/)
+      expect(read(schema)).to match(/ActiveRecord/)
     end
   end
 
   describe 'db:schema:load' do
     it "loads the schema" do
       run('rake db:schema:dump')
-      schema = "db/schema.rb"
       write(schema, read(schema)+"\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
       expect(result).to match(/LOADEDDD/)
@@ -292,11 +295,13 @@ test:
 
   describe 'db:test:load' do
     it 'loads' do
-      write("db/schema.rb", "puts 'LOADEDDD'")
+      write(schema, "puts 'LOADEDDD'")
       expect(run("rake db:test:load")).to match(/LOADEDDD/)
     end
 
     it "fails without schema" do
+      schema_path = "spec/tmp/#{schema}"
+      `rm -rf #{schema_path}` if File.exist?(schema_path)
       expect(lambda{ run("rake db:test:load") }).to raise_error(/try again/)
     end
   end
