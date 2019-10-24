@@ -6,4 +6,5 @@ env:
   - AR="~> 5.0.0" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
   - AR=">= 5.1.0.rc2,< 5.2" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
   - AR=">= 5.2.0.rc2,< 5.3" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+  - AR=">= 6.0.0" NOKOGIRI_USE_SYSTEM_LIBRARIES=1
 script: bundle exec rake specs:travis
