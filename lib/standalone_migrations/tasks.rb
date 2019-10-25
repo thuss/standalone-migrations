@@ -3,7 +3,7 @@ module StandaloneMigrations
     class << self
       def configure(options = {})
         Deprecations.new.call
-        configurator = Configurator.new options
+        Configurator.new options
       end
 
       def load_tasks(options = {})
