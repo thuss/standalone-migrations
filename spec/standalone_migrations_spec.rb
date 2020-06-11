@@ -87,6 +87,7 @@ end
   end
 
   before do
+    StandaloneMigrations::Configurator.instance_variable_set(:@env_config, nil)
     `rm -rf spec/tmp` if File.exist?('spec/tmp')
     `mkdir spec/tmp`
     write_rakefile
@@ -98,6 +99,9 @@ development:
 test:
   adapter: sqlite3
   database: db/test.sql
+production:
+  adapter: sqlite3
+  database: db/production.sql
     TXT
   end
 
@@ -121,7 +125,7 @@ test:
 
   describe 'callbacks' do
     it 'runs the callbacks' do
-      expect(StandaloneMigrations::Tasks).to receive(:configure)
+      expect(StandaloneMigrations::Tasks).to receive(:configure).and_call_original
 
       connection_established = false
       expect(ActiveRecord::Base).to receive(:establish_connection) do

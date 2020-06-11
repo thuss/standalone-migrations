@@ -266,3 +266,4 @@ Contributors
  - [Michael Mikhailov](https://github.com/yohanson)
  - [Benjamin Dobell](https://github.com/Benjamin-Dobell)
  - [Hassan Mahmoud](https://github.com/HassanTC)
+ - [Marco Adkins](https://github.com/marcoadkins)
