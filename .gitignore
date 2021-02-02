@@ -1,6 +1,0 @@
-.bundle
-.idea
-schema.rb
-spec/tmp
-pkg
-Gemfile.lock
