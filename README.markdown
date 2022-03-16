@@ -270,3 +270,4 @@ Contributors
  - [Hassan Mahmoud](https://github.com/HassanTC)
  - [Marco Adkins](https://github.com/marcoadkins)
  - [Mithun James](https://github.com/drtechie)
+ - [Sarah Ridge](https://github.com/smridge)
