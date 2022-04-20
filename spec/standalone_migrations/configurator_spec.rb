@@ -87,7 +87,6 @@ module StandaloneMigrations
     end
 
     context "default values when .standalone_configurations is missing" do
-
       let(:configurator) do
         Configurator.new
       end
@@ -103,11 +102,6 @@ module StandaloneMigrations
       it "use db/seeds.rb" do
         expect(configurator.seeds).to eq("db/seeds.rb")
       end
-
-      it "use db/schema.rb" do
-        expect(configurator.schema).to end_with("/db/schema.rb")
-      end
-
     end
 
     context "passing configurations as a parameter" do
