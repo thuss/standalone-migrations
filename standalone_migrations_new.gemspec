@@ -6,11 +6,11 @@
 
 Gem::Specification.new do |s|
   s.name = "standalone_migrations_new".freeze
-  s.version = "7.1.1"
+  s.version = "7.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0".freeze) if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib".freeze]
-  s.authors = ["Serhii Hiba".freeze, "Serhii Hiba".freeze]
+  s.authors = ["Serhii Hiba".freeze]
   s.date = "2022-05-02"
   s.email = "enotikalt@gmail.com".freeze
   s.extra_rdoc_files = [
@@ -43,19 +43,31 @@ Gem::Specification.new do |s|
     "spec/standalone_migrations_new/callbacks_spec.rb",
     "spec/standalone_migrations_new/configurator_spec.rb",
     "spec/standalone_migrations_new_spec.rb",
+    "standalone_migrations-7.1.1.gem",
+    "standalone_migrations_new-7.1.1.gem",
     "standalone_migrations_new.gemspec",
     "vendor/migration_helpers/MIT-LICENSE",
     "vendor/migration_helpers/README.markdown",
     "vendor/migration_helpers/init.rb",
     "vendor/migration_helpers/lib/migration_helper.rb"
   ]
-  s.homepage = "http://github.com/thuss/standalone-migrations".freeze
+  s.homepage = "https://github.com/enotikalt/standalone-migrations".freeze
   s.licenses = ["MIT".freeze]
-  s.rubygems_version = "3.1.4".freeze
+  s.rubygems_version = "3.3.7".freeze
   s.summary = "A thin wrapper to use Rails Migrations in non Rails projects".freeze
 
   if s.respond_to? :specification_version then
     s.specification_version = 4
+  end
+
+  if s.respond_to? :add_runtime_dependency then
+    s.add_runtime_dependency(%q<rake>.freeze, ["~> 13.0", ">= 13.0.6"])
+    s.add_runtime_dependency(%q<activerecord>.freeze, ["~> 7.0", ">= 7.0.2.4"])
+    s.add_runtime_dependency(%q<railties>.freeze, ["~> 7.0", ">= 7.0.2.4"])
+  else
+    s.add_dependency(%q<rake>.freeze, ["~> 13.0", ">= 13.0.6"])
+    s.add_dependency(%q<activerecord>.freeze, ["~> 7.0", ">= 7.0.2.4"])
+    s.add_dependency(%q<railties>.freeze, ["~> 7.0", ">= 7.0.2.4"])
   end
 end
 
