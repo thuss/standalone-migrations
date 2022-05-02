@@ -43,7 +43,6 @@ Gem::Specification.new do |s|
     "spec/standalone_migrations_new/callbacks_spec.rb",
     "spec/standalone_migrations_new/configurator_spec.rb",
     "spec/standalone_migrations_new_spec.rb",
-    "standalone_migrations_new-7.1.1.gem",
     "standalone_migrations_new.gemspec",
     "vendor/migration_helpers/MIT-LICENSE",
     "vendor/migration_helpers/README.markdown",
