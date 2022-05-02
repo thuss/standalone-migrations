@@ -11,9 +11,9 @@ namespace :db do
     end
     
     if options
-      StandaloneMigrations::Generator.migration name, options.gsub('/', ' ')
+      StandaloneMigrationsNew::Generator.migration name, options.gsub('/', ' ')
     else
-      StandaloneMigrations::Generator.migration name
+      StandaloneMigrationsNew::Generator.migration name
     end
   end
 end

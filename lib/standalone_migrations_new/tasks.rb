@@ -1,4 +1,4 @@
-module StandaloneMigrations
+module StandaloneMigrationsNew
   class Tasks
     class << self
       def configure(options = {})
@@ -17,7 +17,7 @@ module StandaloneMigrations
           environment
           db/new_migration
         ).each do
-          |task| load "standalone_migrations/tasks/#{task}.rake"
+          |task| load "standalone_migrations_new/tasks/#{task}.rake"
         end
         load "active_record/railties/databases.rake"
       end

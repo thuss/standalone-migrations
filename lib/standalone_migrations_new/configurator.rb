@@ -1,7 +1,7 @@
 require 'active_support/all'
 require 'yaml'
 
-module StandaloneMigrations
+module StandaloneMigrationsNew
 
   class InternalConfigurationsProxy
 
@@ -81,9 +81,9 @@ module StandaloneMigrations
 
     def configuration_file
       if !ENV['DATABASE']
-        ".standalone_migrations"
+        ".standalone_migrations_new"
       else
-        ".#{ENV['DATABASE']}.standalone_migrations"
+        ".#{ENV['DATABASE']}.standalone_migrations_new"
       end
     end
 

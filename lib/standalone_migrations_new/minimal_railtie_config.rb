@@ -1,5 +1,5 @@
-module StandaloneMigrations
-  class StandaloneMigrations::MinimalRailtieConfig < Rails::Application
+module StandaloneMigrationsNew
+  class StandaloneMigrationsNew::MinimalRailtieConfig < Rails::Application
     config.generators.options[:rails] = {:orm => :active_record}
 
     config.generators.options[:active_record] = {

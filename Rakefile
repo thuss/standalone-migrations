@@ -16,7 +16,7 @@ namespace :specs do
 
   desc "only specs that don't use database connection"
   RSpec::Core::RakeTask.new "nodb" do |t|
-    t.pattern = "spec/standalone_migrations/**/*_spec.rb"
+    t.pattern = "spec/standalone_migrations_new/**/*_spec.rb"
   end
 
   desc "run all specs for travis"
@@ -40,11 +40,11 @@ rescue LoadError => e
   $stderr.puts "Install it with: sudo gem install jeweler"
 else
   Jeweler::Tasks.new do |gem|
-    gem.name = 'standalone_migrations'
+    gem.name = 'standalone_migrations_new'
     gem.summary = "A thin wrapper to use Rails Migrations in non Rails projects"
-    gem.email = "thuss@gabrito.com"
-    gem.homepage = "http://github.com/thuss/standalone-migrations"
-    gem.authors = ["Todd Huss", "Michael Grosser"]
+    gem.email = "enotikalt@gmail.com"
+    gem.homepage = "https://github.com/enotikalt/standalone-migrations"
+    gem.authors = ["Serhii Hiba"]
     gem.license = "MIT"
   end
 

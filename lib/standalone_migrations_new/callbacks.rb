@@ -1,4 +1,4 @@
-module StandaloneMigrations
+module StandaloneMigrationsNew
   @@callbacks ||= []
 
   def self.on_loaded(&block)

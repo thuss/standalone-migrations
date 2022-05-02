@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'yaml'
 
-module StandaloneMigrations
+module StandaloneMigrationsNew
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
     describe "environment yaml configuration loading" do
@@ -142,7 +142,7 @@ module StandaloneMigrations
 
     end
 
-    context "using a .standalone_migrations file with configurations" do
+    context "using a .standalone_migrations_new file with configurations" do
 
       before(:all) do
         @original_dir = Dir.pwd
@@ -176,7 +176,7 @@ module StandaloneMigrations
       end
 
       let(:configurator) do
-        file = ".standalone_migrations"
+        file = ".standalone_migrations_new"
         File.open(file, "w") { |file| file.write(yaml_hash.to_yaml) }
         Configurator.new
       end
@@ -188,7 +188,7 @@ module StandaloneMigrations
         end
 
         let(:other_configurator) do
-          file_other_db = ".other_db.standalone_migrations"
+          file_other_db = ".other_db.standalone_migrations_new"
           File.open(file_other_db, "w") { |file| file.write(yaml_hash_other_db.to_yaml) }
           Configurator.new
         end
@@ -202,7 +202,7 @@ module StandaloneMigrations
         end
 
         after(:all) do
-          File.delete ".other_db.standalone_migrations"
+          File.delete ".other_db.standalone_migrations_new"
           ENV['DATABASE'] = nil
         end
 
@@ -252,7 +252,7 @@ module StandaloneMigrations
       end
 
       after(:all) do
-        File.delete ".standalone_migrations"
+        File.delete ".standalone_migrations_new"
         Dir.chdir @original_dir
       end
 

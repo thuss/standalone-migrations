@@ -1,7 +1,7 @@
 # these generators are backed by rails' generators
 require "rails/generators"
 require 'rails/generators/active_record/migration/migration_generator'
-module StandaloneMigrations
+module StandaloneMigrationsNew
   class Generator
     def self.migration(name, options="")
       generator_params = [name] + options.split(" ")

@@ -46,10 +46,10 @@ describe 'Standalone migrations' do
     write 'Rakefile', <<-TXT
 $LOAD_PATH.unshift '#{File.expand_path('lib')}'
 begin
-  require "standalone_migrations"
-  StandaloneMigrations::Tasks.load_tasks
+  require "standalone_migrations_new"
+  StandaloneMigrationsNew::Tasks.load_tasks
 rescue LoadError => e
-  puts "gem install standalone_migrations to get db:migrate:* tasks! (Error: \#{e})"
+  puts "gem install standalone_migrations_new to get db:migrate:* tasks! (Error: \#{e})"
 end
     TXT
   end
@@ -87,7 +87,7 @@ end
   end
 
   before do
-    StandaloneMigrations::Configurator.instance_variable_set(:@env_config, nil)
+    StandaloneMigrationsNew::Configurator.instance_variable_set(:@env_config, nil)
     `rm -rf spec/tmp` if File.exist?('spec/tmp')
     `mkdir spec/tmp`
     write_rakefile
@@ -125,13 +125,13 @@ production:
 
   describe 'callbacks' do
     it 'runs the callbacks' do
-      expect(StandaloneMigrations::Tasks).to receive(:configure).and_call_original
+      expect(StandaloneMigrationsNew::Tasks).to receive(:configure).and_call_original
 
       connection_established = false
       expect(ActiveRecord::Base).to receive(:establish_connection) do
         connection_established = true
       end
-      expect(StandaloneMigrations).to receive(:run_on_load_callbacks) do
+      expect(StandaloneMigrationsNew).to receive(:run_on_load_callbacks) do
         expect(connection_established).to be true
       end
 
@@ -332,7 +332,7 @@ production:
       end
 
       before do
-        write(".standalone_migrations", yaml_hash.to_yaml)
+        write(".standalone_migrations_new", yaml_hash.to_yaml)
       end
 
 
