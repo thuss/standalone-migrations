@@ -88,7 +88,7 @@ module StandaloneMigrations
     end
 
     def load_from_file(defaults)
-      return nil unless File.exists? configuration_file
+      return nil unless File.exist? configuration_file
       config = YAML.load( ERB.new(IO.read(configuration_file)).result )
       {
         :config       => config["config"] ? config["config"]["database"] : defaults[:config],
