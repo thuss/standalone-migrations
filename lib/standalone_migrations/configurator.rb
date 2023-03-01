@@ -32,7 +32,7 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
-      default_schema = ENV['SCHEMA'] || ActiveRecord::Tasks::DatabaseTasks.schema_file(ActiveRecord::Base.schema_format)
+      default_schema = ENV['SCHEMA'] || ActiveRecord::Tasks::DatabaseTasks.schema_file_type(ActiveRecord::Base.schema_format)
       defaults = {
         :config       => "db/config.yml",
         :migrate_dir  => "db/migrate",
