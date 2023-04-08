@@ -1,0 +1,6 @@
+source 'https://rubygems.org'
+
+ruby '~> 3.0'
+
+gem 'standalone_migrations'
+gem 'sqlite3'

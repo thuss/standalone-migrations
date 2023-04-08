@@ -1,5 +1,0 @@
-*.sqlite3
-Gemfile
-.bundle/
-bin/
-Gemfile.lock
