@@ -13,22 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-          - '2.6'
           - '2.7'
           - '3.0'
           - '3.1'
         activerecord:
-          - '5.2'
           - '6.0'
           - '6.1'
-          - '7.0'
-        exclude:
-          - activerecord: '5.2'
-            ruby: '3.1'
-          - activerecord: '5.2'
-            ruby: '3.0'
-          - activerecord: '7.0'
-            ruby: '2.6'
     name: Ruby ${{ matrix.ruby }} / ActiveRecord ${{ matrix.activerecord }}
     env:
        AR: ~> ${{ matrix.activerecord }}
