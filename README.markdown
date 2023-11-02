@@ -1,6 +1,6 @@
 Rails migrations in non-Rails (and non Ruby) projects.
 
-[![Build Status](https://travis-ci.org/thuss/standalone-migrations.svg?branch=master)](https://travis-ci.org/thuss/standalone-migrations)
+[![Build Status](https://github.com/thuss/standalone-migrations/actions/workflows/CI.yml/badge.svg)](https://github.com/thuss/standalone-migrations/actions)
 
 WHAT'S NEW
 ==========
