@@ -32,17 +32,15 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
-      default_schema = ENV['SCHEMA'] || ActiveRecord::Tasks::DatabaseTasks.schema_file(ActiveRecord::Base.schema_format)
       defaults = {
         :config       => "db/config.yml",
         :migrate_dir  => "db/migrate",
         :root         => Pathname.pwd,
         :seeds        => "db/seeds.rb",
-        :schema       => default_schema
       }
       @options = load_from_file(defaults.dup) || defaults.merge(options)
 
-      ENV['SCHEMA'] = schema
+      ENV['SCHEMA'] ||= schema if schema
       Rails.application.config.root = root
       Rails.application.config.paths["config/database"] = config
       Rails.application.config.paths["db/migrate"] = migrate_dir
@@ -95,7 +93,7 @@ module StandaloneMigrations
         :migrate_dir  => (config["db"] || {})["migrate"] || defaults[:migrate_dir],
         :root         => config["root"] || defaults[:root],
         :seeds        => (config["db"] || {})["seeds"] || defaults[:seeds],
-        :schema       => (config["db"] || {})["schema"] || defaults[:schema]
+        :schema       => (config["db"] || {})["schema"]
       }
     end
 
