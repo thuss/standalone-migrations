@@ -4,30 +4,36 @@ require 'yaml'
 module StandaloneMigrations
   describe Configurator, "which allows define custom dirs and files to work with your migrations" do
 
-    describe "environment yaml configuration loading" do
+    around(:each) do |example|
+      Dir.mktmpdir do |dir|
+        Dir.chdir(dir) do
+          example.run
+        end
+      end
+    end
 
+    describe "environment yaml configuration loading" do
 
       let(:env_hash_other_db) do
         {
-          "development" => { "adapter" => "mysql2", "database" => "database_name" },
-          "test" => { "adapter" => "mysql2", "database" => "database_name" },
-          "production" => {"adapter" => "mysql2", "database" => "database_name" }
+          "development" => {"adapter" => "mysql2", "database" => "database_name"},
+          "test" => {"adapter" => "mysql2", "database" => "database_name"},
+          "production" => {"adapter" => "mysql2", "database" => "database_name"}
         }
       end
 
-      before(:all) do
+      around(:each) do |example|
         @env_hash = {
-          "development" => { "adapter" => "sqlite3", "database" => "db/development.sql" },
-          "test" => { "adapter" => "sqlite3", "database" => "db/test.sql" },
-          "production" => {"adapter" => "sqlite3", "database" => ":memory:" }
+          "development" => {"adapter" => "sqlite3", "database" => "db/development.sql"},
+          "test" => {"adapter" => "sqlite3", "database" => "db/test.sql"},
+          "production" => {"adapter" => "sqlite3", "database" => ":memory:"}
         }
-        @original_dir = Dir.pwd
-        Dir.chdir( File.expand_path("../../", __FILE__) )
-        FileUtils.mkdir_p "tmp/db"
-        Dir.chdir "tmp"
+        FileUtils.mkdir_p "db"
         File.open("db/config.yml", "w") do |f|
           f.write @env_hash.to_yaml
         end
+
+        example.run
       end
 
       it "load the specific environment config" do
@@ -49,7 +55,7 @@ module StandaloneMigrations
         let(:configurator) { Configurator.new }
 
         before(:all) do
-          @new_config = { 'sbrobous' => 'test' }
+          @new_config = {'sbrobous' => 'test'}
           Configurator.environments_config do |env|
             env.on "production" do
               @new_config
@@ -80,10 +86,6 @@ module StandaloneMigrations
 
       end
 
-      after(:all) do
-        Dir.chdir @original_dir
-      end
-
     end
 
     context "default values when .standalone_configurations is missing" do
@@ -107,10 +109,10 @@ module StandaloneMigrations
     context "passing configurations as a parameter" do
       let(:args) do
         {
-          :config       => "custom/config/database.yml",
-          :migrate_dir  => "custom/db/migrate",
-          :seeds        => "custom/db/seeds.rb",
-          :schema       => "custom/db/schema.rb"
+          :config => "custom/config/database.yml",
+          :migrate_dir => "custom/db/migrate",
+          :seeds => "custom/db/seeds.rb",
+          :schema => "custom/db/schema.rb"
         }
       end
 
@@ -138,17 +140,17 @@ module StandaloneMigrations
 
     context "using a .standalone_migrations file with configurations" do
 
-      before(:all) do
-        @original_dir = Dir.pwd
-        Dir.chdir File.expand_path("../", __FILE__)
+      before(:each) do
+        file = ".standalone_migrations"
+        File.open(file, "w") { |file| file.write(yaml_hash.to_yaml) }
       end
 
       let(:yaml_hash) do
         {
           "db" => {
-            "seeds"    => "file/db/seeds.rb",
-            "migrate"  => "file/db/migrate",
-            "schema"   => "file/db/schema.rb"
+            "seeds" => "file/db/seeds.rb",
+            "migrate" => "file/db/migrate",
+            "schema" => "file/db/schema.rb"
           },
           "config" => {
             "database" => "file/config/database.yml"
@@ -159,9 +161,9 @@ module StandaloneMigrations
       let(:yaml_hash_other_db) do
         {
           "db" => {
-            "seeds"    => "db2/seeds.rb",
-            "migrate"  => "db2/migrate",
-            "schema"   => "db2/schema.rb"
+            "seeds" => "db2/seeds.rb",
+            "migrate" => "db2/migrate",
+            "schema" => "db2/schema.rb"
           },
           "config" => {
             "database" => "config/config_other.yml"
@@ -170,20 +172,18 @@ module StandaloneMigrations
       end
 
       let(:configurator) do
-        file = ".standalone_migrations"
-        File.open(file, "w") { |file| file.write(yaml_hash.to_yaml) }
         Configurator.new
       end
 
       context "with database environment variable passed" do
 
-        before(:all) do
+        before(:each) do
           ENV['DATABASE'] = "other_db"
+          file_other_db = ".other_db.standalone_migrations"
+          File.open(file_other_db, "w") { |file| file.write(yaml_hash_other_db.to_yaml) }
         end
 
         let(:other_configurator) do
-          file_other_db = ".other_db.standalone_migrations"
-          File.open(file_other_db, "w") { |file| file.write(yaml_hash_other_db.to_yaml) }
           Configurator.new
         end
 
@@ -196,7 +196,6 @@ module StandaloneMigrations
         end
 
         after(:all) do
-          File.delete ".other_db.standalone_migrations"
           ENV['DATABASE'] = nil
         end
 
@@ -243,11 +242,6 @@ module StandaloneMigrations
 
       it "use custom schema from file" do
         expect(configurator.schema).to eq(yaml_hash["db"]["schema"])
-      end
-
-      after(:all) do
-        File.delete ".standalone_migrations"
-        Dir.chdir @original_dir
       end
 
     end

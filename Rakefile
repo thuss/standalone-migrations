@@ -1,32 +1,16 @@
 require 'rubygems'
 require 'bundler/setup'
 
-task :default do
-  sh "rspec spec"
-end
-
 task :all do
   sh "AR='~>3.0.0' bundle update activerecord && bundle exec rake"
   sh "AR='~>3.1.0.rc4' bundle update activerecord && bundle exec rake"
 end
 
-task :specs => ["specs:nodb"]
-namespace :specs do
+begin
   require 'rspec/core/rake_task'
-
-  desc "only specs that don't use database connection"
-  RSpec::Core::RakeTask.new "nodb" do |t|
-    t.pattern = "spec/standalone_migrations/**/*_spec.rb"
-  end
-
-  desc "run all specs for travis"
-  RSpec::Core::RakeTask.new "travis" do |t|
-    t.pattern = "spec/**/*_spec.rb"
-    t.rspec_opts = "--tag ~@travis_error"
-  end
-
-  desc "run all specs including those which uses database"
-  task :all => [:default, :nodb]
+  RSpec::Core::RakeTask.new(:spec)
+rescue LoadError
+  # no rspec available
 end
 
 # rake install -> install gem locally (for tests)
@@ -50,3 +34,5 @@ else
 
   Jeweler::GemcutterTasks.new
 end
+
+task default: "spec"

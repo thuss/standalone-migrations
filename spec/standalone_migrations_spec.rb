@@ -3,36 +3,31 @@ describe 'Standalone migrations' do
 
   def write(file, content)
     raise "cannot write nil" unless file
-    file = tmp_file(file)
     folder = File.dirname(file)
-    `mkdir -p #{folder}` unless File.exist?(folder)
+    FileUtils.mkdir_p(folder) if folder != ''
     File.open(file, 'w') { |f| f.write content }
   end
 
   def read(file)
-    File.read(tmp_file(file))
+    File.read(file)
   end
 
   def migration(name)
-    m = `cd spec/tmp/db/migrate && ls`.split("\n").detect { |m| m =~ /#{name}/ }
+    m = `cd db/migrate && ls`.split("\n").detect { |m| m =~ /#{name}/ }
     m ? "db/migrate/#{m}" : m
   end
 
-  def tmp_file(file)
-    "spec/tmp/#{file}"
-  end
-
   def schema
-    ENV['SCHEMA']
+    ENV['SCHEMA'] || ActiveRecord::Tasks::DatabaseTasks.schema_file(ActiveRecord::Base.schema_format)
   end
 
   def run(cmd)
-    result = `cd spec/tmp && #{cmd} 2>&1`
+    result = `#{cmd} 2>&1`
     raise result unless $?.success?
     result
   end
 
-  def make_migration(name, options={})
+  def make_migration(name, options = {})
     task_name = options[:task_name] || 'db:new_migration'
     migration = run("rake #{task_name} name=#{name}").match(%r{db/migrate/\d+.*.rb})[0]
     content = read(migration)
@@ -42,9 +37,9 @@ describe 'Standalone migrations' do
     migration.match(/\d{14}/)[0]
   end
 
-  def write_rakefile(config=nil)
+  def write_rakefile(config = nil)
     write 'Rakefile', <<-TXT
-$LOAD_PATH.unshift '#{File.expand_path('lib')}'
+$LOAD_PATH.unshift '#{File.expand_path('../../lib')}'
 begin
   require "standalone_migrations"
   StandaloneMigrations::Tasks.load_tasks
@@ -56,10 +51,10 @@ end
 
   def write_multiple_migrations
     migration_superclass = if Rails::VERSION::MAJOR >= 5
-      "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
-    else
-      "ActiveRecord::Migration"
-    end
+                             "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
+                           else
+                             "ActiveRecord::Migration"
+                           end
 
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT
@@ -86,10 +81,17 @@ end
     TXT
   end
 
+  around(:each) do |example|
+    FileUtils.mkdir_p('tmp')
+    Dir.mktmpdir("spec-", "tmp") do |dir|
+      Dir.chdir(dir) do
+        example.run
+      end
+    end
+  end
+
   before do
     StandaloneMigrations::Configurator.instance_variable_set(:@env_config, nil)
-    `rm -rf spec/tmp` if File.exist?('spec/tmp')
-    `mkdir spec/tmp`
     write_rakefile
     write(schema, '')
     write 'db/config.yml', <<-TXT
@@ -103,10 +105,6 @@ production:
   adapter: sqlite3
   database: db/production.sql
     TXT
-  end
-
-  after(:all) do
-    `rm -rf spec/tmp` if File.exist?('spec/tmp')
   end
 
   it "warns of deprecated folder structure" do
@@ -135,16 +133,14 @@ production:
         expect(connection_established).to be true
       end
 
-      Dir.chdir(File.join(File.dirname(__FILE__), "tmp")) do
-        load "Rakefile"
-        Rake::Task['standalone:connection'].invoke
-      end
+      load "Rakefile"
+      Rake::Task['standalone:connection'].invoke
     end
   end
 
   describe 'db:new_migration' do
     it "fails if i do not add a name" do
-      expect(lambda{ run("rake db:new_migration") }).to raise_error(/name=/)
+      expect { run("rake db:new_migration") }.to raise_error(/name=/)
     end
 
     it "generates a new migration with this name from ENV and timestamp" do
@@ -213,7 +209,7 @@ production:
       make_migration('yyy')
       # Rails has a bug where it's sending a bad failure exception
       # https://github.com/rails/rails/issues/28905
-      expect(lambda{ run("rake db:migrate:down") }).to raise_error(/VERSION|version/)
+      expect { run("rake db:migrate:down") }.to raise_error(/VERSION|version/)
     end
   end
 
@@ -232,7 +228,7 @@ production:
       make_migration('yyy')
       # Rails has a bug where it's sending a bad failure exception
       # https://github.com/rails/rails/issues/28905
-      expect(lambda{ run("rake db:migrate:up") }).to raise_error(/VERSION|version/)
+      expect { run("rake db:migrate:up") }.to raise_error(/VERSION|version/)
     end
   end
 
@@ -271,7 +267,7 @@ production:
   describe 'db:schema:load' do
     it "loads the schema" do
       run('rake db:schema:dump')
-      write(schema, read(schema)+"\nputs 'LOADEDDD'")
+      write(schema, read(schema) + "\nputs 'LOADEDDD'")
       result = run('rake db:schema:load')
       expect(result).to match(/LOADEDDD/)
     end
@@ -282,7 +278,7 @@ production:
       run "rake db:drop"
       run "rake db:create"
       run "rake db:schema:load"
-      expect(run( "rake db:migrate").strip).to eq('')
+      expect(run("rake db:migrate").strip).to eq('')
     end
   end
 
@@ -293,7 +289,7 @@ production:
 
     it "fails when migrations are pending" do
       make_migration('yyy')
-      expect(lambda{ run("rake db:abort_if_pending_migrations") }).to raise_error(/1 pending migration/)
+      expect { run("rake db:abort_if_pending_migrations") }.to raise_error(/1 pending migration/)
     end
   end
 
@@ -304,9 +300,9 @@ production:
     end
 
     it "fails without schema" do
-      schema_path = "spec/tmp/#{schema}"
+      schema_path = schema
       `rm -rf #{schema_path}` if File.exist?(schema_path)
-      expect(lambda{ run("rake db:test:load") }).to raise_error(/try again/)
+      expect { run("rake db:test:load") }.to raise_error(/try again/)
     end
   end
 
@@ -335,13 +331,11 @@ production:
         write(".standalone_migrations", yaml_hash.to_yaml)
       end
 
-
       it "loads" do
         write("db/seeds2.rb", "puts 'LOADEDDD'")
         expect(run("rake db:seed")).to match(/LOADEDDD/)
       end
     end
-
 
     it "does nothing without seeds" do
       expect(run("rake db:seed").length).to eq(0)
@@ -352,7 +346,7 @@ production:
     it "should not error when a seeds file does not exist" do
       make_migration('yyy')
       run('rake db:migrate DB=test')
-      expect(lambda{ run("rake db:reset") }).not_to raise_error
+      expect { run("rake db:reset") }.not_to raise_error
     end
   end
 
@@ -365,7 +359,7 @@ production:
     end
 
     it "should error on an invalid database", :travis_error => true do
-      expect(lambda{ run("rake db:create RAILS_ENV=nonexistent")}).to raise_error(/rake aborted/)
+      expect { run("rake db:create RAILS_ENV=nonexistent") }.to raise_error(/rake aborted/)
     end
   end
 end

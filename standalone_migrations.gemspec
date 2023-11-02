@@ -60,12 +60,12 @@ Gem::Specification.new do |s|
 
   if s.respond_to? :add_runtime_dependency then
     s.add_runtime_dependency(%q<rake>.freeze, [">= 10.0"])
-    s.add_runtime_dependency(%q<activerecord>.freeze, [">= 4.2.7", "< 7.1.0", "!= 5.2.3", "!= 5.2.3.rc1"])
-    s.add_runtime_dependency(%q<railties>.freeze, [">= 4.2.7", "< 7.1.0", "!= 5.2.3", "!= 5.2.3.rc1"])
+    s.add_runtime_dependency(%q<activerecord>.freeze, [">= 6.0.0", "< 7.1.0"])
+    s.add_runtime_dependency(%q<railties>.freeze, [">= 6.0.0", "< 7.1.0"])
   else
     s.add_dependency(%q<rake>.freeze, [">= 10.0"])
-    s.add_dependency(%q<activerecord>.freeze, [">= 4.2.7", "< 7.1.0", "!= 5.2.3", "!= 5.2.3.rc1"])
-    s.add_dependency(%q<railties>.freeze, [">= 4.2.7", "< 7.1.0", "!= 5.2.3", "!= 5.2.3.rc1"])
+    s.add_dependency(%q<activerecord>.freeze, [">= 6.0.0", "< 7.1.0"])
+    s.add_dependency(%q<railties>.freeze, [">= 6.0.0", "< 7.1.0"])
   end
 end
 
