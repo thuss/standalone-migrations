@@ -18,7 +18,7 @@ describe 'Standalone migrations' do
   end
 
   def schema
-    ENV['SCHEMA'] || ActiveRecord::Tasks::DatabaseTasks.schema_file(ActiveRecord::Base.schema_format)
+    ENV['SCHEMA'] || 'db/schema.rb'
   end
 
   def run(cmd)
@@ -296,13 +296,13 @@ production:
   describe 'db:test:load' do
     it 'loads' do
       write(schema, "puts 'LOADEDDD'")
-      expect(run("rake db:test:load")).to match(/LOADEDDD/)
+      expect(run("rake db:test:load_schema")).to match(/LOADEDDD/)
     end
 
     it "fails without schema" do
       schema_path = schema
       `rm -rf #{schema_path}` if File.exist?(schema_path)
-      expect { run("rake db:test:load") }.to raise_error(/try again/)
+      expect { run("rake db:test:load_schema") }.to raise_error(/try again/)
     end
   end
 

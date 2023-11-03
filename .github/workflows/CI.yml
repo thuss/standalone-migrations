@@ -19,6 +19,8 @@ jobs:
         activerecord:
           - '6.0'
           - '6.1'
+          - '7.0'
+          - '7.1'
     name: Ruby ${{ matrix.ruby }} / ActiveRecord ${{ matrix.activerecord }}
     env:
        AR: ~> ${{ matrix.activerecord }}
