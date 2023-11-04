@@ -4,6 +4,8 @@ Rails migrations in non-Rails (and non Ruby) projects.
 
 WHAT'S NEW
 ==========
+In the 7.x release we've added support for Rails 7 migrations thanks to multiple community submitted PR's!
+
 In the 6.x release we've added support for Rails 6 migrations thanks to [Marco Adkins](https://github.com/marcoadkins).
 
 In the 5.x release we have moved to using Rails 5 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 5 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too!
