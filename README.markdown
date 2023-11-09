@@ -20,6 +20,15 @@ Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql` or `
 
     $ gem install standalone_migrations
 
+or use a Gemfile (and then `bundle install`):
+
+```
+source 'https://rubygems.org'
+
+gem 'standalone_migrations'
+gem 'pg' # or mysql2
+```
+
 Add to `Rakefile` in your projects base directory:
 
 ```ruby
