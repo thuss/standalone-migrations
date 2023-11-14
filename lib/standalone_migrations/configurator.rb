@@ -32,23 +32,22 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
-      defaults = {
-        :config       => "db/config.yml",
-        :migrate_dir  => "db/migrate",
-        :root         => Pathname.pwd,
-        :seeds        => "db/seeds.rb",
-      }
-      @options = load_from_file(defaults.dup) || defaults.merge(options)
+      @options = load_from_file
 
       ENV['SCHEMA'] ||= schema if schema
       Rails.application.config.root = root
       Rails.application.config.paths["config/database"] = config
-      Rails.application.config.paths["db/migrate"] = migrate_dir
-      Rails.application.config.paths["db/seeds.rb"] = seeds
+      Rails.application.config.paths["db/dir"]          = db_dir
+      Rails.application.config.paths["db/migrate"]      = migrate_dir
+      Rails.application.config.paths["db/seeds.rb"]     = seeds
     end
 
     def config
       @options[:config]
+    end
+
+    def db_dir
+      @options[:db]
     end
 
     def migrate_dir
@@ -65,6 +64,16 @@ module StandaloneMigrations
 
     def schema
       @options[:schema]
+    end
+
+    def defaults
+      {
+             config: "db/config.yml",
+             db_dir: "db"           ,
+        migrate_dir: "db/migrate"   ,
+               root: Pathname.pwd   ,
+              seeds: "db/seeds.rb"  ,
+      }
     end
 
     def config_for_all
@@ -85,16 +94,18 @@ module StandaloneMigrations
       end
     end
 
-    def load_from_file(defaults)
+    def load_from_file
       return nil unless File.exist? configuration_file
-      config = YAML.load( ERB.new(IO.read(configuration_file)).result )
-      {
-        :config       => config["config"] ? config["config"]["database"] : defaults[:config],
-        :migrate_dir  => (config["db"] || {})["migrate"] || defaults[:migrate_dir],
-        :root         => config["root"] || defaults[:root],
-        :seeds        => (config["db"] || {})["seeds"] || defaults[:seeds],
-        :schema       => (config["db"] || {})["schema"]
-      }
+      data = YAML.load( ERB.new(IO.read(configuration_file)).result )
+
+      defaults.merge({
+             config: data.dig("config", "database"),
+             db_dir: data.dig("db"    , "dir"     ),
+        migrate_dir: data.dig("db"    , "migrate" ),
+               root: data.dig("root"              ),
+              seeds: data.dig("db"    , "seeds"   ),
+             schema: data.dig("db"    , "schema"  ),
+      }.select { |key, value| value.present? } )
     end
 
   end
