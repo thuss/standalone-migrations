@@ -32,47 +32,26 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
-      @options = load_from_file
+      load_from_file
 
-      ENV['SCHEMA'] ||= schema if schema
-      Rails.application.config.root = root
-      Rails.application.config.paths["config/database"] = config
-      Rails.application.config.paths["db/dir"]          = db_dir
-      Rails.application.config.paths["db/migrate"]      = migrate_dir
-      Rails.application.config.paths["db/seeds.rb"]     = seeds
-    end
+      ENV['SCHEMA'] ||= @schema if @schema
+      rac = Rails.application.config
 
-    def config
-      @options[:config]
-    end
-
-    def db_dir
-      @options[:db]
-    end
-
-    def migrate_dir
-      @options[:migrate_dir]
-    end
-
-    def root
-      @options[:root]
-    end
-
-    def seeds
-      @options[:seeds]
-    end
-
-    def schema
-      @options[:schema]
+      rac.root = @config_overrides[:root]
+      @config_overrides[:paths].each do |path, value|
+        rac.paths[path] = value
+      end
     end
 
     def defaults
       {
-             config: "db/config.yml",
-             db_dir: "db"           ,
-        migrate_dir: "db/migrate"   ,
-               root: Pathname.pwd   ,
-              seeds: "db/seeds.rb"  ,
+        paths: {
+          "config/database" => "db/config.yml",
+                       "db" => "db"           ,
+               "db/migrate" => "db/migrate"   ,
+              "db/seeds.rb" => "db/seeds.rb"  ,
+        },
+        root: Pathname.pwd,
       }
     end
 
@@ -87,26 +66,23 @@ module StandaloneMigrations
     private
 
     def configuration_file
-      if !ENV['DATABASE']
-        ".standalone_migrations"
-      else
-        ".#{ENV['DATABASE']}.standalone_migrations"
-      end
+      ".#{ENV['DATABASE']}.standalone_migrations".sub(/^\.\./, '.')
     end
 
     def load_from_file
       return nil unless File.exist? configuration_file
       data = YAML.load( ERB.new(IO.read(configuration_file)).result )
 
-      defaults.merge({
-             config: data.dig("config", "database"),
-             db_dir: data.dig("db"    , "dir"     ),
-        migrate_dir: data.dig("db"    , "migrate" ),
-               root: data.dig("root"              ),
-              seeds: data.dig("db"    , "seeds"   ),
-             schema: data.dig("db"    , "schema"  ),
-      }.select { |key, value| value.present? } )
+      @schema = data.dig("db", "schema")
+      @config_overrides = defaults.merge({
+        paths: {
+          "config/database" => data.dig("config", "database"),
+                       "db" => data.dig("db"    , "dir"     ),
+               "db/migrate" => data.dig("db"    , "migrate" ),
+              "db/seeds.rb" => data.dig("db"    , "seeds"   ),
+        }.select { |key, value| value.present? },
+          root: data.dig("root"),
+      }.select { |key, value| value.present? })
     end
-
   end
 end
