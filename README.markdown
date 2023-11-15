@@ -283,3 +283,4 @@ Contributors
  - [Mithun James](https://github.com/drtechie)
  - [Sarah Ridge](https://github.com/smridge)
  - [John Bachir](https://jjb.cc)
+ - [Pysis](https://github.com/Pysis868)
