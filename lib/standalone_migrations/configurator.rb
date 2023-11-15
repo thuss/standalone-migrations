@@ -37,22 +37,10 @@ module StandaloneMigrations
       ENV['SCHEMA'] ||= @schema if @schema
       rac = Rails.application.config
 
-      rac.root = @config_overrides[:root]
-      @config_overrides[:paths].each do |path, value|
+      rac.root = c_os['root']
+      c_os['paths'].each do |path, value|
         rac.paths[path] = value
       end
-    end
-
-    def defaults
-      {
-        paths: {
-          "config/database" => "db/config.yml",
-                       "db" => "db"           ,
-               "db/migrate" => "db/migrate"   ,
-              "db/seeds.rb" => "db/seeds.rb"  ,
-        },
-        root: Pathname.pwd,
-      }
     end
 
     def config_for_all
@@ -61,6 +49,43 @@ module StandaloneMigrations
 
     def config_for(environment)
       config_for_all[environment.to_s]
+    end
+
+    def c_os
+      @config_overrides
+    end
+
+    def c_o_p_m
+      config_override_path_mappings
+    end
+    def config_override_path_mappings
+      {
+        'config/database' => {
+          'config_key_path' => ['config', 'database'],
+                  'default' => 'db/config.yml'
+        },
+                     'db' => {
+          'config_key_path' => ['db'    , 'dir'     ],
+                  'default' => 'db'
+        },
+             'db/migrate' => {
+          'config_key_path' => ['db'    , 'migrate' ],
+                  'default' => 'db/migrate'
+        },
+            'db/seeds.rb' => {
+          'config_key_path' => ['db'    , 'seeds'   ],
+                  'default' => 'db/seeds.rb'
+        },
+      }
+    end
+
+    def defaults
+      {
+        'paths' => c_o_p_m.map do |path, value|
+          [ path, value['default'] ]
+        end.to_h,
+        'root' => Pathname.pwd,
+      }
     end
 
     private
@@ -73,15 +98,20 @@ module StandaloneMigrations
       return nil unless File.exist? configuration_file
       data = YAML.load( ERB.new(IO.read(configuration_file)).result )
 
-      @schema = data.dig("db", "schema")
+      @schema = data.dig('db', 'schema')
+
+      c_o_paths = c_o_p_m.map do |path, value|
+        [
+          path,
+          data.dig(*value['config_key_path'])
+        ]
+      end.to_h.select { |key, value| value.present? }
+
+      c_o_paths = defaults['paths'].merge(c_o_paths)
+
       @config_overrides = defaults.merge({
-        paths: {
-          "config/database" => data.dig("config", "database"),
-                       "db" => data.dig("db"    , "dir"     ),
-               "db/migrate" => data.dig("db"    , "migrate" ),
-              "db/seeds.rb" => data.dig("db"    , "seeds"   ),
-        }.select { |key, value| value.present? },
-          root: data.dig("root"),
+        'paths' => c_o_paths,
+        'root'  => data.dig('root'),
       }.select { |key, value| value.present? })
     end
   end
