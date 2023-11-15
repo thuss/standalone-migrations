@@ -12,21 +12,47 @@ module StandaloneMigrations
       end
     end
 
+    it "does not break / emit an error" do
+      expect { Configurator.new }.not_to raise_error
+    end
+
+    context "default values when .standalone_configurations is missing" do
+      let(:configurator) do
+        Configurator.new
+      end
+
+      it "use config/database.yml" do
+        expect(configurator.c_os['paths']['config/database']).to eq('db/config.yml')
+      end
+
+      it "use db dir" do
+        expect(configurator.c_os['paths']['db']).to eq('db')
+      end
+
+      it "use db/migrate dir" do
+        expect(configurator.c_os['paths']['db/migrate']).to eq('db/migrate')
+      end
+
+      it "use db/seeds.rb" do
+        expect(configurator.c_os['paths']['db/seeds.rb']).to eq("db/seeds.rb")
+      end
+    end
+
     describe "environment yaml configuration loading" do
 
       let(:env_hash_other_db) do
         {
           "development" => {"adapter" => "mysql2", "database" => "database_name"},
-          "test" => {"adapter" => "mysql2", "database" => "database_name"},
-          "production" => {"adapter" => "mysql2", "database" => "database_name"}
+          "test"        => {"adapter" => "mysql2", "database" => "database_name"},
+          "production"  => {"adapter" => "mysql2", "database" => "database_name"}
         }
       end
 
       around(:each) do |example|
         @env_hash = {
           "development" => {"adapter" => "sqlite3", "database" => "db/development.sql"},
-          "test" => {"adapter" => "sqlite3", "database" => "db/test.sql"},
-          "production" => {"adapter" => "sqlite3", "database" => ":memory:"}
+          "test"        => {"adapter" => "sqlite3", "database" => "db/test.sql"       },
+          "production"  => {"adapter" => "sqlite3", "database" => ":memory:"          }
         }
         FileUtils.mkdir_p "db"
         File.open("db/config.yml", "w") do |f|
@@ -88,31 +114,16 @@ module StandaloneMigrations
 
     end
 
-    context "default values when .standalone_configurations is missing" do
-      let(:configurator) do
-        Configurator.new
-      end
-
-      it "use config/database.yml" do
-        expect(configurator.config).to eq('db/config.yml')
-      end
-
-      it "use db/migrate dir" do
-        expect(configurator.migrate_dir).to eq('db/migrate')
-      end
-
-      it "use db/seeds.rb" do
-        expect(configurator.seeds).to eq("db/seeds.rb")
-      end
-    end
-
     context "passing configurations as a parameter" do
       let(:args) do
         {
-          :config => "custom/config/database.yml",
-          :migrate_dir => "custom/db/migrate",
-          :seeds => "custom/db/seeds.rb",
-          :schema => "custom/db/schema.rb"
+          'paths' => {
+            'config/database' => "custom/config/database.yml" ,
+                         'db' => "db"                         ,
+                 'db/migrate' => "custom/db/migrate"          ,
+                'db/seeds.rb' => "custom/db/seeds.rb"         ,
+          },
+                     'schema' => "custom/db/schema.rb"
         }
       end
 
@@ -121,19 +132,31 @@ module StandaloneMigrations
       end
 
       it "use custom config" do
-        expect(configurator.config).to eq(args[:config])
+        expect(configurator.c_os['paths']['config/database']).to(
+          eq(args['paths']['config/database'])
+        )
+      end
+
+      it "use custom db dir" do
+        expect(configurator.c_os['paths']['db']).to(
+          eq(args['paths']['db'])
+        )
       end
 
       it "use custom migrate dir" do
-        expect(configurator.migrate_dir).to eq(args[:migrate_dir])
+        expect(configurator.c_os['paths']['db/migrate']).to(
+          eq(args['paths']['db/migrate'])
+        )
       end
 
       it "use custom seeds" do
-        expect(configurator.seeds).to eq(args[:seeds])
+        expect(configurator.c_os['paths']['db/seeds.rb']).to(
+          eq(args['paths']['db/seeds.rb'])
+        )
       end
 
       it "use custom schema" do
-        expect(configurator.schema).to eq(args[:schema])
+        expect(configurator.schema).to eq(args['schema'])
       end
 
     end
@@ -148,9 +171,10 @@ module StandaloneMigrations
       let(:yaml_hash) do
         {
           "db" => {
-            "seeds" => "file/db/seeds.rb",
-            "migrate" => "file/db/migrate",
-            "schema" => "file/db/schema.rb"
+            "dir"     => "file/db"          ,
+            "migrate" => "file/db/migrate"  ,
+              "seeds" => "file/db/seeds.rb" ,
+             "schema" => "file/db/schema.rb"
           },
           "config" => {
             "database" => "file/config/database.yml"
@@ -161,9 +185,10 @@ module StandaloneMigrations
       let(:yaml_hash_other_db) do
         {
           "db" => {
-            "seeds" => "db2/seeds.rb",
-            "migrate" => "db2/migrate",
-            "schema" => "db2/schema.rb"
+                "dir" => "db2"          ,
+            "migrate" => "db2/migrate"  ,
+              "seeds" => "db2/seeds.rb" ,
+             "schema" => "db2/schema.rb"
           },
           "config" => {
             "database" => "config/config_other.yml"
@@ -180,7 +205,9 @@ module StandaloneMigrations
         before(:each) do
           ENV['DATABASE'] = "other_db"
           file_other_db = ".other_db.standalone_migrations"
-          File.open(file_other_db, "w") { |file| file.write(yaml_hash_other_db.to_yaml) }
+          File.open(file_other_db, "w") do |file|
+            file.write(yaml_hash_other_db.to_yaml)
+          end
         end
 
         let(:other_configurator) do
@@ -188,11 +215,15 @@ module StandaloneMigrations
         end
 
         it "look up named dot file" do
-          expect(other_configurator.config).to eq(yaml_hash_other_db['config']['database'])
+          expect(other_configurator.c_os['paths']['config/database']).to(
+            eq(yaml_hash_other_db['config']['database'])
+          )
         end
 
         it "load config from named dot file" do
-          expect(other_configurator.migrate_dir).to eq('db2/migrate')
+          expect(other_configurator.c_os['paths']['db/migrate']).to(
+            eq('db2/migrate')
+          )
         end
 
         after(:all) do
@@ -215,33 +246,46 @@ module StandaloneMigrations
         end
 
         it "use default values for the missing configurations" do
-          expect(configurator.migrate_dir).to eq('db/migrate')
+          expect(configurator.c_os['paths']['db']).to(
+            eq('db'         )
+          )
+          expect(configurator.c_os['paths']['db/migrate']).to(
+            eq('db/migrate' )
+          )
         end
 
         it "use custom config from file" do
-          expect(configurator.config).to eq(yaml_hash["config"]["database"])
+          expect(configurator.c_os['paths']['config/database']).to(
+            eq(yaml_hash["config"]["database"])
+          )
         end
 
         it "use custom config value from partial configuration" do
-          expect(configurator.seeds).to eq(yaml_hash["db"]["seeds"])
+          expect(configurator.c_os['paths']['db/seeds.rb']).to(
+            eq(yaml_hash["db"]["seeds"])
+          )
         end
 
       end
 
       it "use custom config from file" do
-        expect(configurator.config).to eq(yaml_hash["config"]["database"])
+        expect(configurator.c_os['paths']['config/database']).to(
+          eq(yaml_hash["config"]["database"])
+        )
       end
 
       it "use custom migrate dir from file" do
-        expect(configurator.migrate_dir).to eq(yaml_hash["db"]["migrate"])
+        expect(configurator.c_os['paths']['db/migrate']).to eq(yaml_hash["db"]["migrate"])
       end
 
       it "use custom seeds from file" do
-        expect(configurator.seeds).to eq(yaml_hash["db"]["seeds"])
+        expect(configurator.c_os['paths']['db/seeds.rb']).to eq(yaml_hash["db"]["seeds"])
       end
 
       it "use custom schema from file" do
-        expect(configurator.schema).to eq(yaml_hash["db"]["schema"])
+        expect(configurator.schema).to(
+          eq(yaml_hash["db"]["schema"])
+        )
       end
 
     end

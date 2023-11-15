@@ -2,7 +2,6 @@ require 'active_support/all'
 require 'yaml'
 
 module StandaloneMigrations
-
   class InternalConfigurationsProxy
 
     attr_reader :configurations
@@ -32,6 +31,12 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
+      options = options.dup
+      @schema = options.delete('schema')
+      @config_overrides = defaults
+      c_os['paths'].merge!(options.delete('paths') || {})
+      c_os.merge!(options)
+
       load_from_file
 
       ENV['SCHEMA'] ||= @schema if @schema
@@ -52,6 +57,9 @@ module StandaloneMigrations
     end
 
     def c_os
+      config_overrides
+    end
+    def config_overrides
       @config_overrides
     end
 
@@ -86,6 +94,10 @@ module StandaloneMigrations
         end.to_h,
         'root' => Pathname.pwd,
       }
+    end
+
+    def schema
+      @schema
     end
 
     private
