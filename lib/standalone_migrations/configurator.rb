@@ -2,7 +2,6 @@ require 'active_support/all'
 require 'yaml'
 
 module StandaloneMigrations
-
   class InternalConfigurationsProxy
 
     attr_reader :configurations
@@ -32,39 +31,21 @@ module StandaloneMigrations
     end
 
     def initialize(options = {})
-      defaults = {
-        :config       => "db/config.yml",
-        :migrate_dir  => "db/migrate",
-        :root         => Pathname.pwd,
-        :seeds        => "db/seeds.rb",
-      }
-      @options = load_from_file(defaults.dup) || defaults.merge(options)
+      options = options.dup
+      @schema = options.delete('schema')
+      @config_overrides = defaults
+      c_os['paths'].merge!(options.delete('paths') || {})
+      c_os.merge!(options)
 
-      ENV['SCHEMA'] ||= schema if schema
-      Rails.application.config.root = root
-      Rails.application.config.paths["config/database"] = config
-      Rails.application.config.paths["db/migrate"] = migrate_dir
-      Rails.application.config.paths["db/seeds.rb"] = seeds
-    end
+      load_from_file
 
-    def config
-      @options[:config]
-    end
+      ENV['SCHEMA'] ||= @schema if @schema
+      rac = Rails.application.config
 
-    def migrate_dir
-      @options[:migrate_dir]
-    end
-
-    def root
-      @options[:root]
-    end
-
-    def seeds
-      @options[:seeds]
-    end
-
-    def schema
-      @options[:schema]
+      rac.root = c_os['root']
+      c_os['paths'].each do |path, value|
+        rac.paths[path] = value
+      end
     end
 
     def config_for_all
@@ -75,27 +56,75 @@ module StandaloneMigrations
       config_for_all[environment.to_s]
     end
 
-    private
-
-    def configuration_file
-      if !ENV['DATABASE']
-        ".standalone_migrations"
-      else
-        ".#{ENV['DATABASE']}.standalone_migrations"
-      end
+    def c_os
+      config_overrides
+    end
+    def config_overrides
+      @config_overrides
     end
 
-    def load_from_file(defaults)
-      return nil unless File.exist? configuration_file
-      config = YAML.load( ERB.new(IO.read(configuration_file)).result )
+    def c_o_p_m
+      config_override_path_mappings
+    end
+    def config_override_path_mappings
       {
-        :config       => config["config"] ? config["config"]["database"] : defaults[:config],
-        :migrate_dir  => (config["db"] || {})["migrate"] || defaults[:migrate_dir],
-        :root         => config["root"] || defaults[:root],
-        :seeds        => (config["db"] || {})["seeds"] || defaults[:seeds],
-        :schema       => (config["db"] || {})["schema"]
+        'config/database' => {
+          'config_key_path' => ['config', 'database'],
+                  'default' => 'db/config.yml'
+        },
+                     'db' => {
+          'config_key_path' => ['db'    , 'dir'     ],
+                  'default' => 'db'
+        },
+             'db/migrate' => {
+          'config_key_path' => ['db'    , 'migrate' ],
+                  'default' => 'db/migrate'
+        },
+            'db/seeds.rb' => {
+          'config_key_path' => ['db'    , 'seeds'   ],
+                  'default' => 'db/seeds.rb'
+        },
       }
     end
 
+    def defaults
+      {
+        'paths' => c_o_p_m.map do |path, value|
+          [ path, value['default'] ]
+        end.to_h,
+        'root' => Pathname.pwd,
+      }
+    end
+
+    def schema
+      @schema
+    end
+
+    private
+
+    def configuration_file
+      ".#{ENV['DATABASE']}.standalone_migrations".sub(/^\.\./, '.')
+    end
+
+    def load_from_file
+      return nil unless File.exist? configuration_file
+      data = YAML.load( ERB.new(IO.read(configuration_file)).result )
+
+      @schema = data.dig('db', 'schema')
+
+      c_o_paths = c_o_p_m.map do |path, value|
+        [
+          path,
+          data.dig(*value['config_key_path'])
+        ]
+      end.to_h.select { |key, value| value.present? }
+
+      c_o_paths = defaults['paths'].merge(c_o_paths)
+
+      @config_overrides = defaults.merge({
+        'paths' => c_o_paths,
+        'root'  => data.dig('root'),
+      }.select { |key, value| value.present? })
+    end
   end
 end
