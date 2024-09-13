@@ -21,6 +21,13 @@ jobs:
           - '6.1'
           - '7.0'
           - '7.1'
+          - '7.2'
+        exclude:
+          - activerecord: '7.2'
+            ruby: '2.7'
+          - activerecord: '7.2'
+            ruby: '3.0'
+
     name: Ruby ${{ matrix.ruby }} / ActiveRecord ${{ matrix.activerecord }}
     env:
        AR: ~> ${{ matrix.activerecord }}
