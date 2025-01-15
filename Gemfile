@@ -5,18 +5,16 @@ gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.1"]
 gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.1"]
 gem 'nokogiri', "~> 1.14"
 
-if ENV['AR']
+def sqlite3_version 
+  return "< 1.7" unless ENV["AR"]
+
   ar_version = ENV['AR'].split(",").last.match(/\d+\.\d+/)[0]
 
-  sqlite3_version = case Gem::Version.new(ar_version)
-                    # Active Record 8.x requires sqlite3 >= 2.1
-                    when Gem::Version.new("8.0").. then ">= 2.1"
-                    # Active Record 7.x requires sqlite3 >= 1.4
-                    when Gem::Version.new("7.0")...Gem::Version.new("8.0") then ">= 1.4"
-                    else "< 1.7"
-                    end
-else
-  sqlite3_version = "< 1.7"
+  case Gem::Version.new(ar_version)
+  # Active Record 8.x requires sqlite3 >= 2.1
+  when Gem::Version.new("8.0").. then ">= 2.1"
+  else "< 1.7"
+  end
 end
 
 group :dev do
