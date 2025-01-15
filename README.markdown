@@ -284,3 +284,4 @@ Contributors
  - [Sarah Ridge](https://github.com/smridge)
  - [John Bachir](https://jjb.cc)
  - [Pysis](https://github.com/Pysis868)
+ - [Charlton Trezevant](https://github.com/chtzvt)
