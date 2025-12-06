@@ -4,6 +4,7 @@ gem 'rake', '>= 10.0'
 gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
 gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
 gem 'nokogiri', "~> 1.14"
+gem 'logger'
 
 def sqlite3_version
   return "< 1.7" unless ENV["AR"]
