@@ -1,11 +1,11 @@
 source 'https://rubygems.org'
 
 gem 'rake', '>= 10.0'
-gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.1"]
-gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.1"]
+gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
+gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
 gem 'nokogiri', "~> 1.14"
 
-def sqlite3_version 
+def sqlite3_version
   return "< 1.7" unless ENV["AR"]
 
   ar_version = ENV['AR'].split(",").last.match(/\d+\.\d+/)[0]
