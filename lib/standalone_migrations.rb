@@ -2,6 +2,7 @@ lib_path = File.expand_path("../", __FILE__)
 $:.unshift lib_path unless $:.include?(lib_path)
 
 require "rubygems"
+require "logger"
 require "rails"
 require "active_record"
 

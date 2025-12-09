@@ -24,6 +24,9 @@ jobs:
           - '7.1'
           - '7.2'
           - '8.0'
+        include:
+          - activerecord: '8.1'
+            ruby: '3.2'
         exclude:
           - activerecord: '7.2'
             ruby: '2.7'
