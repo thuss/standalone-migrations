@@ -5,3 +5,4 @@ spec/tmp
 pkg
 Gemfile.lock
 tmp
+.DS_Store
