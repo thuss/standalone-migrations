@@ -50,11 +50,7 @@ end
   end
 
   def write_multiple_migrations
-    migration_superclass = if Rails::VERSION::MAJOR >= 5
-                             "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
-                           else
-                             "ActiveRecord::Migration"
-                           end
+    migration_superclass = "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
 
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT

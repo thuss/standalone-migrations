@@ -1,8 +1,8 @@
 source 'https://rubygems.org'
 
 gem 'rake', '>= 10.0'
-gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
-gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
+gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 7.1.0", "< 8.2"]
+gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 7.1.0", "< 8.2"]
 gem 'nokogiri', "~> 1.14"
 gem 'logger'
 
