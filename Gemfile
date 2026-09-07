@@ -1,25 +1,19 @@
 source 'https://rubygems.org'
 
 gem 'rake', '>= 10.0'
-gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
-gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 6.0.0", "< 8.2"]
-gem 'nokogiri', "~> 1.14"
+gem 'activerecord', ENV['AR'] ? ENV['AR'].split(",") : [">= 7.2.0", "< 8.2"]
+gem 'railties', ENV['AR'] ? ENV['AR'].split(",") : [">= 7.2.0", "< 8.2"]
 gem 'logger'
 
-def sqlite3_version
-  return "< 1.7" unless ENV["AR"]
-
-  ar_version = ENV['AR'].split(",").last.match(/\d+\.\d+/)[0]
-
-  case Gem::Version.new(ar_version)
-  # Active Record 8.x requires sqlite3 >= 2.1
-  when Gem::Version.new("8.0").. then ">= 2.1"
-  else "< 1.7"
-  end
+group :dev do
+  # Active Record 8.x requires sqlite3 >= 2.1, and the 7.2 adapter declares
+  # `gem "sqlite3", ">= 1.4"`, so 2.x covers every supported Rails series.
+  gem 'sqlite3', '>= 2.1'
+  gem 'rspec', '>= 2.99.0'
 end
 
-group :dev do
-  gem 'sqlite3', sqlite3_version
-  gem 'rspec', '>= 2.99.0'
+# Only needed to cut a release. Excluded in CI via
+# `bundle config set --local without release`.
+group :release do
   gem 'jeweler'
 end

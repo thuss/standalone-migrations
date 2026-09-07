@@ -2,13 +2,29 @@ Rails migrations in non-Rails (and non Ruby) projects.
 
 [![Build Status](https://github.com/thuss/standalone-migrations/actions/workflows/CI.yml/badge.svg)](https://github.com/thuss/standalone-migrations/actions)
 
-WHAT'S NEW
-==========
-In the 7.x release we've added support for Rails 7 migrations thanks to multiple community submitted PR's!
+COMPATIBILITY
+=============
 
-In the 6.x release we've added support for Rails 6 migrations thanks to [Marco Adkins](https://github.com/marcoadkins).
+The gem version tracks the newest Rails version it supports.
 
-In the 5.x release we have moved to using Rails 5 migrations instead of maintaining our own migration related code. Just about anything you can do with Rails 5 migrations you can now do with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too!
+| standalone_migrations | Rails       | Ruby   |
+| --------------------- | ----------- | ------ |
+| 8.1.1 and newer       | 7.2 - 8.1   | 3.2+   |
+| 8.1.0                 | 6.0 - 8.1   | 2.7+   |
+| 8.0.0                 | 6.0 - 8.0   | 2.7+   |
+
+8.1.1 drops Rails 6.0, 6.1, 7.0 and 7.1, all of which are past their end-of-life.
+**If you are still on one of those, nothing breaks** — Bundler resolves you to 8.1.0
+automatically, since 8.1.1 will not install against a Rails it does not support. Pin
+`gem 'standalone_migrations', '8.1.0'` if you would rather be explicit about it.
+
+Note that dropping those Rails versions does *not* affect your existing migration files.
+Rails 8.1 still ships `ActiveRecord::Migration` compatibility shims all the way back to
+`[4.2]`, so migrations written years ago continue to run unchanged.
+
+In the 5.x release we moved to using Rails migrations instead of maintaining our own
+migration related code. Just about anything you can do with Rails migrations you can now do
+with [Standalone Migrations](https://github.com/thuss/standalone-migrations) too!
 
 CONTRIBUTE
 ==========
@@ -16,7 +32,7 @@ CONTRIBUTE
 
 USAGE
 =====
-Install Ruby, RubyGems and a ruby-database driver (e.g. `gem install mysql` or `gem install mysql2`) then:
+Install Ruby (3.2 or newer), RubyGems and a ruby-database driver (e.g. `gem install pg` or `gem install mysql2`) then:
 
     $ gem install standalone_migrations
 
