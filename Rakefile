@@ -20,7 +20,7 @@ begin
 rescue LoadError => e
   $stderr.puts "Jeweler, or one of its dependencies, is not available:"
   $stderr.puts "#{e.class}: #{e.message}"
-  $stderr.puts "Install it with: bundle config unset without && bundle install"
+  $stderr.puts "It lives in the :release group; install it with: BUNDLE_WITHOUT= bundle install"
 else
   Jeweler::Tasks.new do |gem|
     gem.name = 'standalone_migrations'

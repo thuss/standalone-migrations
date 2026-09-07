@@ -31,7 +31,8 @@ jobs:
     name: Ruby ${{ matrix.ruby }} / ActiveRecord ${{ matrix.activerecord }}
     env:
       AR: "~> ${{ matrix.activerecord }}"
-      # jeweler is release-only tooling and does not install on modern Ruby
+      # jeweler is release-only tooling; keep it and its 2018-era dependency
+      # tree out of the install. Note this skips installation, not resolution.
       BUNDLE_WITHOUT: release
     steps:
       - uses: actions/checkout@v5
