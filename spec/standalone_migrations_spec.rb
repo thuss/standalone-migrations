@@ -111,9 +111,21 @@ production:
   end
 
   describe 'without db/config.yml' do
-    it "loads the tasks so unrelated rake tasks can still run" do
-      FileUtils.rm_f('db/config.yml')
+    # FileUtils.rm (not rm_f) so this fails loudly if the config path in the
+    # before block ever moves, instead of passing while testing nothing.
+    before { FileUtils.rm('db/config.yml') }
+
+    it "still lists the tasks" do
       expect(run("rake --tasks")).to match(/db:migrate/)
+    end
+
+    it "runs an unrelated task, which may be the one that writes the config" do
+      File.open('Rakefile', 'a') { |f| f.puts "task(:unrelated) { puts %{RAN-UNRELATED} }" }
+      expect(run("rake unrelated")).to match(/RAN-UNRELATED/)
+    end
+
+    it "still fails helpfully for a task that needs the config" do
+      expect { run("rake db:migrate") }.to raise_error(/Could not load database configuration/)
     end
   end
 
