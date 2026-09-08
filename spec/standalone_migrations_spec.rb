@@ -148,8 +148,6 @@ StandaloneMigrations::Tasks.load_tasks
   end
 
   describe 'without db/config.yml' do
-    # FileUtils.rm (not rm_f) so this fails loudly if the config path in the
-    # before block ever moves, instead of passing while testing nothing.
     before { FileUtils.rm('db/config.yml') }
 
     it "still lists the tasks" do

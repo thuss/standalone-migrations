@@ -25,21 +25,12 @@ module StandaloneMigrations
       @env_config
     end
 
-    # True when .load_configurations can succeed: it is a no-op once the config
-    # has been memoized, and Rails only raises for a missing file when
-    # DATABASE_URL is set to something usable -- given that, Rails hands back an
-    # empty config and resolves the URL itself. An empty DATABASE_URL is not
-    # usable: Rails accepts it here and then fails resolving the connection.
     def self.database_config_present?
       !@env_config.nil? ||
         Rails.application.config.paths["config/database"].existent.any? ||
         ENV["DATABASE_URL"].present?
     end
 
-    # Set once a Configurator has been built, which is what points
-    # paths["config/database"] at db/config.yml. Before that, .environments_config
-    # cannot find the config no matter what, so it can tell a genuinely absent
-    # config apart from being called too early.
     def self.configured!
       @configured = true
     end
@@ -49,12 +40,6 @@ module StandaloneMigrations
     end
 
     def self.environments_config
-      # Tolerate a missing config file here so that a block in a Rakefile does
-      # not abort every rake task before the file exists -- the config may well
-      # be written by one of those tasks. Nothing is memoized in that case, so
-      # the file is picked up as soon as it appears. Tasks that actually need a
-      # database still fail loudly, via the .load_configurations in
-      # standalone:connection. See issue #152.
       config =
         if database_config_present?
           load_configurations
