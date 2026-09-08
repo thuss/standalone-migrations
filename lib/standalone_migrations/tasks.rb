@@ -8,7 +8,6 @@ module StandaloneMigrations
 
       def load_tasks(options = {})
         configure(options)
-
         MinimalRailtieConfig.load_tasks
         %w(
           connection

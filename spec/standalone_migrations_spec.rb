@@ -110,6 +110,13 @@ production:
     expect(run("rake db:create --trace")).to match(warning)
   end
 
+  describe 'without db/config.yml' do
+    it "loads the tasks so unrelated rake tasks can still run" do
+      FileUtils.rm_f('db/config.yml')
+      expect(run("rake --tasks")).to match(/db:migrate/)
+    end
+  end
+
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
       run "rake db:create"
