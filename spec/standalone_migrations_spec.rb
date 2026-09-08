@@ -110,6 +110,82 @@ production:
     expect(run("rake db:create --trace")).to match(warning)
   end
 
+  it "leaves the config loaded for tasks that connect themselves" do
+    File.open('Rakefile', 'a') do |f|
+      f.puts "task(:selfconnect) { ActiveRecord::Base.establish_connection; puts %{SELFCONNECT-OK} }"
+    end
+    expect(run("rake selfconnect")).to match(/SELFCONNECT-OK/)
+  end
+
+  describe 'environments_config' do
+    it "applies an override to the config the tasks use" do
+      File.open('Rakefile', 'a') do |f|
+        f.puts "StandaloneMigrations::Configurator.environments_config do |env|"
+        f.puts "  env.on(%{development}) { {%{adapter} => %{sqlite3}, %{database} => %{db/OVERRIDDEN.sql}} }"
+        f.puts "end"
+      end
+      run "rake db:create"
+      expect(File.exist?('db/OVERRIDDEN.sql')).to be true
+    end
+
+    it "warns when it is called before load_tasks instead of ignoring the block" do
+      write 'Rakefile', <<-TXT
+$LOAD_PATH.unshift '#{File.expand_path('../../lib')}'
+require "standalone_migrations"
+StandaloneMigrations::Configurator.environments_config { |env| env.on("development") { nil } }
+StandaloneMigrations::Tasks.load_tasks
+      TXT
+      expect(run("rake --tasks")).to match(/called before/)
+    end
+  end
+
+  describe 'with DATABASE_URL and no db/config.yml' do
+    before { FileUtils.rm('db/config.yml') }
+
+    it "uses the URL instead of demanding a config file" do
+      expect(run("DATABASE_URL=sqlite3:db/from_url.sql rake db:version")).to match(/Current version: 0/)
+    end
+  end
+
+  describe 'without db/config.yml' do
+    before { FileUtils.rm('db/config.yml') }
+
+    it "still lists the tasks" do
+      expect(run("rake --tasks")).to match(/db:migrate/)
+    end
+
+    it "runs an unrelated task, which may be the one that writes the config" do
+      File.open('Rakefile', 'a') { |f| f.puts "task(:unrelated) { puts %{RAN-UNRELATED} }" }
+      expect(run("rake unrelated")).to match(/RAN-UNRELATED/)
+    end
+
+    it "still fails helpfully for a task that needs the config" do
+      expect { run("rake db:migrate") }.to raise_error(/Could not load database configuration/)
+    end
+
+    it "runs when the Rakefile configures environments at load time" do
+      File.open('Rakefile', 'a') do |f|
+        f.puts "StandaloneMigrations::Configurator.environments_config { |env| env.on(%{production}) { nil } }"
+        f.puts "task(:unrelated) { puts %{RAN-UNRELATED} }"
+      end
+      output = run("rake unrelated")
+      expect(output).to match(/RAN-UNRELATED/)
+      expect(output).not_to match(/called before/)
+    end
+
+    it "picks up the config once another task writes it" do
+      write 'db/config.yml.example', <<-TXT
+development:
+  adapter: sqlite3
+  database: db/development.sql
+      TXT
+      File.open('Rakefile', 'a') do |f|
+        f.puts "task(:write_config) { require %{fileutils}; FileUtils.cp(%{db/config.yml.example}, %{db/config.yml}) }"
+      end
+      expect(run("rake write_config db:version")).to match(/Current version: 0/)
+    end
+  end
+
   describe 'db:create and drop' do
     it "should create the database and drop the database that was created" do
       run "rake db:create"

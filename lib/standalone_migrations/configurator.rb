@@ -25,8 +25,28 @@ module StandaloneMigrations
       @env_config
     end
 
+    def self.database_config_present?
+      !@env_config.nil? ||
+        Rails.application.config.paths["config/database"].existent.any?
+    end
+
+    def self.configured!
+      @configured = true
+    end
+
+    def self.configured?
+      !!@configured
+    end
+
     def self.environments_config
-      proxy = InternalConfigurationsProxy.new(load_configurations)
+      config =
+        if database_config_present?
+          load_configurations
+        else
+          warn_called_too_early unless configured?
+          {}
+        end
+      proxy = InternalConfigurationsProxy.new(config)
       yield(proxy) if block_given?
     end
 
@@ -46,6 +66,8 @@ module StandaloneMigrations
       c_os['paths'].each do |path, value|
         rac.paths[path] = value
       end
+
+      Configurator.configured!
     end
 
     def config_for_all
@@ -98,6 +120,13 @@ module StandaloneMigrations
 
     def schema
       @schema
+    end
+
+    def self.warn_called_too_early
+      warn "StandaloneMigrations::Configurator.environments_config was called " \
+           "before StandaloneMigrations::Tasks.load_tasks, so the database " \
+           "config had not been located yet and the block was ignored. Move it " \
+           "below your StandaloneMigrations::Tasks.load_tasks call."
     end
 
     private

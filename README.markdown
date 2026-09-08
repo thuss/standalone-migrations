@@ -236,7 +236,9 @@ returned here is discarded whenever `DATABASE_URL` is set. Just set `DATABASE_UR
 let Rails handle it; use `environments_config` for settings Rails' URL handling does not
 already cover.
 
-You have to put this anywhere on your `Rakefile`. If you want to
+Put this in your `Rakefile` *below* the `StandaloneMigrations::Tasks.load_tasks`
+call, as in the example above -- that call is what locates your `db/config.yml`,
+so a block placed above it is ignored. If you want to
 change some configuration, call the #on method on the object
 received as argument in your block passed to ::environments_config
 method call. The #on method receives the key to the configuration
