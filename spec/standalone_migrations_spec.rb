@@ -110,6 +110,13 @@ production:
     expect(run("rake db:create --trace")).to match(warning)
   end
 
+  it "leaves the config loaded for tasks that connect themselves" do
+    File.open('Rakefile', 'a') do |f|
+      f.puts "task(:selfconnect) { ActiveRecord::Base.establish_connection; puts %{SELFCONNECT-OK} }"
+    end
+    expect(run("rake selfconnect")).to match(/SELFCONNECT-OK/)
+  end
+
   describe 'without db/config.yml' do
     # FileUtils.rm (not rm_f) so this fails loudly if the config path in the
     # before block ever moves, instead of passing while testing nothing.
