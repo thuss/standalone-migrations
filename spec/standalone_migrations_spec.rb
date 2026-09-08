@@ -50,11 +50,7 @@ end
   end
 
   def write_multiple_migrations
-    migration_superclass = if Rails::VERSION::MAJOR >= 5
-                             "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
-                           else
-                             "ActiveRecord::Migration"
-                           end
+    migration_superclass = "ActiveRecord::Migration[#{Rails::VERSION::MAJOR}.#{Rails::VERSION::MINOR}]"
 
     write_rakefile %{t.migrations = "db/migrations", "db/migrations2"}
     write "db/migrate/20100509095815_create_tests.rb", <<-TXT
@@ -351,14 +347,14 @@ production:
   end
 
   describe 'db:migrate when environment is specified' do
-    it "runs when using the DB environment variable", :travis_error => true do
+    it "runs when using the DB environment variable" do
       make_migration('yyy')
       run('rake db:migrate RAILS_ENV=test')
       expect(run('rake db:version RAILS_ENV=test')).not_to match(/version: 0/)
       expect(run('rake db:version')).to match(/version: 0/)
     end
 
-    it "should error on an invalid database", :travis_error => true do
+    it "should error on an invalid database" do
       expect { run("rake db:create RAILS_ENV=nonexistent") }.to raise_error(/rake aborted/)
     end
   end
