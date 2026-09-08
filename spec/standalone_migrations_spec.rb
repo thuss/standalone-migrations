@@ -134,6 +134,26 @@ production:
     it "still fails helpfully for a task that needs the config" do
       expect { run("rake db:migrate") }.to raise_error(/Could not load database configuration/)
     end
+
+    it "runs when the Rakefile configures environments at load time" do
+      File.open('Rakefile', 'a') do |f|
+        f.puts "StandaloneMigrations::Configurator.environments_config { |env| env.on(%{production}) { nil } }"
+        f.puts "task(:unrelated) { puts %{RAN-UNRELATED} }"
+      end
+      expect(run("rake unrelated")).to match(/RAN-UNRELATED/)
+    end
+
+    it "picks up the config once another task writes it" do
+      write 'db/config.yml.example', <<-TXT
+development:
+  adapter: sqlite3
+  database: db/development.sql
+      TXT
+      File.open('Rakefile', 'a') do |f|
+        f.puts "task(:write_config) { require %{fileutils}; FileUtils.cp(%{db/config.yml.example}, %{db/config.yml}) }"
+      end
+      expect(run("rake write_config db:version")).to match(/Current version: 0/)
+    end
   end
 
   describe 'db:create and drop' do

@@ -25,8 +25,25 @@ module StandaloneMigrations
       @env_config
     end
 
+    # True when .load_configurations can succeed: it is a no-op once the config
+    # has been memoized, and Rails only raises for a missing file when
+    # DATABASE_URL is unset -- with it set, Rails hands back an empty config and
+    # resolves the URL itself.
+    def self.database_config_present?
+      !@env_config.nil? ||
+        Rails.application.config.paths["config/database"].existent.any? ||
+        !ENV["DATABASE_URL"].nil?
+    end
+
     def self.environments_config
-      proxy = InternalConfigurationsProxy.new(load_configurations)
+      # Tolerate a missing config file here so that a block in a Rakefile does
+      # not abort every rake task before the file exists -- the config may well
+      # be written by one of those tasks. Nothing is memoized in that case, so
+      # the file is picked up as soon as it appears. Tasks that actually need a
+      # database still fail loudly, via the .load_configurations in
+      # standalone:connection. See issue #152.
+      config = database_config_present? ? load_configurations : {}
+      proxy = InternalConfigurationsProxy.new(config)
       yield(proxy) if block_given?
     end
 

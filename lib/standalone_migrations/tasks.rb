@@ -13,7 +13,7 @@ module StandaloneMigrations
         # time, which custom tasks that connect themselves rely on. Skip it when
         # there is no config file so that unrelated tasks -- including the one
         # that writes the config -- can still run. See issue #152.
-        if Rails.application.config.paths["config/database"].existent.any?
+        if Configurator.database_config_present?
           Configurator.environments_config do |proxy|
             ActiveRecord::Tasks::DatabaseTasks.database_configuration = proxy.configurations
           end
