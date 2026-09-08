@@ -27,8 +27,7 @@ module StandaloneMigrations
 
     def self.database_config_present?
       !@env_config.nil? ||
-        Rails.application.config.paths["config/database"].existent.any? ||
-        ENV["DATABASE_URL"].present?
+        Rails.application.config.paths["config/database"].existent.any?
     end
 
     def self.configured!
@@ -68,7 +67,7 @@ module StandaloneMigrations
         rac.paths[path] = value
       end
 
-      self.class.configured!
+      Configurator.configured!
     end
 
     def config_for_all

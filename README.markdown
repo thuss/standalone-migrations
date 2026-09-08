@@ -238,7 +238,7 @@ already cover.
 
 Put this in your `Rakefile` *below* the `StandaloneMigrations::Tasks.load_tasks`
 call, as in the example above -- that call is what locates your `db/config.yml`,
-so a block placed above it is ignored (with a warning). If you want to
+so a block placed above it is ignored. If you want to
 change some configuration, call the #on method on the object
 received as argument in your block passed to ::environments_config
 method call. The #on method receives the key to the configuration

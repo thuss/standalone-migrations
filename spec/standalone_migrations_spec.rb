@@ -168,7 +168,9 @@ StandaloneMigrations::Tasks.load_tasks
         f.puts "StandaloneMigrations::Configurator.environments_config { |env| env.on(%{production}) { nil } }"
         f.puts "task(:unrelated) { puts %{RAN-UNRELATED} }"
       end
-      expect(run("rake unrelated")).to match(/RAN-UNRELATED/)
+      output = run("rake unrelated")
+      expect(output).to match(/RAN-UNRELATED/)
+      expect(output).not_to match(/called before/)
     end
 
     it "picks up the config once another task writes it" do
