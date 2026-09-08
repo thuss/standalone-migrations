@@ -117,6 +117,36 @@ production:
     expect(run("rake selfconnect")).to match(/SELFCONNECT-OK/)
   end
 
+  describe 'environments_config' do
+    it "applies an override to the config the tasks use" do
+      File.open('Rakefile', 'a') do |f|
+        f.puts "StandaloneMigrations::Configurator.environments_config do |env|"
+        f.puts "  env.on(%{development}) { {%{adapter} => %{sqlite3}, %{database} => %{db/OVERRIDDEN.sql}} }"
+        f.puts "end"
+      end
+      run "rake db:create"
+      expect(File.exist?('db/OVERRIDDEN.sql')).to be true
+    end
+
+    it "warns when it is called before load_tasks instead of ignoring the block" do
+      write 'Rakefile', <<-TXT
+$LOAD_PATH.unshift '#{File.expand_path('../../lib')}'
+require "standalone_migrations"
+StandaloneMigrations::Configurator.environments_config { |env| env.on("development") { nil } }
+StandaloneMigrations::Tasks.load_tasks
+      TXT
+      expect(run("rake --tasks")).to match(/called before/)
+    end
+  end
+
+  describe 'with DATABASE_URL and no db/config.yml' do
+    before { FileUtils.rm('db/config.yml') }
+
+    it "uses the URL instead of demanding a config file" do
+      expect(run("DATABASE_URL=sqlite3:db/from_url.sql rake db:version")).to match(/Current version: 0/)
+    end
+  end
+
   describe 'without db/config.yml' do
     # FileUtils.rm (not rm_f) so this fails loudly if the config path in the
     # before block ever moves, instead of passing while testing nothing.
